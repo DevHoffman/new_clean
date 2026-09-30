@@ -94,47 +94,64 @@
               {%- when 'price_range' -%}
                 {%- liquid
                   assign currency_symbol = cart.currency.symbol
-                  assign max_price = filter.range_max | money_without_currency | strip_html
+                  assign range_max = filter.range_max | divided_by: 100.0 | ceil
+                  assign selected_min = ''
+                  assign selected_max = ''
+                  if filter.min_value.value
+                    assign selected_min = filter.min_value.value | divided_by: 100.0 | round
+                  endif
+                  if filter.max_value.value
+                    assign selected_max = filter.max_value.value | divided_by: 100.0 | round
+                  endif
+                  assign thumb_min = selected_min | default: 0
+                  assign thumb_max = selected_max | default: range_max
                 -%}
-                <div class="facets__price">
-                  <div class="field">
-                    <label class="field__label" for="Filter-Price-Min">{{ 'collections.facets.from' | t }} ({{ currency_symbol }})</label>
-                    <input
-                      type="number"
-                      form="FacetsForm"
-                      class="field__input"
-                      id="Filter-Price-Min"
-                      name="{{ filter.min_value.param_name }}"
-                      {% if filter.min_value.value %}
-                        value="{{ filter.min_value.value | divided_by: 100.0 | round }}"
-                      {% endif %}
-                      placeholder="0"
-                      min="0"
-                      max="{{ filter.range_max | divided_by: 100.0 | ceil }}"
-                      inputmode="numeric"
-                    >
+                <price-range class="price-range" data-max="{{ range_max }}">
+                  <div class="price-range__slider">
+                    <div class="price-range__track"><span class="price-range__fill" data-fill></span></div>
+                    <input type="range" class="price-range__thumb" data-thumb="min" min="0" max="{{ range_max }}" step="1" value="{{ thumb_min }}" aria-label="{{ 'collections.facets.from' | t }} ({{ currency_symbol }})">
+                    <input type="range" class="price-range__thumb" data-thumb="max" min="0" max="{{ range_max }}" step="1" value="{{ thumb_max }}" aria-label="{{ 'collections.facets.to' | t }} ({{ currency_symbol }})">
                   </div>
-                  <div class="field">
-                    <label class="field__label" for="Filter-Price-Max">{{ 'collections.facets.to' | t }} ({{ currency_symbol }})</label>
-                    <input
-                      type="number"
-                      form="FacetsForm"
-                      class="field__input"
-                      id="Filter-Price-Max"
-                      name="{{ filter.max_value.param_name }}"
-                      {% if filter.max_value.value %}
-                        value="{{ filter.max_value.value | divided_by: 100.0 | round }}"
-                      {% endif %}
-                      placeholder="{{ filter.range_max | divided_by: 100.0 | ceil }}"
-                      min="0"
-                      max="{{ filter.range_max | divided_by: 100.0 | ceil }}"
-                      inputmode="numeric"
-                    >
+                  <div class="price-range__fields">
+                    <label class="price-range__field">
+                      <span class="price-range__label">{{ 'collections.facets.from' | t }}</span>
+                      <span class="price-range__box">
+                        <span aria-hidden="true">{{ currency_symbol }}</span>
+                        <input
+                          type="number"
+                          form="FacetsForm"
+                          data-field="min"
+                          id="Filter-Price-Min"
+                          name="{{ filter.min_value.param_name }}"
+                          value="{{ selected_min }}"
+                          placeholder="0"
+                          min="0"
+                          max="{{ range_max }}"
+                          inputmode="numeric"
+                        >
+                      </span>
+                    </label>
+                    <span class="price-range__dash" aria-hidden="true">–</span>
+                    <label class="price-range__field">
+                      <span class="price-range__label">{{ 'collections.facets.to' | t }}</span>
+                      <span class="price-range__box">
+                        <span aria-hidden="true">{{ currency_symbol }}</span>
+                        <input
+                          type="number"
+                          form="FacetsForm"
+                          data-field="max"
+                          id="Filter-Price-Max"
+                          name="{{ filter.max_value.param_name }}"
+                          value="{{ selected_max }}"
+                          placeholder="{{ range_max }}"
+                          min="0"
+                          max="{{ range_max }}"
+                          inputmode="numeric"
+                        >
+                      </span>
+                    </label>
                   </div>
-                </div>
-                <p class="text-xs text-muted" style="margin-top: 8px;">
-                  {{ 'collections.facets.max_price' | t: price: max_price }}
-                </p>
+                </price-range>
             {%- endcase -%}
           </div>
         </details>

@@ -159,7 +159,8 @@
         });
 
         // Product lists also report their items (GA4 view_item_list)
-        const cards = Array.from(entry.target.querySelectorAll('.product-card[data-product-id]'));
+        // Autoscroll carousels hold hidden copies of their cards: never count those
+        const cards = Array.from(entry.target.querySelectorAll('.product-card[data-product-id]')).filter((card) => !card.closest('[data-clone]'));
         if (cards.length && !seenLists.has(entry.target)) {
           seenLists.add(entry.target);
           const list = sectionName(entry.target);

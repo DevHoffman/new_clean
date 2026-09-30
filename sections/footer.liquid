@@ -42,7 +42,7 @@
                 <ul class="footer__links" role="list">
                   {%- for link in block.settings.menu.links -%}
                     <li>
-                      <a href="{{ link.url }}">{{ link.title }}</a>
+                      <a href="{{ link.url }}">{% render 'menu-title', title: link.title %}</a>
                     </li>
                   {%- endfor -%}
                 </ul>
@@ -62,7 +62,7 @@
                   {%- endfor -%}
                   {%- for link in block.settings.menu.links -%}
                     <li>
-                      <a href="{{ link.url }}">{{ link.title }}</a>
+                      <a href="{{ link.url }}">{% render 'menu-title', title: link.title %}</a>
                     </li>
                   {%- endfor -%}
                 </ul>

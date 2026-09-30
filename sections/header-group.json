@@ -36,7 +36,14 @@
     },
     "header": {
       "type": "header",
-      "settings": {}
+      "settings": {
+        "search_collection": "mais-vendidos",
+        "search_products_title": "Mais vendidos",
+        "search_products_count": 6,
+        "search_new_collection": "novidades",
+        "search_new_title": "Novidades",
+        "search_new_count": 6
+      }
     }
   },
   "order": [

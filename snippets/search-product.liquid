@@ -1,0 +1,26 @@
+{%- comment -%}
+  Product tile inside the search modal (photo, title, price), shown before the
+  customer types anything.
+
+  Accepts:
+  - product: {Object} product (required)
+
+  Usage:
+  {% render 'search-product', product: product %}
+{%- endcomment -%}
+
+<a class="search-product" href="{{ product.url }}">
+  <span class="search-product__media">
+    {{
+      product.featured_media.preview_image
+      | image_url: width: 320
+      | image_tag:
+        widths: '160, 240, 320',
+        sizes: '(min-width: 750px) 170px, 42vw',
+        loading: 'lazy',
+        alt: product.featured_media.alt | default: product.title
+    }}
+  </span>
+  <span class="search-product__title">{% render 'product-title', title: product.title %}</span>
+  <span class="search-product__price">{% render 'price', product: product %}</span>
+</a>

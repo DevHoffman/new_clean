@@ -197,7 +197,7 @@
         "show_all": true,
         "all_label": "Ver todas as categorias",
         "marquee": true,
-        "speed": 50
+        "speed": 60
       }
     },
     "novidades": {
@@ -214,32 +214,9 @@
         "color_scheme": "alt",
         "padding_top": 56,
         "padding_bottom": 56,
-        "hide_when_empty": true
-      }
-    },
-    "promo_banner": {
-      "type": "promo-banner",
-      "settings": {
-        "alignment": "left",
-        "eyebrow": "Promoção",
-        "heading": "Ofertas da semana",
-        "text": "Os preços mais baixos da semana, com estoque limitado.",
-        "button_label": "Ver todas as ofertas",
-        "button_link": "shopify://collections/ofertas",
-        "hide_when_expired": false,
-        "color_scheme": "default",
-        "padding_top": 56,
-        "padding_bottom": 56,
-        "layout": "card",
-        "badge_text": "",
-        "badge_caption": "",
-        "countdown_mode": "week",
-        "countdown_label": "A oferta termina em",
-        "products_collection": "ofertas",
-        "products_limit": 4,
-        "only_on_sale": true,
-        "hide_without_products": true,
-        "products_label": "Produtos em promoção"
+        "hide_when_empty": true,
+        "autoscroll": true,
+        "autoscroll_speed": 35
       }
     },
     "b2b_cta": {
@@ -437,7 +414,9 @@
         "color_scheme": "default",
         "padding_top": 56,
         "padding_bottom": 56,
-        "hide_when_empty": true
+        "hide_when_empty": true,
+        "autoscroll": true,
+        "autoscroll_speed": 80
       }
     },
     "marcas": {
@@ -533,7 +512,28 @@
       "settings": {
         "color_scheme": "default",
         "padding_top": 48,
-        "padding_bottom": 48
+        "padding_bottom": 48,
+        "speed": 50
+      }
+    },
+    "promo_showcase": {
+      "type": "promo-showcase",
+      "settings": {
+        "eyebrow": "Promoções",
+        "heading": "Em promoção agora",
+        "text": "Os maiores descontos da loja. Preço e estoque são conferidos de novo no fechamento do pedido.",
+        "collection": "ofertas",
+        "products_limit": 4,
+        "only_on_sale": true,
+        "hide_without_products": true,
+        "button_label": "Ver todas as promoções",
+        "button_link": "shopify://collections/ofertas",
+        "countdown_mode": "week",
+        "countdown_label": "A oferta termina em",
+        "hide_when_expired": true,
+        "color_scheme": "inverse",
+        "padding_top": 64,
+        "padding_bottom": 64
       }
     }
   },
@@ -543,7 +543,7 @@
     "trust_bar",
     "category_tiles",
     "mais_vendidos",
-    "promo_banner",
+    "promo_showcase",
     "novidades",
     "marcas",
     "b2b_cta",

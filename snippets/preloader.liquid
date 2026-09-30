@@ -1,7 +1,7 @@
 {%- comment -%}
-  First-visit loading screen. It is removed as soon as the document is parsed
-  and is skipped on the following pages of the same visit, so it never slows
-  down navigation. A CSS failsafe hides it even if JavaScript fails.
+  Loading screen with the logo. Shown for at least 2 seconds once per visit (or on
+  every Home load, see the setting) and skipped on the other pages, so it never
+  slows down navigation. ?nc_preloader=1 forces it for testing. A CSS failsafe hides it even if JavaScript fails.
 
   Usage:
   {% render 'preloader' %}
@@ -27,20 +27,32 @@
 <script>
   (function () {
     var preloader = document.getElementById('Preloader');
-    var seen = document.documentElement.getAttribute('data-fx') === 'lite';
-    try {
-      seen = seen || window.sessionStorage.getItem('newclean:loaded') === '1';
-      window.sessionStorage.setItem('newclean:loaded', '1');
-    } catch (error) {
-      // Storage unavailable: show the preloader
+    var frequency = {{ settings.preloader_frequency | default: 'session' | json }};
+    var isHome = {{ template.name | json }} === 'index';
+    var forced = /[?&]nc_preloader=1/.test(window.location.search);
+    var skip = document.documentElement.getAttribute('data-fx') === 'lite';
+    if (!forced) {
+      try {
+        if (frequency === 'home') {
+          skip = skip || !isHome;
+        } else {
+          skip = skip || window.sessionStorage.getItem('newclean:loaded') === '1';
+          window.sessionStorage.setItem('newclean:loaded', '1');
+        }
+      } catch (error) {
+        // Storage unavailable: show the preloader
+      }
+    } else {
+      skip = false;
     }
-    if (seen) {
+    if (skip) {
       preloader.parentNode.removeChild(preloader);
       return;
     }
     var started = Date.now();
     function hide() {
-      var wait = Math.max(0, 450 - (Date.now() - started));
+      // Minimum display time: 2 seconds (the CSS failsafe only kicks in at 4 s)
+      var wait = Math.max(0, 2000 - (Date.now() - started));
       window.setTimeout(function () {
         preloader.classList.add('is-hidden');
         window.setTimeout(function () {

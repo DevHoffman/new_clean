@@ -288,6 +288,10 @@
     },
     "featured_collection": {
       "hidden_notice": "A seção \"{{ heading }}\" está oculta na loja porque a coleção não existe ou está vazia."
+    },
+    "promo_showcase": {
+      "save": "Economize {{ amount }}",
+      "see_product": "Ver produto"
     }
   },
   "customer": {

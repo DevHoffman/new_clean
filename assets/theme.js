@@ -454,16 +454,22 @@ class SliderComponent extends HTMLElement {
 
     this.update = debounce(() => this.refresh(), 60);
     this.slider.addEventListener('scroll', this.update, { passive: true });
-    this.resizeObserver = new ResizeObserver(() => this.setup());
+    this.resizeObserver = new ResizeObserver(() => {
+      this.setup();
+      this.dispatchEvent(new CustomEvent('slider:resize'));
+    });
     this.resizeObserver.observe(this.slider);
     this.setup();
 
     if (this.dataset.autoplay) this.startAutoplay();
+    if (this.dataset.autoscroll) this.startAutoscroll();
   }
 
   disconnectedCallback() {
     if (this.resizeObserver) this.resizeObserver.disconnect();
     window.clearInterval(this.autoplayTimer);
+    window.cancelAnimationFrame(this.autoscrollFrame);
+    if (this.autoscrollObserver) this.autoscrollObserver.disconnect();
   }
 
   get slides() {
@@ -504,8 +510,8 @@ class SliderComponent extends HTMLElement {
   refresh() {
     const position = Math.abs(this.slider.scrollLeft);
     const max = this.slider.scrollWidth - this.slider.clientWidth;
-    if (this.prev) this.prev.disabled = position <= 4;
-    if (this.next) this.next.disabled = position >= max - 4;
+    if (this.prev) this.prev.disabled = !this.autoscrolling && position <= 4;
+    if (this.next) this.next.disabled = !this.autoscrolling && position >= max - 4;
 
     if (this.dots && this.dots.children.length) {
       const pages = this.dots.children.length;
@@ -519,6 +525,13 @@ class SliderComponent extends HTMLElement {
 
   scrollByPage(direction) {
     const amount = this.slider.clientWidth * 0.9 * direction * this.direction;
+    if (this.autoscrolling) {
+      this.pauseAutoscroll(4000);
+      // Going back from the very start: jump to the same spot one lap ahead first
+      if (direction < 0 && this.slider.scrollLeft < Math.abs(amount)) {
+        this.slider.scrollTo({ left: this.slider.scrollLeft + this.loopWidth, behavior: 'instant' });
+      }
+    }
     this.slider.scrollBy({ left: amount, behavior: 'smooth' });
   }
 
@@ -549,6 +562,78 @@ class SliderComponent extends HTMLElement {
     this.addEventListener('focusout', start);
     this.addEventListener('touchstart', stop, { passive: true });
     start();
+  }
+
+  /* Continuous movement, in pixels per second (data-autoscroll). The cards are
+     repeated once, so when the first lap ends the scroll position jumps back by
+     exactly one lap and nobody sees the seam. Any interaction pauses it. */
+  startAutoscroll() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const speed = parseFloat(this.dataset.autoscroll) || 40;
+    const originals = Array.from(this.slider.children);
+    // Nothing to move when every card already fits
+    if (originals.length < 2 || this.slider.scrollWidth - this.slider.clientWidth <= 4) return;
+
+    originals.forEach((slide) => {
+      const clone = slide.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      clone.setAttribute('data-clone', '');
+      clone.querySelectorAll('[id]').forEach((element) => element.removeAttribute('id'));
+      clone.querySelectorAll('a, button, input, select, textarea, summary, [tabindex]').forEach((element) => element.setAttribute('tabindex', '-1'));
+      this.slider.appendChild(clone);
+    });
+
+    this.autoscrolling = true;
+    this.slider.classList.add('slider--autoscroll');
+    const measure = () => {
+      this.loopWidth = this.slider.children[originals.length].offsetLeft - this.slider.children[0].offsetLeft;
+    };
+    measure();
+    this.addEventListener('slider:resize', measure);
+
+    let hovering = false;
+    let touching = false;
+    let inView = true;
+    this.pauseUntil = 0;
+    this.pauseAutoscroll = (ms) => {
+      this.pauseUntil = performance.now() + ms;
+    };
+
+    this.addEventListener('mouseenter', () => (hovering = true));
+    this.addEventListener('mouseleave', () => (hovering = false));
+    this.addEventListener('focusin', () => (hovering = true));
+    this.addEventListener('focusout', () => (hovering = false));
+    this.addEventListener('touchstart', () => (touching = true), { passive: true });
+    this.addEventListener('touchend', () => {
+      touching = false;
+      this.pauseAutoscroll(2500);
+    });
+    this.addEventListener('wheel', () => this.pauseAutoscroll(2500), { passive: true });
+
+    if ('IntersectionObserver' in window) {
+      this.autoscrollObserver = new IntersectionObserver((entries) => {
+        inView = entries[0].isIntersecting;
+      });
+      this.autoscrollObserver.observe(this);
+    }
+
+    let position = this.slider.scrollLeft;
+    let lastSet = position;
+    let last = performance.now();
+    const frame = (now) => {
+      this.autoscrollFrame = window.requestAnimationFrame(frame);
+      const delta = Math.min(now - last, 64) / 1000;
+      last = now;
+      if (document.hidden || !inView) return;
+      // Somebody else moved the scroll (touch, arrows, keyboard): follow it
+      if (Math.abs(this.slider.scrollLeft - lastSet) > 1.5) position = this.slider.scrollLeft;
+      if (hovering || touching || now < this.pauseUntil) return;
+      position += speed * delta;
+      if (this.loopWidth && position >= this.loopWidth) position -= this.loopWidth;
+      this.slider.scrollLeft = position;
+      lastSet = this.slider.scrollLeft;
+    };
+    this.autoscrollFrame = window.requestAnimationFrame(frame);
   }
 }
 

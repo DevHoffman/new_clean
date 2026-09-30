@@ -45,11 +45,14 @@ Regras: coleções e páginas que já existem são mantidas; os menus `main-menu
 
 ## 5. Home e ofertas (semana 1)
 
+- [ ] Tela de carregamento (preloader): aparece por no mínimo 2 s na primeira página de cada visita; nas outras páginas e ao recarregar na mesma aba ela não aparece. Para ver: `?nc_preloader=1` no endereço, ou Configurações do tema > Carregamento > "Toda vez que a Home for aberta". Faz parte do teste A/B dos efeitos (R38): na variante "lite" ela é desligada.
+- [ ] Velocidade dos carrosséis (editor de temas, por seção): Mais vendidos 80 px/s, Marcas 50 s por volta, Novidades 35 px/s, Categorias 60 s por volta. Mantenha Mais vendidos como o mais rápido; para desligar o movimento, desmarque "Carrossel que se move sozinho".
+- [ ] Ordenação padrão da Loja: "Mais vendidos" (Loja > Ordenação padrão). A coleção `mais-vendidos` também alimenta o bloco de busca (Cabeçalho > Busca).
 - [ ] Banner: selecione a coleção da vitrine (padrão: Novidades) ou envie uma foto/vídeo real da operação.
 - [ ] **Coleção `ofertas`** (o bloco de promoção lista produtos dela): Admin > Coleções > Criar > Automatizada > condição *Tag do produto é igual a* `oferta` (ou selecione os produtos manualmente). O handle deve ser `ofertas`. Em cada produto em promoção preencha **Preço de comparação** (preço "de") maior que o preço atual: o bloco só mostra produtos com desconto real e **some sozinho** enquanto não houver nenhum.
 - [ ] Menu: renomeie o item "Catálogo" para **Loja** em Conteúdo > Menus (o tema já usa "Loja" no título da página, migalhas e SEO).
 - [ ] Fotos são o que vende: cada produto do bloco de categorias, promoção e B2B aparece como foto. Use fundo branco, 1000 × 1000 px, produto inteiro.
-- [ ] Bloco de promoção: troque "-25%" e "Compre 3, leve 4" pela oferta vigente e crie o desconto correspondente em **Descontos**.
+- [ ] Bloco "Em promoção agora" (seção Promoções em destaque): mostra o produto de maior desconto em destaque e mais 3 cards da coleção `ofertas`; só lista produtos com "Comparar a" maior que o preço e some sozinho sem eles. Crie o desconto correspondente em **Descontos** e escolha o modo do contador (os modos que se repetem só se a oferta realmente se repete).
 - [ ] Faixa "Compra para empresa?": confirme os benefícios listados.
 
 ## 6. Medição (semana 1)

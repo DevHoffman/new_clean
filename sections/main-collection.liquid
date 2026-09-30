@@ -61,7 +61,14 @@
 </div>
 
 <div class="section" style="--pt: 24px; --pb: {{ section.settings.padding_bottom }}px;">
-  <facet-filters class="container collection" data-section-id="{{ section.id }}">
+  <facet-filters
+    class="container collection"
+    data-section-id="{{ section.id }}"
+    {% if section.settings.enable_sorting %}
+      data-default-sort="{{ section.settings.default_sort }}"
+      data-collection-sort="{{ collection.default_sort_by }}"
+    {% endif %}
+  >
     {%- paginate collection.products by per_page -%}
       {%- comment -%}
         The form is empty on purpose: its fields point to it with the `form`
@@ -91,7 +98,7 @@
             <div class="collection__sort">
               <label for="SortBy" class="visually-hidden">{{ 'collections.facets.sort_by' | t }}</label>
               <select name="sort_by" id="SortBy" class="select" form="FacetsForm">
-                {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+                {%- assign sort_by = collection.sort_by | default: section.settings.default_sort -%}
                 {%- for option in collection.sort_options -%}
                   <option value="{{ option.value | escape }}" {% if option.value == sort_by %}selected{% endif %}>
                     {{ option.name | escape }}
@@ -242,6 +249,20 @@
       "id": "enable_sorting",
       "label": "Ativar ordenação",
       "default": true
+    },
+    {
+      "type": "select",
+      "id": "default_sort",
+      "label": "Ordenação padrão",
+      "info": "Vale quando o cliente ainda não escolheu. Se a coleção tiver outra ordenação no admin, a página troca para esta ao abrir.",
+      "options": [
+        { "value": "best-selling", "label": "Mais vendidos" },
+        { "value": "manual", "label": "Em destaque" },
+        { "value": "created-descending", "label": "Mais recentes primeiro" },
+        { "value": "price-ascending", "label": "Preço, do menor ao maior" },
+        { "value": "title-ascending", "label": "Ordem alfabética, A–Z" }
+      ],
+      "default": "best-selling"
     },
     {
       "type": "header",

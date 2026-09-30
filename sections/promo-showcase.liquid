@@ -1,0 +1,337 @@
+{{ 'section-promo-showcase.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign end_date = section.settings.end_date | strip
+  assign countdown_mode = section.settings.countdown_mode | default: 'none'
+  assign show_countdown = false
+  assign expired = false
+  if countdown_mode == 'day' or countdown_mode == 'week'
+    assign show_countdown = true
+    assign end_date = ''
+  elsif countdown_mode == 'date' and end_date != blank
+    assign end_timestamp = end_date | date: '%s' | plus: 0
+    assign now_timestamp = 'now' | date: '%s' | plus: 0
+    if end_timestamp > now_timestamp
+      assign show_countdown = true
+    else
+      assign expired = true
+    endif
+  endif
+
+  assign hide_section = false
+  if expired and section.settings.hide_when_expired
+    assign hide_section = true
+  endif
+
+  comment
+    Only real promotions: compare-at price above the price, with a photo and in
+    stock. Many stores keep compare-at equal to the price, so being in the
+    collection proves nothing. First pass finds the biggest discount (it becomes
+    the highlighted card), second pass renders the rest.
+  endcomment
+  assign promo_source = section.settings.collection
+  assign promo_limit = section.settings.products_limit
+  assign best_id = 0
+  assign best_discount = 0
+  assign eligible = 0
+  for product in promo_source.products
+    if product.featured_media == blank or product.available == false
+      continue
+    endif
+    if product.compare_at_price <= product.price and section.settings.only_on_sale
+      continue
+    endif
+    assign eligible = eligible | plus: 1
+    assign product_discount = product.compare_at_price | minus: product.price | times: 10000 | divided_by: product.compare_at_price
+    if product_discount > best_discount or best_id == 0
+      assign best_discount = product_discount
+      assign best_id = product.id
+    endif
+  endfor
+
+  if eligible > promo_limit
+    assign eligible = promo_limit
+  endif
+  assign others_count = eligible | minus: 1
+
+  if section.settings.hide_without_products and eligible == 0
+    assign hide_section = true
+  endif
+-%}
+
+{%- if hide_section -%}
+  {%- if request.design_mode -%}
+    <div class="section">
+      <div class="container">
+        <p class="form-message form-message--error">
+          {%- if expired -%}
+            {{ 'sections.promo_banner.expired_notice' | t }}
+          {%- else -%}
+            {{ 'sections.promo_banner.no_products_notice' | t }}
+          {%- endif -%}
+        </p>
+      </div>
+    </div>
+  {%- endif -%}
+{%- else -%}
+  <div
+    class="section scheme-{{ section.settings.color_scheme }} promo-showcase"
+    style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px; --others: {{ others_count }};"
+    {% if show_countdown %}
+      data-countdown-scope
+    {% endif %}
+  >
+    <div class="container">
+      <div class="promo-showcase__header">
+        <div class="promo-showcase__intro">
+          {%- if section.settings.eyebrow != blank -%}
+            <span class="promo-showcase__chip">
+              {% render 'icon', icon: 'tag', size: 14 %}
+              {{ section.settings.eyebrow }}
+            </span>
+          {%- endif -%}
+          {%- if section.settings.heading != blank -%}
+            <h2 class="h2">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.text != blank -%}
+            <p class="promo-showcase__text">{{ section.settings.text }}</p>
+          {%- endif -%}
+        </div>
+
+        {%- if show_countdown -%}
+          <div class="promo-showcase__countdown">
+            {%- if section.settings.countdown_label != blank -%}
+              <p class="promo-showcase__countdown-label">{{ section.settings.countdown_label }}</p>
+            {%- endif -%}
+            <countdown-timer
+              class="promo-showcase__timer"
+              {% if countdown_mode == 'day' or countdown_mode == 'week' %}
+                data-recurring="{{ countdown_mode }}"
+              {% else %}
+                data-end="{{ end_date | escape }}"
+              {% endif %}
+              role="timer"
+            >
+              <span class="promo-showcase__unit"><span class="promo-showcase__number" data-days>00</span><span class="promo-showcase__unit-label">{{ 'sections.promo_banner.days' | t }}</span></span>
+              <span class="promo-showcase__unit"><span class="promo-showcase__number" data-hours>00</span><span class="promo-showcase__unit-label">{{ 'sections.promo_banner.hours' | t }}</span></span>
+              <span class="promo-showcase__unit"><span class="promo-showcase__number" data-minutes>00</span><span class="promo-showcase__unit-label">{{ 'sections.promo_banner.minutes' | t }}</span></span>
+              <span class="promo-showcase__unit"><span class="promo-showcase__number" data-seconds>00</span><span class="promo-showcase__unit-label">{{ 'sections.promo_banner.seconds' | t }}</span></span>
+            </countdown-timer>
+          </div>
+        {%- endif -%}
+      </div>
+
+      <div class="promo-showcase__grid" style="--others: {{ others_count }};">
+        {%- assign shown = 0 -%}
+        {%- comment -%} Highlighted product: the biggest discount {%- endcomment -%}
+        {%- for product in promo_source.products -%}
+          {%- if product.id != best_id -%}
+            {%- continue -%}
+          {%- endif -%}
+          {%- liquid
+            assign first_variant = product.selected_or_first_available_variant
+            assign saved = product.compare_at_price | minus: product.price
+            assign percent = saved | times: 100.0 | divided_by: product.compare_at_price | round
+          -%}
+          <article
+            class="promo-feature scheme-reset"
+            data-product-id="{{ product.id }}"
+            data-product-name="{{ product.title | escape }}"
+            data-product-price="{{ product.price | divided_by: 100.0 }}"
+          >
+            <a class="promo-feature__media" href="{{ product.url }}" tabindex="-1" aria-hidden="true">
+              {%- if percent > 0 -%}
+                <span class="badge badge--sale promo-feature__badge">-{{ percent }}%</span>
+              {%- endif -%}
+              {{
+                product.featured_media.preview_image
+                | image_url: width: 900
+                | image_tag:
+                  widths: '360, 540, 720, 900',
+                  sizes: '(min-width: 1000px) 40vw, 92vw',
+                  loading: 'lazy',
+                  alt: product.featured_media.alt | default: product.title
+              }}
+            </a>
+            <div class="promo-feature__body">
+              {%- if product.vendor != blank -%}
+                <p class="promo-feature__vendor">{{ product.vendor }}</p>
+              {%- endif -%}
+              <h3 class="promo-feature__title"><a href="{{ product.url }}">{% render 'product-title', title: product.title %}</a></h3>
+              <div class="promo-feature__price">
+                {% render 'price', product: product, show_payment_info: true %}
+              </div>
+              {%- if saved > 0 -%}
+                {%- assign saved_money = saved | money -%}
+                <p class="promo-feature__save">{{ 'sections.promo_showcase.save' | t: amount: saved_money }}</p>
+              {%- endif -%}
+              <div class="promo-feature__action">
+                {%- if product.has_only_default_variant -%}
+                  <product-form data-quick>
+                    {%- form 'product', product, id: nil, novalidate: 'novalidate' -%}
+                      <input type="hidden" name="id" value="{{ first_variant.id }}">
+                      <button type="submit" class="button button--full" name="add" aria-label="{{ 'products.product.add_to_cart' | t }}: {{ product.title | escape }}">
+                        {% render 'icon', icon: 'cart', size: 18 %}
+                        <span class="button__label">{{ 'products.product.add_to_cart' | t }}</span>
+                        <span class="button__spinner" aria-hidden="true"></span>
+                      </button>
+                    {%- endform -%}
+                  </product-form>
+                {%- else -%}
+                  <a class="button button--full" href="{{ product.url }}">{{ 'sections.promo_showcase.see_product' | t }}</a>
+                {%- endif -%}
+              </div>
+            </div>
+          </article>
+        {%- endfor -%}
+
+        {%- comment -%} The other promotions, in collection order {%- endcomment -%}
+        {%- for product in promo_source.products -%}
+          {%- liquid
+            if shown >= others_count
+              break
+            endif
+            if product.id == best_id or product.featured_media == blank or product.available == false
+              continue
+            endif
+            if product.compare_at_price <= product.price and section.settings.only_on_sale
+              continue
+            endif
+            assign shown = shown | plus: 1
+          -%}
+          <div class="promo-showcase__cell scheme-reset">
+            {% render 'product-card', product: product, quick_add: true, sizes: '(min-width: 1000px) 18vw, 45vw' %}
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- if section.settings.button_label != blank -%}
+        <a class="promo-showcase__all" href="{{ section.settings.button_link | default: promo_source.url | default: routes.all_products_collection_url }}">
+          {{ section.settings.button_label }}
+          {% render 'icon', icon: 'arrow-right', size: 16 %}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Promoções em destaque",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Selo",
+      "default": "Promoções"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Em promoção agora"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texto",
+      "default": "Os maiores descontos da loja. Preço e estoque são conferidos de novo no fechamento do pedido."
+    },
+    { "type": "header", "content": "Produtos" },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Coleção de promoções",
+      "info": "Use a coleção Ofertas. O produto com o maior desconto vira o destaque grande."
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Quantidade de produtos",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "info": "Inclui o destaque.",
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "only_on_sale",
+      "label": "Só produtos com desconto real",
+      "info": "Exige o preço \"Comparar a\" maior que o preço. Desmarcar mostraria produtos sem promoção.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_without_products",
+      "label": "Ocultar a seção quando não houver produtos",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto do link \"ver todas\"",
+      "default": "Ver todas as promoções"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link \"ver todas\"",
+      "info": "Vazio = a coleção escolhida."
+    },
+    { "type": "header", "content": "Contagem regressiva" },
+    {
+      "type": "select",
+      "id": "countdown_mode",
+      "label": "Modo",
+      "options": [
+        { "value": "none", "label": "Sem contagem" },
+        { "value": "date", "label": "Até uma data" },
+        { "value": "day", "label": "Recomeça todo dia (23h59)" },
+        { "value": "week", "label": "Recomeça toda semana (domingo 23h59)" }
+      ],
+      "info": "Use os modos que se repetem só se a oferta realmente se repete.",
+      "default": "none"
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "Data de término",
+      "info": "Formato AAAA-MM-DD HH:MM, só no modo \"Até uma data\"."
+    },
+    {
+      "type": "text",
+      "id": "countdown_label",
+      "label": "Texto acima do relógio",
+      "default": "A oferta termina em"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_when_expired",
+      "label": "Ocultar a seção quando a data passar",
+      "default": true
+    },
+    { "type": "header", "content": "Aparência" },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        { "value": "default", "label": "Padrão" },
+        { "value": "alt", "label": "Fundo alternativo" },
+        { "value": "inverse", "label": "Invertido (escuro)" },
+        { "value": "accent", "label": "Destaque" }
+      ],
+      "default": "inverse"
+    },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 64 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 64 }
+  ],
+  "presets": [
+    {
+      "name": "Promoções em destaque"
+    }
+  ]
+}
+{% endschema %}

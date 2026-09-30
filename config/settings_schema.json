@@ -239,8 +239,19 @@
         "type": "checkbox",
         "id": "preloader_enabled",
         "label": "Mostrar tela de carregamento",
-        "info": "Exibida somente na primeira página de cada visita e removida assim que o conteúdo está pronto.",
+        "info": "Logo da loja com uma barra de progresso, exibida por no mínimo 2 segundos e removida sozinha.",
         "default": true
+      },
+      {
+        "type": "select",
+        "id": "preloader_frequency",
+        "label": "Quando mostrar a tela de carregamento",
+        "options": [
+          { "value": "session", "label": "Só na primeira página de cada visita" },
+          { "value": "home", "label": "Toda vez que a Home for aberta" }
+        ],
+        "info": "Na primeira opção, quem recarrega a página ou volta à loja na mesma aba não vê a tela de novo. Para ver agora, adicione ?nc_preloader=1 ao endereço.",
+        "default": "session"
       },
       {
         "type": "header",

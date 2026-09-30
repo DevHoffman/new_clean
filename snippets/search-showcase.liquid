@@ -1,0 +1,53 @@
+{%- comment -%}
+  A titled row of products shown in the search modal before the customer types.
+  Only products with a photo and in stock; renders nothing when the collection
+  is missing or has none.
+
+  Accepts:
+  - collection: {Object} collection (required)
+  - title: {String} heading (optional, defaults to the collection title)
+  - count: {Number} how many products (required)
+
+  Usage:
+  {% render 'search-showcase', collection: section.settings.search_collection, title: 'Mais vendidos', count: 6 %}
+{%- endcomment -%}
+
+{%- capture tiles -%}
+  {%- assign shown = 0 -%}
+  {%- for product in collection.products -%}
+    {%- if product.featured_media == blank or product.available == false -%}
+      {%- continue -%}
+    {%- endif -%}
+    {%- if shown >= count -%}
+      {%- break -%}
+    {%- endif -%}
+    {%- assign shown = shown | plus: 1 -%}
+    <li>{% render 'search-product', product: product %}</li>
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- liquid
+  assign cols_tablet = shown
+  if cols_tablet > 4
+    assign cols_tablet = 4
+  endif
+  assign cols_desktop = shown
+  if cols_desktop > 6
+    assign cols_desktop = 6
+  endif
+-%}
+
+{%- if collection != blank and shown > 0 -%}
+  <div class="search-bestsellers">
+    <div class="search-bestsellers__header">
+      <span class="search-popular__label">{{ title | default: collection.title }}</span>
+      <a class="link-arrow search-bestsellers__all" href="{{ collection.url }}">
+        {{ 'general.view_all' | t }}
+        {% render 'icon', icon: 'arrow-right', size: 14 %}
+      </a>
+    </div>
+    <ul class="search-bestsellers__list" role="list" style="--search-cols-tablet: {{ cols_tablet }}; --search-cols: {{ cols_desktop }};">
+      {{ tiles }}
+    </ul>
+  </div>
+{%- endif -%}

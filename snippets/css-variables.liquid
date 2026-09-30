@@ -55,4 +55,17 @@
     --button-transform: {% if settings.buttons_uppercase %}uppercase{% else %}none{% endif %};
     --button-tracking: {% if settings.buttons_uppercase %}0.08em{% else %}0{% endif %};
   }
+
+  /* Light card inside a dark (inverse) section: restores the default scheme */
+  .scheme-reset {
+    --color-bg: {{ settings.color_background }};
+    --color-text: {{ settings.color_text }};
+    --color-text-rgb: {{ settings.color_text.red }}, {{ settings.color_text.green }}, {{ settings.color_text.blue }};
+    --color-text-muted: {{ settings.color_text_muted }};
+    --color-border: {{ settings.color_border }};
+    --color-button: {{ settings.color_button }};
+    --color-button-text: {{ settings.color_button_text }};
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
 {% endstyle %}

@@ -100,15 +100,6 @@
   height: 18px;
 }
 
-.facets__price {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.facets__price .field + .field {
-  margin-top: 0;
-}
 
 .facets-drawer__footer {
   display: grid;
@@ -171,4 +162,160 @@
   .facets-drawer .facets__group:first-child .accordion__summary {
     padding-top: 0;
   }
+}
+
+/* Price range (two thumbs, like a marketplace filter)
+   ========================================================================== */
+.price-range {
+  display: block;
+  --thumb: 28px;
+}
+
+.price-range__slider {
+  position: relative;
+  height: var(--thumb);
+  /* Room for half a thumb on each side, so the ends line up with the track */
+  margin: 8px calc(var(--thumb) / 2) 20px;
+}
+
+.price-range__track {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: var(--color-border);
+}
+
+.price-range__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--from, 0%);
+  right: calc(100% - var(--to, 100%));
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+.price-range__thumb {
+  position: absolute;
+  top: 0;
+  left: calc(var(--thumb) / -2);
+  width: calc(100% + var(--thumb));
+  height: var(--thumb);
+  margin: 0;
+  padding: 0;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.price-range__thumb::-webkit-slider-runnable-track {
+  height: var(--thumb);
+  background: none;
+}
+
+.price-range__thumb::-moz-range-track {
+  height: var(--thumb);
+  background: none;
+}
+
+.price-range__thumb::-webkit-slider-thumb {
+  width: var(--thumb);
+  height: var(--thumb);
+  border: 1px solid rgba(var(--color-text-rgb), 0.35);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(var(--color-text-rgb), 0.25);
+  cursor: grab;
+  pointer-events: auto;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.price-range__thumb::-moz-range-thumb {
+  width: calc(var(--thumb) - 2px);
+  height: calc(var(--thumb) - 2px);
+  border: 1px solid rgba(var(--color-text-rgb), 0.35);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(var(--color-text-rgb), 0.25);
+  cursor: grab;
+  pointer-events: auto;
+}
+
+.price-range__thumb:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  border-color: var(--color-accent);
+}
+
+.price-range__thumb:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.price-range__thumb:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.price-range__fields {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.price-range__field {
+  flex: 1;
+  min-width: 0;
+  display: block;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-bg);
+  transition: border-color 0.2s ease;
+}
+
+.price-range__field:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.price-range__label {
+  display: block;
+  font-size: 0.75rem;
+  line-height: 1.2;
+  color: rgba(var(--color-text-rgb), 0.7);
+}
+
+.price-range__box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: var(--font-body-weight-bold);
+}
+
+.price-range__box input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.price-range__box input::-webkit-outer-spin-button,
+.price-range__box input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+
+.price-range__dash {
+  color: rgba(var(--color-text-rgb), 0.5);
 }

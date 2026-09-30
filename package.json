@@ -7,7 +7,7 @@
     "preview": "node dev/server.js",
     "catalog": "node dev/fetch-catalog.js",
     "dev": "shopify theme dev --store dfd10g-i2.myshopify.com",
-    "check": "shopify theme check",
+    "check": "shopify theme check && node dev/validate.js",
     "push": "npm run build && shopify theme push --path dist --unpublished --store dfd10g-i2.myshopify.com",
     "preview:demo": "PREVIEW_DEMO_SECOND_IMAGE=1 PREVIEW_DEMO_B2B=1 node dev/server.js",
     "build": "node dev/build.js",

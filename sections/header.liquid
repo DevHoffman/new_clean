@@ -84,7 +84,7 @@
                   aria-haspopup="true" aria-expanded="false"
                 {% endif %}
               >
-                {{- link.title -}}
+                {% render 'menu-title', title: link.title %}
                 {%- if link.links.size > 0 -%}
                   {% render 'icon', icon: 'chevron-down', size: 12 %}
                 {%- endif -%}
@@ -98,12 +98,12 @@
                         <div class="mega-menu__columns">
                           {%- for child in link.links -%}
                             <div>
-                              <a href="{{ child.url }}" class="mega-menu__heading">{{ child.title }}</a>
+                              <a href="{{ child.url }}" class="mega-menu__heading">{% render 'menu-title', title: child.title %}</a>
                               {%- if child.links.size > 0 -%}
                                 <ul class="mega-menu__list" role="list">
                                   {%- for grandchild in child.links -%}
                                     <li>
-                                      <a href="{{ grandchild.url }}" class="mega-menu__link">{{ grandchild.title }}</a>
+                                      <a href="{{ grandchild.url }}" class="mega-menu__link">{% render 'menu-title', title: grandchild.title %}</a>
                                     </li>
                                   {%- endfor -%}
                                 </ul>
@@ -138,7 +138,7 @@
                     <ul role="list">
                       {%- for child in link.links -%}
                         <li>
-                          <a href="{{ child.url }}" class="nav__sublink">{{ child.title }}</a>
+                          <a href="{{ child.url }}" class="nav__sublink">{% render 'menu-title', title: child.title %}</a>
                         </li>
                       {%- endfor -%}
                     </ul>
@@ -206,19 +206,19 @@
               {%- if link.links.size > 0 -%}
                 <details>
                   <summary class="menu-drawer__link{% if link_title == highlight %} menu-drawer__link--highlight{% endif %}">
-                    {{ link.title }}
+                    {% render 'menu-title', title: link.title %}
                     {% render 'icon', icon: 'chevron-down', size: 16 %}
                   </summary>
                   <div class="menu-drawer__submenu">
                     <a href="{{ link.url }}">{{ 'general.view_all' | t }}</a>
                     {%- for child in link.links -%}
                       {%- if child.links.size > 0 -%}
-                        <a href="{{ child.url }}" class="menu-drawer__submenu-heading">{{ child.title }}</a>
+                        <a href="{{ child.url }}" class="menu-drawer__submenu-heading">{% render 'menu-title', title: child.title %}</a>
                         {%- for grandchild in child.links -%}
-                          <a href="{{ grandchild.url }}">{{ grandchild.title }}</a>
+                          <a href="{{ grandchild.url }}">{% render 'menu-title', title: grandchild.title %}</a>
                         {%- endfor -%}
                       {%- else -%}
-                        <a href="{{ child.url }}">{{ child.title }}</a>
+                        <a href="{{ child.url }}">{% render 'menu-title', title: child.title %}</a>
                       {%- endif -%}
                     {%- endfor -%}
                   </div>
@@ -231,7 +231,7 @@
                     aria-current="page"
                   {% endif %}
                 >
-                  {{ link.title }}
+                  {% render 'menu-title', title: link.title %}
                 </a>
               {%- endif -%}
             </li>
@@ -294,17 +294,22 @@
           </button>
         </form>
 
-        {%- if popular_terms.size > 0 -%}
-          <div class="search-popular" data-predictive-default>
-            <span class="search-popular__label">{{ 'sections.header.popular_searches' | t }}</span>
-            {%- for term in popular_terms -%}
-              {%- assign clean_term = term | strip -%}
-              {%- if clean_term != blank -%}
-                <a href="{{ routes.search_url }}?q={{ clean_term | url_encode }}" class="chip">{{ clean_term }}</a>
-              {%- endif -%}
-            {%- endfor -%}
-          </div>
-        {%- endif -%}
+        <div data-predictive-default>
+          {%- if popular_terms.size > 0 -%}
+            <div class="search-popular">
+              <span class="search-popular__label">{{ 'sections.header.popular_searches' | t }}</span>
+              {%- for term in popular_terms -%}
+                {%- assign clean_term = term | strip -%}
+                {%- if clean_term != blank -%}
+                  <a href="{{ routes.search_url }}?q={{ clean_term | url_encode }}" class="chip">{{ clean_term }}</a>
+                {%- endif -%}
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+
+          {% render 'search-showcase', collection: section.settings.search_collection, title: section.settings.search_products_title, count: section.settings.search_products_count %}
+          {% render 'search-showcase', collection: section.settings.search_new_collection, title: section.settings.search_new_title, count: section.settings.search_new_count %}
+        </div>
 
         {%- if settings.predictive_search -%}
           <div class="predictive-search__results" data-predictive-results hidden></div>
@@ -325,6 +330,53 @@
       "label": "Menu",
       "default": "main-menu",
       "info": "Menus com três níveis são exibidos como mega menu no desktop."
+    },
+    {
+      "type": "header",
+      "content": "Busca"
+    },
+    {
+      "type": "collection",
+      "id": "search_collection",
+      "label": "Coleção exibida na busca",
+      "info": "Os produtos aparecem ao abrir a busca, antes de digitar. Use Mais vendidos. Sem coleção ou com coleção vazia, o bloco não aparece."
+    },
+    {
+      "type": "text",
+      "id": "search_products_title",
+      "label": "Título do bloco",
+      "info": "Vazio = nome da coleção.",
+      "default": "Mais vendidos"
+    },
+    {
+      "type": "range",
+      "id": "search_products_count",
+      "label": "Produtos na busca",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "collection",
+      "id": "search_new_collection",
+      "label": "Segunda coleção na busca (abaixo da primeira)",
+      "info": "Use Novidades. Sem coleção ou vazia, o bloco não aparece."
+    },
+    {
+      "type": "text",
+      "id": "search_new_title",
+      "label": "Título do segundo bloco",
+      "default": "Novidades"
+    },
+    {
+      "type": "range",
+      "id": "search_new_count",
+      "label": "Produtos no segundo bloco",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 6
     },
     {
       "type": "select",

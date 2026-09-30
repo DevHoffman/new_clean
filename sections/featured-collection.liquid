@@ -83,7 +83,7 @@
     </div>
 
     {%- if is_slider -%}
-      <slider-component>
+      <slider-component{% if section.settings.autoscroll %} data-autoscroll="{{ section.settings.autoscroll_speed }}"{% endif %}>
         <ul class="slider slider--bleed" role="list" style="--slides-mobile: 2; --slides-tablet: 3; --slides-desktop: {{ columns }};">
           {%- if featured != blank and featured.products.size > 0 -%}
             {%- assign shown = 0 -%}
@@ -212,6 +212,23 @@
         }
       ],
       "default": "slider"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoscroll",
+      "label": "Carrossel que se move sozinho",
+      "info": "Só no layout Carrossel. Pausa ao passar o mouse, tocar ou focar, e não anima para quem usa \"reduzir movimento\".",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoscroll_speed",
+      "label": "Velocidade do movimento (px por segundo)",
+      "min": 10,
+      "max": 120,
+      "step": 5,
+      "info": "Quanto maior, mais rápido. Use velocidades diferentes por seção: as mais importantes, como Mais vendidos, ficam mais rápidas.",
+      "default": 40
     },
     {
       "type": "checkbox",

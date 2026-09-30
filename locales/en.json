@@ -288,6 +288,10 @@
     },
     "featured_collection": {
       "hidden_notice": "The \"{{ heading }}\" section is hidden on the storefront because its collection is missing or empty."
+    },
+    "promo_showcase": {
+      "save": "Save {{ amount }}",
+      "see_product": "View product"
     }
   },
   "customer": {

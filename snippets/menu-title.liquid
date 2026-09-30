@@ -1,0 +1,16 @@
+{%- comment -%}
+  Label of a navigation link. A menu item still called "Catálogo" in the admin
+  is shown as "Loja", the name this store uses, until the menu is renamed there.
+
+  Accepts:
+  - title: {String} menu link title (required)
+
+  Usage:
+  {% render 'menu-title', title: link.title %}
+{%- endcomment -%}
+{%- assign menu_title_key = title | strip | downcase -%}
+{%- if menu_title_key == 'catálogo' or menu_title_key == 'catalogo' -%}
+  {{- 'collections.all_title' | t -}}
+{%- else -%}
+  {{- title -}}
+{%- endif -%}
