@@ -299,9 +299,11 @@
             <div class="search-popular">
               <span class="search-popular__label">{{ 'sections.header.popular_searches' | t }}</span>
               {%- for term in popular_terms -%}
-                {%- assign clean_term = term | strip -%}
-                {%- if clean_term != blank -%}
-                  <a href="{{ routes.search_url }}?q={{ clean_term | url_encode }}" class="chip">{{ clean_term }}</a>
+                {%- assign term_parts = term | split: '|' -%}
+                {%- assign term_label = term_parts[0] | strip -%}
+                {%- assign term_query = term_parts[1] | default: term_parts[0] | strip -%}
+                {%- if term_label != blank -%}
+                  <a href="{{ routes.search_url }}?q={{ term_query | url_encode }}" class="chip">{{ term_label }}</a>
                 {%- endif -%}
               {%- endfor -%}
             </div>

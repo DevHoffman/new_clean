@@ -149,7 +149,24 @@ function buildProduct(raw) {
 /* Catalogue
    ========================================================================== */
 const shopData = readJson('shop.json', { name: 'New Clean', money_format: 'R$ {{amount_with_comma_separator}}' });
-const products = readJson('products.json', []).map(buildProduct);
+/*
+ * PREVIEW_SAMPLE=1 previews the store as it will be after importing the 50-product
+ * sample (docs/catalogo/produtos-importacao.csv): only those products, with their
+ * tags and demo prices, and the three home collections built from them.
+ */
+const sampleDefinition = process.env.PREVIEW_SAMPLE ? readJson('sample.json', null) : null;
+let rawProducts = readJson('products.json', []);
+if (sampleDefinition) {
+  const byHandle = new Map(sampleDefinition.products.map((item) => [item.handle, item]));
+  rawProducts = rawProducts
+    .filter((raw) => byHandle.has(raw.handle))
+    .map((raw) => {
+      const item = byHandle.get(raw.handle);
+      const variants = raw.variants.map((variant, index) => (index === 0 ? { ...variant, compare_at_price: item.compare_at_price } : variant));
+      return { ...raw, tags: item.tags, variants };
+    });
+}
+const products = rawProducts.map(buildProduct);
 /*
  * The live catalogue has a single photo per product. To preview the
  * second-image hover effect, borrow a photo from a neighbouring product:
@@ -209,7 +226,7 @@ const baseCollections = [
   },
 ];
 
-readJson('collections.json', []).forEach((raw) => {
+(sampleDefinition ? [] : readJson('collections.json', [])).forEach((raw) => {
   const ids = new Set((raw.product_ids || []).map(String));
   const items = products.filter((product) => ids.has(String(product.id)));
   const collection = {
@@ -224,6 +241,17 @@ readJson('collections.json', []).forEach((raw) => {
   items.forEach((product) => product.collections.push(collection));
   baseCollections.push(collection);
 });
+
+if (sampleDefinition) {
+  sampleDefinition.collections.forEach((definition, index) => {
+    const items = products.filter((product) =>
+      definition.rule.tag ? product.tags.includes(definition.rule.tag) : product.compare_at_price > product.price
+    );
+    const collection = { id: 300 + index, handle: definition.handle, title: definition.title, description: '', image: null, products: items, default_sort_by: 'manual' };
+    items.forEach((product) => product.collections.push(collection));
+    baseCollections.push(collection);
+  });
+}
 
 /*
  * "Ofertas": the real catalogue has no product with a discount (compare-at

@@ -33,6 +33,15 @@ O tema já cobre o que depende de código. Os itens abaixo dependem do admin da 
 - [ ] Coleções automáticas (`docs/colecoes.md`) e troca dos links do menu e dos blocos de categoria.
 - [ ] Sinônimos de busca (`docs/busca/sinonimos.md`).
 
+## 4a. Loja de avaliação com 50 produtos (teste do tema)
+
+Para ver a Home 100% preenchida numa loja vazia, sem tocar na loja real:
+
+1. `node dev/export-shopify-csv.js` gera `docs/catalogo/produtos-importacao.csv` (50 produtos: os que a Home aponta, as marcas e buscas da Home, 3 por categoria e 3 esgotados). As tags `mais-vendidos` e `novidades` e 5 preços "Comparar a" são **de demonstração**; não são preços reais.
+2. Admin da loja de teste > Produtos > **Importar** > escolher o arquivo.
+3. Criar as coleções e páginas: `SHOPIFY_ADMIN_TOKEN=shpat_xxx npm run setup:store -- --apply --by-tag`, ou à mão: coleções automáticas **Mais vendidos** (tag é igual a `mais-vendidos`), **Novidades** (tag é igual a `novidades`) e **Ofertas** (preço de comparação definido); páginas `pedido-rapido`, `contact` e `faq` com os modelos de mesmo nome.
+4. `npm run check:home` confere, no preview com essa amostra (`PREVIEW_SAMPLE=1 npm run preview`), que todos os blocos têm produtos e que nenhum link da Home cai numa busca vazia.
+
 ## 4b. Atalho: coleções, páginas e menus por script
 
 Em vez de criar à mão as 16 coleções, `mais-vendidos`, `ofertas`, as páginas Pedido rápido/Contato/Dúvidas e os menus, rode o script (usa a Admin API; não apaga nada e não mexe em produtos, preços nem políticas):

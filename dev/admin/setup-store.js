@@ -13,6 +13,9 @@
  * write_online_store_navigation, read_online_store_navigation.
  *
  * Options: --only=collections,pages,menus   (default: all three)
+ *          --by-tag   for the TEST store filled with docs/catalogo/produtos-importacao.csv:
+ *                     Mais vendidos and Novidades are built from the tags of that sample
+ *                     (mais-vendidos, novidades) instead of taking every product.
  */
 const groups = require('../lib/category-groups');
 const slug = require('../lib/slug');
@@ -24,6 +27,7 @@ const ENDPOINT = process.env.SHOPIFY_ADMIN_ENDPOINT || `https://${STORE}/admin/a
 const APPLY = process.argv.includes('--apply');
 const onlyArg = process.argv.find((arg) => arg.startsWith('--only='));
 const ONLY = onlyArg ? onlyArg.slice(7).split(',') : ['collections', 'pages', 'menus'];
+const BY_TAG = process.argv.includes('--by-tag');
 
 /* Collections that are not category rules */
 const SPECIAL = [
@@ -31,7 +35,7 @@ const SPECIAL = [
     title: 'Mais vendidos',
     handle: 'mais-vendidos',
     sortOrder: 'BEST_SELLING',
-    rules: [{ column: 'VARIANT_PRICE', relation: 'GREATER_THAN', condition: '0' }],
+    rules: BY_TAG ? [{ column: 'TAG', relation: 'EQUALS', condition: 'mais-vendidos' }] : [{ column: 'VARIANT_PRICE', relation: 'GREATER_THAN', condition: '0' }],
   },
   {
     title: 'Ofertas',
@@ -44,7 +48,7 @@ const SPECIAL = [
     title: 'Novidades',
     handle: 'novidades',
     sortOrder: 'CREATED_DESC',
-    rules: [{ column: 'VARIANT_PRICE', relation: 'GREATER_THAN', condition: '0' }],
+    rules: BY_TAG ? [{ column: 'TAG', relation: 'EQUALS', condition: 'novidades' }] : [{ column: 'VARIANT_PRICE', relation: 'GREATER_THAN', condition: '0' }],
   },
 ];
 

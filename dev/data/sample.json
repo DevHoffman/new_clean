@@ -1,0 +1,317 @@
+{
+  "products": [
+    {
+      "handle": "desinfetante-wave-5l-azulim",
+      "tags": [
+        "mais-vendidos"
+      ],
+      "compare_at_price": "18.58"
+    },
+    {
+      "handle": "toa-de-papel-mili-200fls-2x100-fls",
+      "tags": [
+        "mais-vendidos"
+      ],
+      "compare_at_price": "10.57"
+    },
+    {
+      "handle": "saco-lixo-60l-preto-super-ref-c-100-almofada-newclean",
+      "tags": [
+        "mais-vendidos"
+      ],
+      "compare_at_price": "60.07"
+    },
+    {
+      "handle": "multiuso-uso-diario-c-alcool-500ml-azulim",
+      "tags": [
+        "mais-vendidos",
+        "oferta-demo"
+      ],
+      "compare_at_price": "4.60"
+    },
+    {
+      "handle": "limpador-perfumado-start-amor-1l-azulim",
+      "tags": [
+        "mais-vendidos"
+      ],
+      "compare_at_price": "7.82"
+    },
+    {
+      "handle": "valvula-liquida-dosadora-dupla-reposicao-p-reserv-saboneteira-dosadora",
+      "tags": [
+        "mais-vendidos"
+      ],
+      "compare_at_price": "5.14"
+    },
+    {
+      "handle": "vassoura-piacava-n-05-prolar",
+      "tags": [
+        "mais-vendidos"
+      ],
+      "compare_at_price": "27.90"
+    },
+    {
+      "handle": "copo-ps-c-5000un-50ml-cristalcopo",
+      "tags": [
+        "mais-vendidos"
+      ],
+      "compare_at_price": "117.42"
+    },
+    {
+      "handle": "tuff-sem-passar-start-60ml-blister",
+      "tags": [
+        "novidades"
+      ],
+      "compare_at_price": "8.36"
+    },
+    {
+      "handle": "suporte-papel-hig-rolao-br-32779-nobre",
+      "tags": [
+        "novidades"
+      ],
+      "compare_at_price": "77.54"
+    },
+    {
+      "handle": "tira-risco-e-descalcificante-200ml-indy",
+      "tags": [
+        "novidades",
+        "oferta-demo"
+      ],
+      "compare_at_price": "36.32"
+    },
+    {
+      "handle": "tela-perfumada-p-mictorio-normal-tutti-frutti-uppro",
+      "tags": [
+        "novidades"
+      ],
+      "compare_at_price": "3.56"
+    },
+    {
+      "handle": "shampoo-skala-mais-cachos-325ml",
+      "tags": [
+        "novidades"
+      ],
+      "compare_at_price": "8.35"
+    },
+    {
+      "handle": "veja-limpeza-pesada-cloro-ativo-menor-de-500ml",
+      "tags": [
+        "novidades"
+      ],
+      "compare_at_price": "13.28"
+    },
+    {
+      "handle": "saponaceo-em-po-lavanda-bombril-300g-sapolio-radium",
+      "tags": [
+        "novidades"
+      ],
+      "compare_at_price": "10.22"
+    },
+    {
+      "handle": "papel-toa-interf-2-dobras-100-cel-20cmx23cm-comfort-c-4800fls-nobre",
+      "tags": [
+        "novidades"
+      ],
+      "compare_at_price": "239.66"
+    },
+    {
+      "handle": "starclor-desinfetante-hortifuticula-1kg-qualifood",
+      "tags": [],
+      "compare_at_price": "32.24"
+    },
+    {
+      "handle": "start-detergente-maq-5l",
+      "tags": [
+        "oferta-demo"
+      ],
+      "compare_at_price": "303.70"
+    },
+    {
+      "handle": "luva-vabene-viniflex-m-c-100-caixa-c-100-unds",
+      "tags": [],
+      "compare_at_price": "51.80"
+    },
+    {
+      "handle": "multiuso-veja-limpeza-pesada-veja-1l-x-14-cloro-ativo",
+      "tags": [],
+      "compare_at_price": "21.17"
+    },
+    {
+      "handle": "lava-loucas-neutro-5l-lavve",
+      "tags": [],
+      "compare_at_price": "24.15"
+    },
+    {
+      "handle": "sabao-pastoso-ruth-500g-coco",
+      "tags": [],
+      "compare_at_price": "12.44"
+    },
+    {
+      "handle": "alcool-liquido-zerobac-cristal-spray-46-500ml-asseptgel",
+      "tags": [],
+      "compare_at_price": "12.74"
+    },
+    {
+      "handle": "papel-toa-interf-unique-duo-100-celulose-23x20cm-2000fls-mili",
+      "tags": [],
+      "compare_at_price": "132.10"
+    },
+    {
+      "handle": "saco-rolo-p-freezer-20x33-2l-1kg-100un",
+      "tags": [
+        "oferta-demo"
+      ],
+      "compare_at_price": "5.77"
+    },
+    {
+      "handle": "prato-plast-15cm-fundo-10un-cristalcopo",
+      "tags": [],
+      "compare_at_price": "2.04"
+    },
+    {
+      "handle": "pastilha-adesiva-odorizante-marine-c-03-und-azulim",
+      "tags": [],
+      "compare_at_price": "8.84"
+    },
+    {
+      "handle": "removedor-de-ceras-1l-azulim",
+      "tags": [],
+      "compare_at_price": "15.06"
+    },
+    {
+      "handle": "filtro-papel-n-103-30un-3-coracoes",
+      "tags": [],
+      "compare_at_price": "4.91"
+    },
+    {
+      "handle": "desinfetante-perfumado-lavanda-5l-azulim",
+      "tags": [],
+      "compare_at_price": "165.06"
+    },
+    {
+      "handle": "limpador-perfumado-carinho-1l-azulim",
+      "tags": [],
+      "compare_at_price": "7.82"
+    },
+    {
+      "handle": "lava-loucas-maca-500ml-polylar",
+      "tags": [
+        "oferta-demo"
+      ],
+      "compare_at_price": "3.16"
+    },
+    {
+      "handle": "sabao-em-barra-glicerinado-amarelo-unidade",
+      "tags": [],
+      "compare_at_price": "11.95"
+    },
+    {
+      "handle": "alcool-liquido-46-desinfetante-lavanda-zerobac-1l-asseptgel",
+      "tags": [],
+      "compare_at_price": "8.36"
+    },
+    {
+      "handle": "saco-lixo-40l-preto-c-100-super-pro",
+      "tags": [],
+      "compare_at_price": "38.95"
+    },
+    {
+      "handle": "guardanapo-fs-21x22cm-50-flhs-mili",
+      "tags": [],
+      "compare_at_price": "2.58"
+    },
+    {
+      "handle": "sabonete-liquido-provence-only-500ml",
+      "tags": [],
+      "compare_at_price": "10.68"
+    },
+    {
+      "handle": "pano-microfibra-60x80-verde-slim-nobre",
+      "tags": [],
+      "compare_at_price": "11.24"
+    },
+    {
+      "handle": "rodo-pia-plastico",
+      "tags": [],
+      "compare_at_price": "6.00"
+    },
+    {
+      "handle": "luva-latex-verde-forrada-gg10-imbat",
+      "tags": [],
+      "compare_at_price": "6.58"
+    },
+    {
+      "handle": "odorizador-carro-novo-80ml-indy",
+      "tags": [],
+      "compare_at_price": "10.60"
+    },
+    {
+      "handle": "lustra-moveis-floral-200ml-azulim",
+      "tags": [],
+      "compare_at_price": "10.85"
+    },
+    {
+      "handle": "porta-papel-toalha-interf-black-fortcom",
+      "tags": [],
+      "compare_at_price": "49.48"
+    },
+    {
+      "handle": "cafe-3-coracoes-fort-250g",
+      "tags": [],
+      "compare_at_price": "20.61"
+    },
+    {
+      "handle": "desinfetante-lavics-lavanda-5l-vorel",
+      "tags": [],
+      "compare_at_price": "27.02"
+    },
+    {
+      "handle": "limpador-concentrado-citronela-coala-120ml",
+      "tags": [],
+      "compare_at_price": "19.13"
+    },
+    {
+      "handle": "detergente-neutro-concentrado-5l-argus",
+      "tags": [],
+      "compare_at_price": "73.34"
+    },
+    {
+      "handle": "vinagre-galo-de-barcelos-alcool-750ml",
+      "tags": [],
+      "compare_at_price": "5.35"
+    },
+    {
+      "handle": "vassoura-piacava-n-05-passe-limpe",
+      "tags": [],
+      "compare_at_price": "35.60"
+    },
+    {
+      "handle": "vassoura-piacava-n-04-passe-limpe",
+      "tags": [],
+      "compare_at_price": "30.60"
+    }
+  ],
+  "collections": [
+    {
+      "handle": "mais-vendidos",
+      "title": "Mais vendidos",
+      "rule": {
+        "tag": "mais-vendidos"
+      }
+    },
+    {
+      "handle": "novidades",
+      "title": "Novidades",
+      "rule": {
+        "tag": "novidades"
+      }
+    },
+    {
+      "handle": "ofertas",
+      "title": "Ofertas",
+      "rule": {
+        "reduced": true
+      }
+    }
+  ]
+}

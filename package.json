@@ -13,7 +13,8 @@
     "build": "node dev/build.js",
     "push:update": "npm run build && shopify theme push --path dist --ignore config/settings_data.json --store dfd10g-i2.myshopify.com",
     "preview:dist": "npm run build && THEME_DIR=dist node dev/server.js",
-    "setup:store": "node dev/admin/setup-store.js"
+    "setup:store": "node dev/admin/setup-store.js",
+    "check:home": "node dev/check-home.js"
   },
   "devDependencies": {
     "@shopify/cli": "^4.8.3",

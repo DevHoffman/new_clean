@@ -656,8 +656,8 @@
         "type": "textarea",
         "id": "search_popular_terms",
         "label": "Buscas populares",
-        "info": "Um termo por linha. Exibidas ao abrir a busca.",
-        "default": "Desinfetante\nPapel higiênico\nSaco de lixo\nÁlcool\nDetergente\nLuva"
+        "info": "Um termo por linha. Para mostrar um nome e buscar por outro texto, use Nome|busca (ex.: Saco de lixo|saco lixo). Os títulos da loja usam abreviações como HIG e TOA, então teste cada termo.",
+        "default": "Desinfetante\nPapel higiênico|papel hig\nSaco de lixo|saco lixo\nÁlcool\nDetergente\nLuva"
       }
     ]
   },

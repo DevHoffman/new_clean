@@ -63,9 +63,11 @@
         <div class="search-popular search-bar__popular">
           <span class="search-popular__label">{{ 'templates.search.popular' | t }}</span>
           {%- for term in popular_terms -%}
-            {%- assign popular_term = term | strip -%}
+            {%- assign term_parts = term | split: '|' -%}
+            {%- assign popular_term = term_parts[0] | strip -%}
+            {%- assign popular_query = term_parts[1] | default: term_parts[0] | strip -%}
             {%- if popular_term != blank -%}
-              <a class="chip" href="{{ routes.search_url }}?q={{ popular_term | url_encode }}&type=product&options%5Bprefix%5D=last">
+              <a class="chip" href="{{ routes.search_url }}?q={{ popular_query | url_encode }}&type=product&options%5Bprefix%5D=last">
                 {{- popular_term | escape -}}
               </a>
             {%- endif -%}
