@@ -1,0 +1,117 @@
+{{ 'section-quick-order.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'section-quick-order.js' | asset_url }}" defer="defer"></script>
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <quick-order class="container container--medium quick-order" data-search-url="{{ routes.search_url }}">
+    <div class="section-header">
+      <div class="section-header__text">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+        <h1 class="h2">{{ section.settings.heading | default: page.title }}</h1>
+        {%- if section.settings.text != blank -%}
+          <p class="section-header__description">{{ section.settings.text }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="quick-order__summary" data-cart-section="{{ section.id }}" data-item-count="{{ cart.item_count }}">
+      {%- if cart.item_count > 0 -%}
+        <div class="quick-order__summary-inner">
+          <p>
+            <strong>{{ 'cart.bar.items' | t: count: cart.item_count }}</strong>
+            <span class="text-muted"> · {{ cart.total_price | money }}</span>
+          </p>
+          <div class="quick-order__summary-actions">
+            {%- if settings.cart_type == 'drawer' -%}
+              <button type="button" class="button button--secondary button--small" data-cart-toggle>{{ 'sections.quick_order.view_cart' | t }}</button>
+            {%- else -%}
+              <a href="{{ routes.cart_url }}" class="button button--secondary button--small">{{ 'sections.quick_order.view_cart' | t }}</a>
+            {%- endif -%}
+            <form action="{{ routes.cart_url }}" method="post">
+              <button type="submit" name="checkout" class="button button--small">{{ 'cart.checkout' | t }}</button>
+            </form>
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="quick-order__grid">
+      <div class="quick-order__panel">
+        <h2 class="h4">{{ section.settings.search_heading }}</h2>
+        <form class="search-form quick-order__search" data-quick-order-search novalidate>
+          <div class="search-form__field">
+            {% render 'icon', icon: 'search', size: 18 %}
+            <label for="QuickOrderSearch" class="visually-hidden">{{ 'sections.quick_order.search_label' | t }}</label>
+            <input
+              type="search"
+              id="QuickOrderSearch"
+              class="field__input search-form__input"
+              placeholder="{{ section.settings.search_placeholder }}"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+            >
+          </div>
+        </form>
+        <div class="quick-order__results" data-quick-order-target aria-live="polite">
+          <p class="quick-order__hint text-small text-muted">{{ 'sections.quick_order.hint' | t }}</p>
+        </div>
+      </div>
+
+      <div class="quick-order__panel quick-order__panel--list">
+        <h2 class="h4">{{ section.settings.list_heading }}</h2>
+        {%- if section.settings.list_text != blank -%}
+          <p class="text-small text-muted">{{ section.settings.list_text }}</p>
+        {%- endif -%}
+        <form class="quick-order__list-form" data-quick-order-list novalidate>
+          <label for="QuickOrderList" class="visually-hidden">{{ section.settings.list_heading }}</label>
+          <textarea id="QuickOrderList" class="field__input" rows="6" placeholder="{{ section.settings.list_placeholder }}"></textarea>
+          <button type="submit" class="button button--secondary">
+            <span class="button__label">{{ 'sections.quick_order.find_items' | t }}</span>
+            <span class="button__spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+        <div class="quick-order__results" data-quick-order-list-target aria-live="polite"></div>
+        <button type="button" class="button button--full quick-order__add-all" data-quick-order-add-all hidden>
+          <span class="button__label">{{ 'sections.quick_order.add_all' | t }}</span>
+          <span class="button__spinner" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+
+    {%- if section.settings.footer_text != blank -%}
+      <div class="quick-order__footer rte text-small text-muted">{{ section.settings.footer_text }}</div>
+    {%- endif -%}
+  </quick-order>
+</div>
+
+{% schema %}
+{
+  "name": "Pedido rápido",
+  "settings": [
+    { "type": "paragraph", "content": "Página para montar pedidos com vários itens, pensada para empresas e compras recorrentes. Crie uma página com o modelo \"page.pedido-rapido\"." },
+    { "type": "text", "id": "eyebrow", "label": "Sobretítulo", "default": "Para empresas e compras recorrentes" },
+    { "type": "text", "id": "heading", "label": "Título", "default": "Pedido rápido" },
+    { "type": "text", "id": "text", "label": "Texto", "default": "Busque os produtos, informe as quantidades e adicione tudo ao carrinho em segundos." },
+    { "type": "header", "content": "Busca" },
+    { "type": "text", "id": "search_heading", "label": "Título", "default": "Buscar produto" },
+    { "type": "text", "id": "search_placeholder", "label": "Placeholder", "default": "Nome ou código do produto" },
+    { "type": "header", "content": "Lista" },
+    { "type": "text", "id": "list_heading", "label": "Título", "default": "Colar uma lista" },
+    { "type": "text", "id": "list_text", "label": "Texto", "default": "Um produto por linha, com a quantidade no fim. Ex.: desinfetante 5l, 4" },
+    { "type": "textarea", "id": "list_placeholder", "label": "Placeholder", "default": "desinfetante 5l, 4\npapel toalha interfolha, 10\nsaco de lixo 100l, 2" },
+    { "type": "richtext", "id": "footer_text", "label": "Texto de rodapé", "default": "<p>Precisa de cotação especial ou de um produto que não encontrou? Fale com a nossa equipe pela central de ajuda.</p>" },
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 72 }
+  ],
+  "presets": [{ "name": "Pedido rápido" }]
+}
+{% endschema %}

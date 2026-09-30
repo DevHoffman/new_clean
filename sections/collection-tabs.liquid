@@ -1,0 +1,277 @@
+{{ 'section-collection-tabs.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'section-collection-tabs.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign columns = section.settings.columns_desktop
+  assign desktop_vw = 100 | divided_by: columns
+  assign sizes = '(min-width: 1000px) ' | append: desktop_vw | append: 'vw, (min-width: 750px) 33vw, 50vw'
+-%}
+
+<div
+  class="section scheme-{{ section.settings.color_scheme }} collection-tabs"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="container">
+    <tabs-component>
+      <div class="section-header section-header--center">
+        {%- if section.settings.eyebrow != blank or section.settings.heading != blank -%}
+          <div class="section-header__text">
+            {%- if section.settings.eyebrow != blank -%}
+              <span class="eyebrow">{{ section.settings.eyebrow }}</span>
+            {%- endif -%}
+            {%- if section.settings.heading != blank -%}
+              <h2 class="h2" id="TabsHeading-{{ section.id }}">{{ section.settings.heading }}</h2>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if section.blocks.size > 1 -%}
+          <div
+            class="collection-tabs__list js-only"
+            role="tablist"
+            {% if section.settings.heading != blank %}
+              aria-labelledby="TabsHeading-{{ section.id }}"
+            {% else %}
+              aria-label="{{ 'sections.collection_tabs.label' | t }}"
+            {% endif %}
+          >
+            {%- for block in section.blocks -%}
+              <button
+                type="button"
+                class="collection-tabs__tab"
+                role="tab"
+                id="Tab-{{ block.id }}"
+                aria-controls="TabPanel-{{ block.id }}"
+                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                {% unless forloop.first %}
+                  tabindex="-1"
+                {% endunless %}
+                {{ block.shopify_attributes }}
+              >
+                {{- block.settings.title | default: block.settings.collection.title -}}
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- for block in section.blocks -%}
+        {%- assign tab_collection = block.settings.collection -%}
+        <div
+          class="collection-tabs__panel"
+          id="TabPanel-{{ block.id }}"
+          {% if section.blocks.size > 1 %}
+            role="tabpanel"
+            aria-labelledby="Tab-{{ block.id }}"
+            tabindex="0"
+          {% endif %}
+          data-slider-scope
+          {% unless forloop.first %}
+            hidden
+          {% endunless %}
+        >
+          {%- if section.blocks.size > 1 -%}
+            <h3 class="h3 collection-tabs__panel-title no-js-only">
+              {{- block.settings.title | default: tab_collection.title -}}
+            </h3>
+          {%- endif -%}
+
+          <div class="collection-tabs__slider">
+            <slider-component>
+              <ul class="slider slider--bleed" role="list" style="--slides-mobile: 2; --slides-tablet: 3; --slides-desktop: {{ columns }};">
+                {%- if tab_collection != blank and tab_collection.products.size > 0 -%}
+                  {%- assign shown = 0 -%}
+                  {%- for product in tab_collection.products -%}
+                    {%- liquid
+                      if section.settings.hide_incomplete
+                        if product.featured_media == blank or product.available == false
+                          continue
+                        endif
+                      endif
+                      if shown >= 8
+                        break
+                      endif
+                      assign shown = shown | plus: 1
+                    -%}
+                    <li class="slider__slide">
+                      {% render 'product-card', product: product, sizes: sizes, lazy: true %}
+                    </li>
+                  {%- endfor -%}
+                {%- else -%}
+                  {%- for i in (1..4) -%}
+                    <li class="slider__slide">
+                      {% render 'product-card', product: blank %}
+                    </li>
+                  {%- endfor -%}
+                {%- endif -%}
+              </ul>
+            </slider-component>
+
+            <div class="slider__buttons slider__buttons--desktop collection-tabs__buttons">
+              <button type="button" class="slider__button" data-slider-prev aria-label="{{ 'accessibility.previous' | t }}">
+                {% render 'icon', icon: 'chevron-left', size: 18 %}
+              </button>
+              <button type="button" class="slider__button" data-slider-next aria-label="{{ 'accessibility.next' | t }}">
+                {% render 'icon', icon: 'chevron-right', size: 18 %}
+              </button>
+            </div>
+          </div>
+
+          {%- if section.settings.show_view_all and tab_collection != blank -%}
+            <div class="collection-tabs__footer">
+              <a class="button button--secondary" href="{{ tab_collection.url }}">
+                {%- if section.settings.view_all_label != blank -%}
+            {{ section.settings.view_all_label }}
+          {%- else -%}
+            {{ 'general.view_all' | t }}
+          {%- endif -%}
+              </a>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </tabs-component>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Coleções em abas",
+  "tag": "section",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto de apoio"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Destaques da loja"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Colunas no desktop",
+      "min": 3,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Mostrar botão \"ver tudo\"",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "view_all_label",
+      "label": "Texto do botão \"ver tudo\"",
+      "default": "Ver tudo"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_incomplete",
+      "label": "Mostrar só produtos com foto e em estoque",
+      "info": "Vitrines da home convertem melhor sem produtos esgotados ou sem imagem.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Aparência"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        {
+          "value": "default",
+          "label": "Padrão"
+        },
+        {
+          "value": "alt",
+          "label": "Fundo alternativo"
+        },
+        {
+          "value": "inverse",
+          "label": "Invertido"
+        },
+        {
+          "value": "accent",
+          "label": "Destaque"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Espaçamento superior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Aba",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título da aba",
+          "default": "Mais vendidos"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Coleção",
+          "info": "São exibidos até 8 produtos por aba."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Coleções em abas",
+      "blocks": [
+        {
+          "type": "tab",
+          "settings": {
+            "title": "Mais vendidos"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "title": "Novidades"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "title": "Ofertas"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

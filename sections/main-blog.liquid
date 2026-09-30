@@ -1,0 +1,188 @@
+{{ 'component-article-card.css' | asset_url | stylesheet_tag }}
+{{ 'section-main-blog.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  case section.settings.image_ratio
+    when 'square'
+      assign article_ratio = '1 / 1'
+    when 'wide'
+      assign article_ratio = '16 / 9'
+    else
+      assign article_ratio = '3 / 2'
+  endcase
+-%}
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+    {%- if section.settings.show_breadcrumbs -%}
+      {% render 'breadcrumbs' %}
+    {%- endif -%}
+
+    <div class="section-header section-header--center">
+      <div class="section-header__text">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+        <h1 class="h1">{{ blog.title }}</h1>
+        {%- if current_tags -%}
+          {%- assign tag_list = current_tags | join: ', ' -%}
+          <p class="section-header__description">{{ 'blogs.blog.tagged_with' | t: tags: tag_list }}</p>
+        {%- elsif section.settings.text != blank -%}
+          <p class="section-header__description">{{ section.settings.text }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- if section.settings.show_tags and blog.all_tags.size > 0 -%}
+      <nav class="main-blog__tags" aria-label="{{ 'blogs.blog.filter_label' | t }}">
+        <ul class="chip-list" role="list">
+          <li>
+            <a href="{{ blog.url }}" class="chip" {% unless current_tags %}aria-current="page"{% endunless %}>
+              {{ 'blogs.blog.all_topics' | t }}
+            </a>
+          </li>
+          {%- for tag in blog.all_tags -%}
+            <li>
+              <a
+                href="{{ blog.url }}/tagged/{{ tag | handleize }}"
+                class="chip"
+                {% if current_tags contains tag %}
+                  aria-current="page"
+                {% endif %}
+              >
+                {{- tag -}}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </nav>
+    {%- endif -%}
+
+    {%- paginate blog.articles by 9 -%}
+      {%- if blog.articles.size > 0 -%}
+        <ul
+          class="grid main-blog__grid"
+          role="list"
+          style="--cols-mobile: 1; --cols-tablet: 2; --cols-desktop: 3; --article-ratio: {{ article_ratio }};"
+        >
+          {%- for article in blog.articles -%}
+            {%- liquid
+              assign lazy = true
+              if forloop.index <= 3 and section.index == 1
+                assign lazy = false
+              endif
+            -%}
+            <li class="main-blog__item">
+              {% render 'article-card',
+                article: article,
+                heading_tag: 'h2',
+                lazy: lazy,
+                show_image: section.settings.show_image,
+                show_date: section.settings.show_date,
+                show_author: section.settings.show_author,
+                show_excerpt: section.settings.show_excerpt,
+                show_tag: section.settings.show_card_tag
+              %}
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {% render 'pagination', paginate: paginate %}
+      {%- else -%}
+        <div class="empty-state">
+          <p class="h3">{{ 'blogs.blog.empty' | t }}</p>
+          {%- if current_tags -%}
+            <a href="{{ blog.url }}" class="button button--secondary">{{ 'blogs.blog.view_all' | t }}</a>
+          {%- else -%}
+            <a href="{{ routes.root_url }}" class="button button--secondary">{{ 'general.back_to_home' | t }}</a>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Blog",
+  "class": "section-main-blog",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Sobretítulo",
+      "default": "Dicas de limpeza"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texto",
+      "default": "Conteúdo para facilitar a limpeza da sua empresa e da sua casa."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Mostrar caminho de navegação",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_tags",
+      "label": "Mostrar filtro por assunto (tags)",
+      "default": true
+    },
+    { "type": "header", "content": "Cartão do artigo" },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Mostrar imagem",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Proporção da imagem",
+      "options": [
+        { "value": "landscape", "label": "Paisagem (3:2)" },
+        { "value": "wide", "label": "Panorâmica (16:9)" },
+        { "value": "square", "label": "Quadrada (1:1)" }
+      ],
+      "default": "landscape"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_card_tag",
+      "label": "Mostrar assunto",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": "Mostrar data",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": "Mostrar autor",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_excerpt",
+      "label": "Mostrar resumo",
+      "default": true
+    },
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ]
+}
+{% endschema %}

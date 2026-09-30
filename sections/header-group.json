@@ -1,0 +1,46 @@
+{
+  "type": "header",
+  "name": "Grupo do cabeçalho",
+  "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "announcement-1": {
+          "type": "announcement",
+          "settings": {
+            "icon": "truck",
+            "text": "Frete grátis acima de [frete]"
+          }
+        },
+        "announcement-2": {
+          "type": "announcement",
+          "settings": {
+            "icon": "pix",
+            "text": "[pix] de desconto pagando no Pix"
+          }
+        },
+        "announcement-3": {
+          "type": "announcement",
+          "settings": {
+            "icon": "credit-card",
+            "text": "Parcele em até [parcelas]"
+          }
+        }
+      },
+      "block_order": [
+        "announcement-1",
+        "announcement-2",
+        "announcement-3"
+      ],
+      "settings": {}
+    },
+    "header": {
+      "type": "header",
+      "settings": {}
+    }
+  },
+  "order": [
+    "announcement-bar",
+    "header"
+  ]
+}

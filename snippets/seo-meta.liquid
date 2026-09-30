@@ -1,0 +1,31 @@
+{%- comment -%}
+  Meta description with sensible fallbacks (most products have no
+  description yet) and robots rules for pages that should not be indexed.
+
+  Usage:
+  {% render 'seo-meta' %}
+{%- endcomment -%}
+
+{%- capture description -%}{% render 'seo-description' %}{%- endcapture -%}
+{%- liquid
+  assign description = description | strip
+  assign noindex = false
+  case request.page_type
+    when 'search', 'cart', 'customers/login', 'customers/register', 'customers/account', 'customers/order', 'customers/addresses', 'customers/activate_account', 'customers/reset_password', '404'
+      assign noindex = true
+  endcase
+  if request.page_type == 'collection' and request.path contains 'filter.'
+    assign noindex = true
+  endif
+  if template.suffix == 'pedido-rapido'
+    assign noindex = true
+  endif
+-%}
+
+{%- if description != blank -%}
+  <meta name="description" content="{{ description | escape }}">
+{%- endif -%}
+
+{%- if noindex -%}
+  <meta name="robots" content="noindex, follow">
+{%- endif -%}

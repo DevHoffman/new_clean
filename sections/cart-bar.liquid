@@ -1,0 +1,44 @@
+{%- comment -%}
+  Mobile order summary bar shown while the customer browses the catalogue
+  with items in the cart. Re-rendered through the Section Rendering API on
+  every cart change.
+{%- endcomment -%}
+
+<cart-bar class="cart-bar" {% if cart.item_count == 0 %}hidden{% endif %}>
+  <div class="cart-bar__inner" data-cart-section="{{ section.id }}" data-item-count="{{ cart.item_count }}">
+    {%- if cart.item_count > 0 -%}
+      <button type="button" class="cart-bar__summary" data-cart-toggle aria-haspopup="dialog">
+        <span class="cart-bar__count">{{ cart.item_count }}</span>
+        <span class="cart-bar__text">
+          <strong>{{ cart.total_price | money }}</strong>
+          <small>{{ 'cart.bar.items' | t: count: cart.item_count }} · {{ 'cart.bar.view' | t }}</small>
+        </span>
+      </button>
+      {%- if settings.cart_precheckout -%}
+        <a href="{{ routes.cart_url }}" class="button button--small cart-bar__form">
+          {{ 'cart.bar.checkout' | t }}
+          {% render 'icon', icon: 'arrow-right', size: 16 %}
+        </a>
+      {%- else -%}
+        <form action="{{ routes.cart_url }}" method="post" class="cart-bar__form">
+          <button type="submit" name="checkout" class="button button--small">
+            {{ 'cart.bar.checkout' | t }}
+            {% render 'icon', icon: 'arrow-right', size: 16 %}
+          </button>
+        </form>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</cart-bar>
+
+{% schema %}
+{
+  "name": "Barra do carrinho",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Resumo fixo do pedido exibido no celular enquanto o cliente navega pela loja com itens no carrinho."
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,15 @@
+{%- comment -%}
+  Display title of a collection. The automatic "all products" collection is
+  called "Products" by Shopify; on this store it is simply "Loja".
+
+  Accepts:
+  - collection: {Object} collection (required)
+
+  Usage:
+  {% render 'collection-title', collection: collection %}
+{%- endcomment -%}
+{%- if collection.handle == 'all' -%}
+  {{- 'collections.all_title' | t -}}
+{%- else -%}
+  {{- collection.title -}}
+{%- endif -%}

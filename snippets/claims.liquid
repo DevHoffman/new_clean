@@ -1,0 +1,56 @@
+{%- comment -%}
+  Resolves promise tokens in free-form texts so they can never disagree with
+  the theme settings (and therefore with what is calculated in the cart):
+
+    [frete]    -> free shipping threshold, e.g. R$ 150
+    [pix]      -> Pix discount, e.g. 5%   (only when the discount is confirmed)
+    [parcelas] -> max interest-free instalments, e.g. 12x
+
+  When a token cannot be resolved (feature off, Pix not confirmed) the whole
+  text is returned blank, so the caller hides the item instead of showing an
+  offer the store does not honour.
+
+  Accepts:
+  - text: {String} text with optional tokens
+
+  Usage:
+  {%- capture message -%}{% render 'claims', text: block.settings.text %}{%- endcapture -%}
+  {%- if message != blank -%} … {%- endif -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign out = text | default: ''
+  assign blocked = false
+
+  if out contains '[pix]'
+    if settings.pix_enabled and settings.pix_confirmed and settings.pix_discount > 0
+      assign pix_text = settings.pix_discount | append: '%'
+      assign out = out | replace: '[pix]', pix_text
+    else
+      assign blocked = true
+    endif
+  endif
+
+  if out contains '[parcelas]'
+    if settings.installments_enabled and settings.installments_max > 1
+      assign installments_text = settings.installments_max | append: 'x'
+      assign out = out | replace: '[parcelas]', installments_text
+    else
+      assign blocked = true
+    endif
+  endif
+
+  if out contains '[frete]'
+    if settings.free_shipping_bar and settings.free_shipping_threshold > 0
+      assign shipping_cents = settings.free_shipping_threshold | times: 100
+      assign shipping_text = shipping_cents | money_without_trailing_zeros
+      assign out = out | replace: '[frete]', shipping_text
+    else
+      assign blocked = true
+    endif
+  endif
+
+  unless blocked
+    echo out | strip
+  endunless
+-%}

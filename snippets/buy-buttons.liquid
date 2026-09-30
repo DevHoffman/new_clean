@@ -1,0 +1,46 @@
+{%- comment -%}
+  Renders the add-to-cart form.
+
+  Accepts:
+  - product: {Object} product (required)
+  - form_id: {String} id of the product form (required)
+  - show_dynamic_checkout: {Boolean} render accelerated checkout buttons (optional)
+  - show_price: {Boolean} show the price inside the button (optional)
+
+  Usage:
+  {% render 'buy-buttons', product: product, form_id: form_id %}
+{%- endcomment -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign can_buy = false
+  if variant and variant.available
+    assign can_buy = true
+  endif
+-%}
+
+<product-form class="buy-buttons">
+  {%- form 'product', product, id: form_id, class: 'buy-buttons__form', novalidate: 'novalidate', data-type: 'add-to-cart-form' -%}
+    <input type="hidden" name="id" value="{{ variant.id }}" {% unless can_buy %}disabled{% endunless %}>
+
+    <button type="submit" name="add" class="button button--large button--full buy-buttons__add" {% unless can_buy %}disabled{% endunless %}>
+      <span class="button__label">
+        {%- if variant == null -%}
+          {{ 'products.product.unavailable' | t }}
+        {%- elsif variant.available -%}
+          {{ 'products.product.add_to_cart' | t }}
+          {%- if show_price %} · {{ variant.price | money }}{% endif -%}
+        {%- else -%}
+          {{ 'products.product.sold_out' | t }}
+        {%- endif -%}
+      </span>
+      <span class="button__spinner" aria-hidden="true"></span>
+    </button>
+
+    {%- if show_dynamic_checkout and can_buy -%}
+      {{ form | payment_button }}
+    {%- endif -%}
+  {%- endform -%}
+
+  <p class="form-message form-message--error buy-buttons__error" data-form-error role="alert" hidden></p>
+</product-form>

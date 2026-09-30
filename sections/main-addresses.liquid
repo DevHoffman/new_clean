@@ -1,0 +1,163 @@
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'customer-addresses.js' | asset_url }}" defer="defer"></script>
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="container container--medium">
+    {%- paginate customer.addresses by 12 -%}
+      <customer-addresses>
+        <div class="customer-header">
+          <div>
+            <a href="{{ routes.account_url }}" class="link customer-header__link">
+              {% render 'icon', icon: 'chevron-left', size: 14 %}
+              {{ 'customer.addresses.back' | t }}
+            </a>
+            <h1 class="h2">{{ 'customer.addresses.title' | t }}</h1>
+          </div>
+          <button
+            type="button"
+            class="button"
+            data-address-toggle
+            aria-expanded="false"
+            aria-controls="AddressForm_New"
+          >
+            {% render 'icon', icon: 'plus', size: 16 %}
+            {{ 'customer.addresses.add_new' | t }}
+          </button>
+        </div>
+
+        {%- form 'customer_address', customer.new_address -%}
+          <div
+            class="customer-addresses__form customer-addresses__form--new{% if form.errors %} is-open{% endif %}"
+            id="AddressForm_New"
+            data-address-form
+          >
+            <h2 class="h3 customer-addresses__form-title">{{ 'customer.addresses.add_new' | t }}</h2>
+
+            {%- if form.errors -%}
+              <div class="form-message form-message--error" role="alert">
+                {{ form.errors | default_errors }}
+              </div>
+            {%- endif -%}
+
+            {% render 'address-fields', form: form, id_suffix: 'New' %}
+
+            <div class="customer-card__actions">
+              <button type="submit" class="button">{{ 'customer.addresses.add' | t }}</button>
+              <button
+                type="button"
+                class="button button--secondary js-only"
+                data-address-toggle
+                aria-controls="AddressForm_New"
+              >
+                {{ 'customer.addresses.cancel' | t }}
+              </button>
+            </div>
+          </div>
+        {%- endform -%}
+
+        {%- if customer.addresses.size > 0 -%}
+          <ul class="customer-addresses__list" role="list">
+            {%- for address in customer.addresses -%}
+              {%- liquid
+                assign is_default = false
+                if address == customer.default_address
+                  assign is_default = true
+                endif
+              -%}
+              <li class="customer-addresses__item customer-card" data-address-item>
+                {%- if is_default -%}
+                  <span class="badge badge--accent">{{ 'customer.addresses.default' | t }}</span>
+                {%- endif -%}
+
+                <address>{{ address | format_address }}</address>
+
+                <div class="customer-card__actions">
+                  <button
+                    type="button"
+                    class="button button--secondary button--small"
+                    data-address-toggle
+                    aria-expanded="false"
+                    aria-controls="AddressForm_{{ address.id }}"
+                    aria-label="{{ 'customer.addresses.edit_address' | t }} {{ forloop.index }}"
+                  >
+                    {{ 'customer.addresses.edit' | t }}
+                  </button>
+
+                  <form
+                    method="post"
+                    action="{{ address.url }}"
+                    data-address-delete
+                    data-confirm="{{ 'customer.addresses.delete_confirm' | t | escape }}"
+                  >
+                    <input type="hidden" name="_method" value="delete">
+                    <button
+                      type="submit"
+                      class="link text-small"
+                      aria-label="{{ 'customer.addresses.delete' | t }} {{ forloop.index }}"
+                    >
+                      {{ 'customer.addresses.delete' | t }}
+                    </button>
+                  </form>
+                </div>
+
+                {%- form 'customer_address', address -%}
+                  <div
+                    class="customer-addresses__form{% if form.errors %} is-open{% endif %}"
+                    id="AddressForm_{{ address.id }}"
+                    data-address-form
+                  >
+                    <h2 class="h4 customer-addresses__form-title">{{ 'customer.addresses.edit_address' | t }}</h2>
+
+                    {%- if form.errors -%}
+                      <div class="form-message form-message--error" role="alert">
+                        {{ form.errors | default_errors }}
+                      </div>
+                    {%- endif -%}
+
+                    {% render 'address-fields', form: form, id_suffix: address.id, is_default: is_default %}
+
+                    <div class="customer-card__actions">
+                      <button type="submit" class="button button--small">{{ 'customer.addresses.update' | t }}</button>
+                      <button
+                        type="button"
+                        class="button button--secondary button--small js-only"
+                        data-address-toggle
+                        aria-controls="AddressForm_{{ address.id }}"
+                      >
+                        {{ 'customer.addresses.cancel' | t }}
+                      </button>
+                    </div>
+                  </div>
+                {%- endform -%}
+              </li>
+            {%- endfor -%}
+          </ul>
+
+          {% render 'pagination', paginate: paginate %}
+        {%- else -%}
+          <div class="customer-empty customer-addresses__empty">
+            <p>{{ 'customer.addresses.none' | t }}</p>
+          </div>
+        {%- endif -%}
+      </customer-addresses>
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Endereços",
+  "class": "section-main-addresses",
+  "settings": [
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,124 @@
+{%- comment -%}
+  Renders the cart line items. Shared by the cart drawer and the cart page.
+
+  Accepts:
+  - image_sizes: {String} sizes attribute for the line item image (optional)
+
+  Usage:
+  {% render 'cart-items' %}
+{%- endcomment -%}
+
+{%- assign image_sizes = image_sizes | default: '84px' -%}
+
+<cart-items class="cart-items">
+  <ul role="list">
+    {%- for item in cart.items -%}
+      <li class="cart-item">
+        <a href="{{ item.url }}" class="media cart-item__media" tabindex="-1" aria-hidden="true">
+          {%- if item.image -%}
+            {{
+              item.image
+              | image_url: width: 336
+              | image_tag: widths: '84, 168, 252, 336', sizes: image_sizes, loading: 'lazy', alt: item.image.alt
+            }}
+          {%- else -%}
+            {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          {%- endif -%}
+        </a>
+
+        <div class="cart-item__details">
+          <div class="cart-item__top">
+            <div>
+              <a href="{{ item.url }}" class="cart-item__title">{% render 'product-title', title: item.product.title %}</a>
+
+              {%- unless item.product.has_only_default_variant -%}
+                <p class="cart-item__meta">
+                  {%- for option in item.options_with_values -%}
+                    {{ option.name }}: {{ option.value }}
+                    {%- unless forloop.last %} · {% endunless -%}
+                  {%- endfor -%}
+                </p>
+              {%- endunless -%}
+
+              {%- if item.selling_plan_allocation -%}
+                <p class="cart-item__meta">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+              {%- endif -%}
+
+              {%- for property in item.properties -%}
+                {%- assign property_first_char = property.first | slice: 0 -%}
+                {%- if property.last != blank and property_first_char != '_' -%}
+                  <p class="cart-item__meta">
+                    {{ property.first | escape }}:
+                    {%- if property.last contains '/uploads/' -%}
+                      <a href="{{ property.last | escape }}" class="link" target="_blank" rel="noopener">
+                        {{- property.last | split: '/' | last | escape -}}
+                      </a>
+                    {%- else -%}
+                      {{ property.last | escape }}
+                    {%- endif -%}
+                  </p>
+                {%- endif -%}
+              {%- endfor -%}
+
+              {%- for discount in item.line_level_discount_allocations -%}
+                <p class="cart-item__discount">
+                  {% render 'icon', icon: 'check', size: 12 %}
+                  {{ discount.discount_application.title }} (-{{ discount.amount | money }})
+                </p>
+              {%- endfor -%}
+            </div>
+
+            <button
+              type="button"
+              class="icon-button cart-item__remove"
+              data-cart-remove="{{ item.key }}"
+              aria-label="{{ 'cart.remove' | t: title: item.product.title | escape }}"
+            >
+              {% render 'icon', icon: 'trash', size: 16 %}
+            </button>
+          </div>
+
+          <div class="cart-item__bottom">
+            <quantity-input class="quantity quantity--small">
+              <button type="button" class="quantity__button" data-quantity="minus" aria-label="{{ 'products.product.quantity.decrease' | t }}">
+                {% render 'icon', icon: 'minus', size: 12 %}
+              </button>
+              <input
+                type="number"
+                class="quantity__input"
+                name="updates[]"
+                value="{{ item.quantity }}"
+                min="0"
+                {% if item.variant.quantity_rule.max != null %}
+                  max="{{ item.variant.quantity_rule.max }}"
+                {% endif %}
+                step="{{ item.variant.quantity_rule.increment | default: 1 }}"
+                inputmode="numeric"
+                data-line-key="{{ item.key }}"
+                data-index="{{ forloop.index }}"
+                aria-label="{{ 'products.product.quantity.label' | t }}: {{ item.product.title | escape }}"
+              >
+              <button type="button" class="quantity__button" data-quantity="plus" aria-label="{{ 'products.product.quantity.increase' | t }}">
+                {% render 'icon', icon: 'plus', size: 12 %}
+              </button>
+            </quantity-input>
+
+            <div class="cart-item__price">
+              {%- if item.original_line_price != item.final_line_price -%}
+                <s>{{ item.original_line_price | money }}</s>
+                <span>{{ item.final_line_price | money }}</span>
+              {%- elsif item.variant.compare_at_price > item.variant.price -%}
+                <s>{{ item.variant.compare_at_price | times: item.quantity | money }}</s>
+                <span>{{ item.final_line_price | money }}</span>
+              {%- else -%}
+                {{ item.final_line_price | money }}
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+
+        <p class="cart-item__error" data-line-error="{{ forloop.index }}" role="alert"></p>
+      </li>
+    {%- endfor -%}
+  </ul>
+</cart-items>

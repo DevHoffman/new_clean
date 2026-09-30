@@ -1,0 +1,182 @@
+{{ 'section-shop-by-concern.css' | asset_url | stylesheet_tag }}
+
+<div
+  class="section scheme-{{ section.settings.color_scheme }} shop-by-concern"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="container">
+    {%- if section.settings.heading != blank or section.settings.description != blank -%}
+      <div class="section-header section-header--center">
+        <div class="section-header__text">
+          {%- if section.settings.eyebrow != blank -%}
+            <span class="eyebrow">{{ section.settings.eyebrow }}</span>
+          {%- endif -%}
+          {%- if section.settings.heading != blank -%}
+            <h2 class="h2">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.description != blank -%}
+            <p class="section-header__description">{{ section.settings.description }}</p>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <ul
+      class="grid shop-by-concern__grid"
+      role="list"
+      style="--cols-mobile: 2; --cols-tablet: 3; --cols-desktop: {{ section.settings.columns_desktop }};"
+    >
+      {%- for block in section.blocks -%}
+        <li {{ block.shopify_attributes }}>
+          {%- if block.settings.link != blank -%}
+            <a class="shop-by-concern__card" href="{{ block.settings.link }}">
+          {%- else -%}
+            <div class="shop-by-concern__card">
+          {%- endif -%}
+          <span class="shop-by-concern__visual">
+            {%- if block.settings.image != blank -%}
+              {{
+                block.settings.image
+                | image_url: width: 240
+                | image_tag: widths: '64, 128, 192, 240', sizes: '64px', loading: 'lazy', alt: ''
+              }}
+            {%- else -%}
+              {% render 'icon-category', icon: block.settings.icon, size: 28 %}
+            {%- endif -%}
+          </span>
+          <span class="shop-by-concern__body">
+            {%- if block.settings.title != blank -%}
+              <span class="shop-by-concern__title">{{ block.settings.title }}</span>
+            {%- endif -%}
+            {%- if block.settings.text != blank -%}
+              <span class="shop-by-concern__text">{{ block.settings.text }}</span>
+            {%- endif -%}
+          </span>
+          {%- if block.settings.link != blank -%}
+            </a>
+          {%- else -%}
+            </div>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Compre por segmento",
+  "tag": "section",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto de apoio"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Compre por segmento"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Descrição",
+      "default": "Produtos de limpeza para cada tipo de ambiente, da sua empresa à sua casa."
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Colunas no desktop",
+      "min": 3,
+      "max": 6,
+      "step": 1,
+      "default": 6
+    },
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ],
+  "blocks": [
+    {
+      "type": "concern",
+      "name": "Segmento",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título",
+          "default": "Condomínios"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto curto",
+          "default": "Áreas comuns e portaria"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Ícone",
+          "options": [
+            { "value": "building", "label": "Prédio (condomínio)" },
+            { "value": "utensils", "label": "Talheres (restaurante)" },
+            { "value": "medical", "label": "Saúde (clínica)" },
+            { "value": "briefcase", "label": "Maleta (escritório)" },
+            { "value": "school", "label": "Escola" },
+            { "value": "home", "label": "Casa" },
+            { "value": "box", "label": "Caixa" },
+            { "value": "spray", "label": "Borrifador" },
+            { "value": "broom", "label": "Vassoura" },
+            { "value": "paper-roll", "label": "Rolo de papel" },
+            { "value": "trash-bag", "label": "Saco de lixo" },
+            { "value": "glove", "label": "Luva" },
+            { "value": "cup", "label": "Copo descartável" },
+            { "value": "soap", "label": "Sabonete" },
+            { "value": "bucket", "label": "Balde" },
+            { "value": "sponge", "label": "Esponja" },
+            { "value": "dispenser", "label": "Dispenser" },
+            { "value": "coffee", "label": "Café" }
+          ],
+          "default": "building"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Imagem",
+          "info": "Opcional. Quando preenchida, substitui o ícone."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Compre por segmento",
+      "settings": {
+        "color_scheme": "alt"
+      },
+      "blocks": [
+        { "type": "concern", "settings": { "title": "Condomínios", "text": "Áreas comuns e portaria", "icon": "building" } },
+        { "type": "concern", "settings": { "title": "Restaurantes e bares", "text": "Cozinha, salão e banheiros", "icon": "utensils" } },
+        { "type": "concern", "settings": { "title": "Clínicas e consultórios", "text": "Higiene e descartáveis", "icon": "medical" } },
+        { "type": "concern", "settings": { "title": "Escritórios", "text": "Copa, banheiros e estações", "icon": "briefcase" } },
+        { "type": "concern", "settings": { "title": "Escolas", "text": "Salas, pátios e refeitório", "icon": "school" } },
+        { "type": "concern", "settings": { "title": "Casa", "text": "Limpeza do dia a dia", "icon": "home" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

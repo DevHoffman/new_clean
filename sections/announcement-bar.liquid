@@ -1,0 +1,155 @@
+{%- if section.blocks.size > 0 -%}
+  <announcement-bar
+    class="announcement-bar scheme-{{ section.settings.color_scheme }}"
+    data-speed="{{ section.settings.speed }}"
+    role="region"
+    aria-label="{{ 'sections.announcement_bar.label' | t }}"
+  >
+    <div class="container announcement-bar__inner">
+      {%- for block in section.blocks -%}
+        {%- capture message -%}{% render 'claims', text: block.settings.text %}{%- endcapture -%}
+        {%- if message == blank -%}
+          {%- continue -%}
+        {%- endif -%}
+        <div class="announcement-bar__item" {{ block.shopify_attributes }}>
+          {%- if block.settings.icon != 'none' -%}
+            {% render 'icon', icon: block.settings.icon, size: 16 %}
+          {%- endif -%}
+          {%- if block.settings.link != blank -%}
+            <a href="{{ block.settings.link }}">{{ message }}</a>
+          {%- else -%}
+            <span>{{ message }}</span>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </announcement-bar>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Barra de anúncios",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        {
+          "value": "default",
+          "label": "Padrão"
+        },
+        {
+          "value": "alt",
+          "label": "Fundo alternativo"
+        },
+        {
+          "value": "inverse",
+          "label": "Invertido"
+        },
+        {
+          "value": "accent",
+          "label": "Destaque"
+        }
+      ],
+      "default": "inverse"
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Trocar mensagem a cada",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Anúncio",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Ícone",
+          "options": [
+            {
+              "value": "none",
+              "label": "Nenhum"
+            },
+            {
+              "value": "truck",
+              "label": "Entrega"
+            },
+            {
+              "value": "pix",
+              "label": "Pix"
+            },
+            {
+              "value": "credit-card",
+              "label": "Cartão"
+            },
+            {
+              "value": "gift",
+              "label": "Presente"
+            },
+            {
+              "value": "sparkle",
+              "label": "Brilho"
+            },
+            {
+              "value": "refresh",
+              "label": "Troca"
+            },
+            {
+              "value": "clock",
+              "label": "Relógio"
+            }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto",
+          "default": "Frete grátis acima de [frete]",
+          "info": "Aceita [frete], [pix] e [parcelas]: o valor vem das configurações do tema. Se o Pix não estiver confirmado, a frase com [pix] não aparece."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "announcement",
+        "settings": {
+          "icon": "truck",
+          "text": "Frete grátis acima de [frete]"
+        }
+      },
+      {
+        "type": "announcement",
+        "settings": {
+          "icon": "pix",
+          "text": "[pix] de desconto pagando no Pix"
+        }
+      },
+      {
+        "type": "announcement",
+        "settings": {
+          "icon": "credit-card",
+          "text": "Parcele em até [parcelas]"
+        }
+      }
+    ]
+  }
+}
+{% endschema %}

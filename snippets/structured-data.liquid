@@ -1,0 +1,81 @@
+{%- comment -%}
+  Site-wide structured data. Product, article and breadcrumb data live next to
+  their own templates.
+{%- endcomment -%}
+
+{%- if request.page_type == 'index' -%}
+  {%- liquid
+    assign social_links = ''
+    if settings.social_instagram != blank
+      assign social_links = social_links | append: settings.social_instagram | append: '|'
+    endif
+    if settings.social_tiktok != blank
+      assign social_links = social_links | append: settings.social_tiktok | append: '|'
+    endif
+    if settings.social_facebook != blank
+      assign social_links = social_links | append: settings.social_facebook | append: '|'
+    endif
+    if settings.social_youtube != blank
+      assign social_links = social_links | append: settings.social_youtube | append: '|'
+    endif
+    if settings.social_pinterest != blank
+      assign social_links = social_links | append: settings.social_pinterest | append: '|'
+    endif
+    assign social_links = social_links | split: '|'
+  -%}
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": {{ shop.name | json }},
+      {%- if settings.company_legal_name != blank -%}
+        "legalName": {{ settings.company_legal_name | json }},
+      {%- endif -%}
+      {%- if settings.company_cnpj != blank -%}
+        "taxID": {{ settings.company_cnpj | json }},
+      {%- endif -%}
+      {%- if settings.logo -%}
+        "logo": {{ settings.logo | image_url: width: 500 | prepend: 'https:' | json }},
+      {%- endif -%}
+      "sameAs": {{ social_links | json }},
+      "url": {{ request.origin | json }},
+      {%- if settings.help_phone != blank -%}
+        "telephone": {{ settings.help_phone | json }},
+      {%- endif -%}
+      {%- if settings.help_email != blank -%}
+        "email": {{ settings.help_email | json }},
+      {%- endif -%}
+      {%- if shop.address.city != blank -%}
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": {{ shop.address.street | json }},
+          "addressLocality": {{ shop.address.city | json }},
+          "addressRegion": {{ shop.address.province | json }},
+          "postalCode": {{ shop.address.zip | json }},
+          "addressCountry": {{ shop.address.country_code | default: 'BR' | json }}
+        },
+      {%- endif -%}
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        "availableLanguage": "Portuguese"
+        {%- if settings.help_phone != blank -%}
+          , "telephone": {{ settings.help_phone | json }}
+        {%- endif -%}
+      }
+    }
+  </script>
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": {{ shop.name | json }},
+      "url": {{ request.origin | json }},
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {{ request.origin | append: routes.search_url | append: '?q={search_term_string}' | json }},
+        "query-input": "required name=search_term_string"
+      }
+    }
+  </script>
+{%- endif -%}

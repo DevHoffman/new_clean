@@ -1,0 +1,109 @@
+<cart-drawer class="drawer cart-drawer" id="CartDrawer" role="dialog" aria-modal="true" aria-label="{{ 'cart.title' | t }}" hidden>
+  <div class="drawer__overlay" data-modal-close></div>
+
+  <div class="drawer__panel" tabindex="-1" data-cart-section="{{ section.id }}" data-item-count="{{ cart.item_count }}">
+    <div class="drawer__header">
+      <p class="drawer__title h4">
+        {{ 'cart.title' | t }}
+        {%- if cart.item_count > 0 %}
+          <span class="cart-drawer__count">({{ cart.item_count }})</span>
+        {%- endif -%}
+      </p>
+      <button type="button" class="icon-button" data-modal-close aria-label="{{ 'accessibility.close' | t }}">
+        {% render 'icon', icon: 'close' %}
+      </button>
+    </div>
+
+    {%- if cart.item_count == 0 -%}
+      <div class="drawer__body">
+        <div class="cart-empty">
+          {% render 'icon', icon: 'cart', size: 40 %}
+          <p class="h4">{{ 'cart.empty' | t }}</p>
+          <p class="text-muted text-small">{{ 'cart.empty_text' | t }}</p>
+          <div class="cart-empty__links">
+            {%- for block in section.blocks -%}
+              <a
+                href="{{ block.settings.link | default: routes.all_products_collection_url }}"
+                class="button{% unless forloop.first %} button--secondary{% endunless %} button--full"
+                {{ block.shopify_attributes }}
+              >
+                {{ block.settings.label }}
+              </a>
+            {%- else -%}
+              <a href="{{ routes.all_products_collection_url }}" class="button button--full">
+                {{ 'general.continue_shopping' | t }}
+              </a>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    {%- else -%}
+      <div class="drawer__body">
+        {% render 'free-shipping-bar' %}
+
+        <form action="{{ routes.cart_url }}" method="post" id="CartDrawerForm" novalidate>
+          {% render 'cart-items' %}
+        </form>
+
+        {%- if settings.cart_upsell -%}
+          {%- liquid
+            assign upsell_product_id = cart.items.first.product_id
+            assign has_fallback = false
+            if settings.cart_upsell_collection != blank and settings.cart_upsell_collection.products_count > 0
+              assign has_fallback = true
+            endif
+          -%}
+          <product-recommendations
+            class="cart-upsell"
+            data-url="{{ routes.product_recommendations_url }}?product_id={{ upsell_product_id }}&section_id=cart-upsell&limit=8&intent=related"
+            {% if has_fallback %}
+              data-keep
+            {% else %}
+              hidden
+            {% endif %}
+          >
+            {%- if has_fallback -%}
+              {% render 'cart-upsell-list', products: settings.cart_upsell_collection.products %}
+            {%- endif -%}
+          </product-recommendations>
+        {%- endif -%}
+      </div>
+
+      <div class="drawer__footer">
+        {% render 'cart-summary', form_id: 'CartDrawerForm' %}
+      </div>
+    {%- endif -%}
+  </div>
+</cart-drawer>
+
+{% schema %}
+{
+  "name": "Carrinho lateral",
+  "max_blocks": 2,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Barra de frete grátis, recomendações e selos são configurados em Configurações do tema > Carrinho."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "empty_link",
+      "name": "Atalho (carrinho vazio)",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Texto do botão",
+          "default": "Ver mais vendidos"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

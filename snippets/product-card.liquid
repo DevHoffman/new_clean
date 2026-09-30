@@ -1,0 +1,219 @@
+{%- comment -%}
+  Renders a product card.
+
+  Accepts:
+  - product: {Object} product (optional; renders a placeholder when blank)
+  - lazy: {Boolean} lazy-load the image (optional, default true)
+  - sizes: {String} sizes attribute for the image (optional)
+  - quick_add: {Boolean} override the global quick add setting (optional)
+  - compact: {Boolean} smaller card without swatches/rating, used in cart upsell (optional)
+
+  Usage:
+  {% render 'product-card', product: product %}
+{%- endcomment -%}
+
+{%- liquid
+  assign lazy = lazy | default: true, allow_false: true
+  assign quick_add = quick_add | default: settings.card_quick_add, allow_false: true
+  assign sizes = sizes | default: '(min-width: 1200px) 25vw, (min-width: 750px) 33vw, 50vw'
+  assign card_alt = product.featured_media.alt | default: product.title
+  assign loading = 'lazy'
+  unless lazy
+    assign loading = 'eager'
+  endunless
+-%}
+
+{%- if product == blank -%}
+  <div class="product-card product-card--placeholder">
+    <div class="product-card__media">
+      {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+    <div class="product-card__info">
+      <p class="product-card__title">{{ 'products.product.placeholder_title' | t }}</p>
+      <div class="price"><span class="price__current">{{ 9990 | money }}</span></div>
+    </div>
+  </div>
+{%- else -%}
+  {%- liquid
+    assign first_variant = product.selected_or_first_available_variant
+    assign on_sale = false
+    if product.compare_at_price > product.price
+      assign on_sale = true
+      assign discount = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round
+    endif
+
+    assign swatch_names = settings.swatch_option_names | downcase | newline_to_br | split: '<br />'
+    assign swatch_option = blank
+    unless compact
+      if settings.card_show_swatches
+        for option in product.options_with_values
+          assign option_name = option.name | downcase | strip
+          for swatch_name in swatch_names
+            assign candidate = swatch_name | strip
+            if candidate == option_name
+              assign swatch_option = option
+            endif
+          endfor
+        endfor
+      endif
+    endunless
+  -%}
+  <div
+    class="product-card{% if compact %} product-card--compact{% endif %}{% unless product.available %} product-card--sold-out{% endunless %}"
+    data-product-id="{{ product.id }}"
+    data-product-name="{{ product.title | escape }}"
+    data-product-price="{{ product.price | divided_by: 100.0 }}"
+  >
+    <div class="product-card__media">
+      <a
+        href="{{ product.url }}"
+        class="product-card__media-link"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        {%- if product.featured_media -%}
+          {{
+            product.featured_media.preview_image
+            | image_url: width: 900
+            | image_tag:
+              widths: '200, 300, 400, 500, 700, 900',
+              sizes: sizes,
+              loading: loading,
+              alt: card_alt,
+              class: 'product-card__image'
+          }}
+          {%- if settings.card_second_image and compact != true -%}
+            {%- if product.media[1] -%}
+              {{
+                product.media[1].preview_image
+                | image_url: width: 900
+                | image_tag:
+                  widths: '200, 300, 400, 500, 700, 900',
+                  sizes: sizes,
+                  loading: 'lazy',
+                  alt: '',
+                  class: 'product-card__image product-card__image--hover'
+              }}
+            {%- endif -%}
+          {%- endif -%}
+        {%- else -%}
+          <span class="product-card__no-image">
+            {% render 'icon', icon: 'box', size: 36 %}
+            <span>{{ 'products.product.no_image' | t }}</span>
+          </span>
+        {%- endif -%}
+      </a>
+
+      <div class="product-card__badges">
+        {%- if product.available == false -%}
+          <span class="badge badge--muted">{{ 'products.product.sold_out' | t }}</span>
+        {%- else -%}
+          {%- if on_sale -%}
+            <span class="badge badge--sale">
+              {%- if settings.badge_sale_percent -%}
+                {{ 'products.product.discount_off' | t: percent: discount }}
+              {%- else -%}
+                {{ 'products.product.on_sale' | t }}
+              {%- endif -%}
+            </span>
+          {%- endif -%}
+          {%- if settings.badge_bestseller_tag != blank and product.tags contains settings.badge_bestseller_tag -%}
+            <span class="badge badge--accent">{{ 'products.product.bestseller' | t }}</span>
+          {%- elsif settings.badge_new_tag != blank and product.tags contains settings.badge_new_tag -%}
+            <span class="badge badge--dark">{{ 'products.product.new' | t }}</span>
+          {%- endif -%}
+        {%- endif -%}
+      </div>
+    </div>
+
+    <div class="product-card__info">
+      {%- if settings.card_show_vendor and compact != true -%}
+        <p class="product-card__vendor">{{ product.vendor }}</p>
+      {%- endif -%}
+
+      <a href="{{ product.url }}" class="product-card__title">{% render 'product-title', title: product.title %}</a>
+
+      {%- if settings.card_show_rating and compact != true -%}
+        {% render 'rating', product: product %}
+      {%- endif -%}
+
+      {% render 'price', product: product, show_pix: settings.card_show_pix %}
+
+      {%- if first_variant.quantity_price_breaks.size > 0 -%}
+        <p class="product-card__volume">
+          {% render 'icon', icon: 'box', size: 12 %}
+          {{ 'products.product.volume.card_hint' | t: quantity: first_variant.quantity_price_breaks.first.minimum_quantity }}
+        </p>
+      {%- endif -%}
+
+      {%- if swatch_option and swatch_option.values.size > 1 -%}
+        <ul class="product-card__swatches" role="list" aria-label="{{ swatch_option.name | escape }}">
+          {%- for value in swatch_option.values limit: 5 -%}
+            <li>
+              <span class="swatch swatch--small" style="{% render 'swatch', value: value %}" title="{{ value.name | escape }}"></span>
+              <span class="visually-hidden">{{ value.name }}</span>
+            </li>
+          {%- endfor -%}
+          {%- if swatch_option.values.size > 5 -%}
+            <li class="product-card__swatches-more">+{{ swatch_option.values.size | minus: 5 }}</li>
+          {%- endif -%}
+        </ul>
+      {%- endif -%}
+
+      {%- if quick_add -%}
+        <div class="product-card__actions">
+          {%- if product.available == false -%}
+            <button type="button" class="button button--small button--full" disabled>
+              {{ 'products.product.sold_out' | t }}
+            </button>
+          {%- elsif product.has_only_default_variant -%}
+            <product-form data-quick>
+              {%- form 'product', product, id: nil, novalidate: 'novalidate', class: 'product-card__form' -%}
+                <input type="hidden" name="id" value="{{ first_variant.id }}">
+                {%- if settings.card_quantity and compact != true -%}
+                  <quantity-input class="quantity quantity--small product-card__quantity">
+                    <button type="button" class="quantity__button" data-quantity="minus" aria-label="{{ 'products.product.quantity.decrease' | t }}">
+                      {% render 'icon', icon: 'minus', size: 12 %}
+                    </button>
+                    <input
+                      type="number"
+                      class="quantity__input"
+                      name="quantity"
+                      value="{{ first_variant.quantity_rule.min | default: 1 }}"
+                      min="{{ first_variant.quantity_rule.min | default: 1 }}"
+                      {% if first_variant.quantity_rule.max != null %}
+                        max="{{ first_variant.quantity_rule.max }}"
+                      {% endif %}
+                      step="{{ first_variant.quantity_rule.increment | default: 1 }}"
+                      inputmode="numeric"
+                      aria-label="{{ 'products.product.quantity.label' | t }}: {{ product.title | escape }}"
+                    >
+                    <button type="button" class="quantity__button" data-quantity="plus" aria-label="{{ 'products.product.quantity.increase' | t }}">
+                      {% render 'icon', icon: 'plus', size: 12 %}
+                    </button>
+                  </quantity-input>
+                {%- endif -%}
+                <button type="submit" class="button button--small button--full" name="add" aria-label="{{ 'products.product.add_to_cart' | t }}: {{ product.title | escape }}">
+                  {% render 'icon', icon: 'cart', size: 16 %}
+                  <span class="button__label">{{ 'products.product.quick_add' | t }}</span>
+                  <span class="button__spinner" aria-hidden="true"></span>
+                </button>
+              {%- endform -%}
+            </product-form>
+          {%- else -%}
+            <button
+              type="button"
+              class="button button--small button--full"
+              data-quick-add-url="{{ product.url }}"
+              aria-haspopup="dialog"
+              aria-label="{{ 'products.product.choose_options' | t }}: {{ product.title | escape }}"
+            >
+              <span class="button__label">{{ 'products.product.choose_options' | t }}</span>
+              <span class="button__spinner" aria-hidden="true"></span>
+            </button>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

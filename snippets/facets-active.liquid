@@ -1,0 +1,41 @@
+{%- comment -%}
+  Chips for the active filters, with a "clear all" link.
+
+  Accepts:
+  - filters: {Array} collection.filters or search.filters (required)
+  - clear_url: {String} URL that removes every filter (required)
+  - active_count: {Number} number of active filters (required)
+
+  Usage:
+  {% render 'facets-active', filters: search.filters, clear_url: clear_url, active_count: active_count %}
+{%- endcomment -%}
+
+{%- if active_count > 0 -%}
+  <div class="facets__active">
+    {%- for filter in filters -%}
+      {%- if filter.type == 'price_range' -%}
+        {%- if filter.min_value.value != null or filter.max_value.value != null -%}
+          <a href="{{ filter.url_to_remove }}" class="chip" data-facet-link>
+            {%- if filter.min_value.value -%}{{ filter.min_value.value | money }}{%- else -%}{{ 0 | money }}{%- endif -%}
+            –
+            {%- if filter.max_value.value -%}{{ filter.max_value.value | money }}{%- else -%}{{ filter.range_max | money }}{%- endif -%}
+            {% render 'icon', icon: 'close', size: 12 %}
+            <span class="visually-hidden">{{ 'collections.facets.remove' | t }}</span>
+          </a>
+        {%- endif -%}
+      {%- else -%}
+        {%- for value in filter.active_values -%}
+          <a href="{{ value.url_to_remove }}" class="chip" data-facet-link>
+            {{ value.label }}
+            {% render 'icon', icon: 'close', size: 12 %}
+            <span class="visually-hidden">{{ 'collections.facets.remove' | t }}</span>
+          </a>
+        {%- endfor -%}
+      {%- endif -%}
+    {%- endfor -%}
+    <a href="{{ clear_url }}" class="link text-small" data-facet-link>
+      {{ 'collections.facets.clear_all' | t }}
+    </a>
+  </div>
+{%- endif -%}
+

@@ -1,0 +1,1151 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "New Clean",
+    "theme_version": "2.0.0",
+    "theme_author": "Automatiza",
+    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
+    "theme_support_url": "https://help.shopify.com/manual/online-store/themes"
+  },
+  {
+    "name": "Logo e favicon",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo",
+        "info": "Se nenhum logo for enviado, o tema usa o logo New Clean incluído nos arquivos do tema."
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "min": 60,
+        "max": 260,
+        "step": 10,
+        "unit": "px",
+        "label": "Largura do logo (desktop)",
+        "default": 130
+      },
+      {
+        "type": "range",
+        "id": "logo_width_mobile",
+        "min": 60,
+        "max": 200,
+        "step": 10,
+        "unit": "px",
+        "label": "Largura do logo (mobile)",
+        "default": 100
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon",
+        "info": "Recomendado: 96 x 96 px"
+      }
+    ]
+  },
+  {
+    "name": "Cores",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Base"
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Fundo",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "color_background_alt",
+        "label": "Fundo alternativo",
+        "info": "Usado em seções de destaque, cartões e rodapé.",
+        "default": "#F4F6FA"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Texto",
+        "default": "#0D1F3C"
+      },
+      {
+        "type": "color",
+        "id": "color_text_muted",
+        "label": "Texto secundário",
+        "default": "#5B6F8E"
+      },
+      {
+        "type": "color",
+        "id": "color_border",
+        "label": "Bordas",
+        "default": "#D0DCEE"
+      },
+      {
+        "type": "header",
+        "content": "Marca e botões"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Cor de destaque",
+        "info": "Links, selos e detalhes da marca.",
+        "default": "#1A5CA8"
+      },
+      {
+        "type": "color",
+        "id": "color_button",
+        "label": "Botão principal",
+        "info": "Use uma cor de alto contraste: o botão de compra é o elemento mais importante da página.",
+        "default": "#F5C227"
+      },
+      {
+        "type": "color",
+        "id": "color_button_text",
+        "label": "Texto do botão principal",
+        "default": "#0D1F3C"
+      },
+      {
+        "type": "header",
+        "content": "Sinalização"
+      },
+      {
+        "type": "color",
+        "id": "color_sale",
+        "label": "Promoção",
+        "default": "#C62828"
+      },
+      {
+        "type": "color",
+        "id": "color_success",
+        "label": "Sucesso",
+        "default": "#1E7A55"
+      },
+      {
+        "type": "color",
+        "id": "color_rating",
+        "label": "Estrelas de avaliação",
+        "default": "#F5A623"
+      },
+      {
+        "type": "header",
+        "content": "Seções invertidas"
+      },
+      {
+        "type": "color",
+        "id": "color_inverse_background",
+        "label": "Fundo invertido",
+        "default": "#0E3D73"
+      },
+      {
+        "type": "color",
+        "id": "color_inverse_text",
+        "label": "Texto invertido",
+        "default": "#FFFFFF"
+      }
+    ]
+  },
+  {
+    "name": "Tipografia",
+    "settings": [
+      {
+        "type": "font_picker",
+        "id": "font_heading",
+        "label": "Fonte dos títulos",
+        "default": "montserrat_n8"
+      },
+      {
+        "type": "range",
+        "id": "heading_scale",
+        "min": 80,
+        "max": 130,
+        "step": 5,
+        "unit": "%",
+        "label": "Escala dos títulos",
+        "default": 100
+      },
+      {
+        "type": "font_picker",
+        "id": "font_body",
+        "label": "Fonte do texto",
+        "default": "inter_n4"
+      },
+      {
+        "type": "range",
+        "id": "body_scale",
+        "min": 90,
+        "max": 120,
+        "step": 5,
+        "unit": "%",
+        "label": "Escala do texto",
+        "default": 100
+      },
+      {
+        "type": "checkbox",
+        "id": "buttons_uppercase",
+        "label": "Botões em maiúsculas",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "page_width",
+        "min": 1100,
+        "max": 1600,
+        "step": 50,
+        "unit": "px",
+        "label": "Largura máxima da página",
+        "default": 1400
+      },
+      {
+        "type": "range",
+        "id": "radius",
+        "min": 0,
+        "max": 24,
+        "step": 2,
+        "unit": "px",
+        "label": "Arredondamento de cartões e imagens",
+        "default": 12
+      },
+      {
+        "type": "range",
+        "id": "radius_button",
+        "min": 0,
+        "max": 40,
+        "step": 2,
+        "unit": "px",
+        "label": "Arredondamento dos botões",
+        "default": 10
+      }
+    ]
+  },
+  {
+    "name": "Experiência e animações",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Todos os efeitos respeitam a preferência \"reduzir movimento\" do dispositivo do cliente."
+      },
+      {
+        "type": "header",
+        "content": "Carregamento"
+      },
+      {
+        "type": "checkbox",
+        "id": "preloader_enabled",
+        "label": "Mostrar tela de carregamento",
+        "info": "Exibida somente na primeira página de cada visita e removida assim que o conteúdo está pronto.",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Rolagem"
+      },
+      {
+        "type": "checkbox",
+        "id": "smooth_scroll",
+        "label": "Rolagem suave com inércia",
+        "info": "Aplica-se à roda do mouse no desktop. Touch e trackpad mantêm a rolagem nativa.",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "reveal_animations",
+        "label": "Revelar seções ao rolar",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "back_to_top",
+        "label": "Botão \"voltar ao topo\" com progresso de leitura",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Cabeçalho"
+      },
+      {
+        "type": "checkbox",
+        "id": "header_mouse_effect",
+        "label": "Indicador deslizante no menu",
+        "info": "Uma barra que acompanha o item do menu sob o mouse. Somente desktop.",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Teste A/B"
+      },
+      {
+        "type": "checkbox",
+        "id": "fx_experiment",
+        "label": "Testar os efeitos com metade dos visitantes",
+        "info": "Metade dos visitantes vê a loja sem preloader, rolagem com inércia e animações de entrada. A variante segue no evento fx_variant do dataLayer, para comparar conversão e rejeição no GA4 (veja docs/analytics/eventos.md). Para testar você mesmo, adicione ?nc_fx=lite ou ?nc_fx=full ao endereço.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "Cartão de produto",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "normalize_titles",
+        "label": "Normalizar títulos em CAIXA ALTA",
+        "info": "Exibe \"Acabamento Acrilico 5L Startpro\" em vez de \"ACABAMENTO ACRILICO 5L STARTPRO\". Vale para vitrine, página de produto, carrinho e busca; o cadastro não é alterado.",
+        "default": true
+      },
+      {
+        "type": "select",
+        "id": "card_image_ratio",
+        "label": "Proporção da imagem",
+        "options": [
+          {
+            "value": "1/1",
+            "label": "Quadrada (1:1)"
+          },
+          {
+            "value": "4/5",
+            "label": "Retrato (4:5)"
+          },
+          {
+            "value": "3/4",
+            "label": "Retrato alto (3:4)"
+          }
+        ],
+        "default": "1/1"
+      },
+      {
+        "type": "select",
+        "id": "card_image_fit",
+        "label": "Ajuste da imagem",
+        "options": [
+          {
+            "value": "contain",
+            "label": "Mostrar a imagem inteira"
+          },
+          {
+            "value": "cover",
+            "label": "Preencher o cartão"
+          }
+        ],
+        "info": "\"Mostrar a imagem inteira\" é o ideal para fotos de embalagens com proporções diferentes.",
+        "default": "contain"
+      },
+      {
+        "type": "checkbox",
+        "id": "card_second_image",
+        "label": "Trocar a imagem ao passar o mouse",
+        "default": true,
+        "info": "Mostra a segunda foto do produto ao passar o mouse. Produtos com uma foto só não mudam de imagem."
+      },
+      {
+        "type": "checkbox",
+        "id": "card_show_vendor",
+        "label": "Mostrar marca",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "card_show_pix",
+        "label": "Mostrar preço no Pix",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "card_show_rating",
+        "label": "Mostrar avaliações",
+        "info": "Requer um app de avaliações que preencha os metacampos padrão reviews.rating e reviews.rating_count.",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "card_show_swatches",
+        "label": "Mostrar amostras de cor",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "card_quick_add",
+        "label": "Ativar compra rápida",
+        "info": "Adiciona ao carrinho direto da vitrine. Produtos com variantes abrem uma janela de seleção.",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "card_quantity",
+        "label": "Mostrar seletor de quantidade no cartão",
+        "info": "Permite comprar várias unidades direto da vitrine. Recomendado para distribuidoras e atacado.",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Selos"
+      },
+      {
+        "type": "checkbox",
+        "id": "badge_sale_percent",
+        "label": "Mostrar desconto em porcentagem",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "badge_new_tag",
+        "label": "Tag para selo \"Novo\"",
+        "default": "novo"
+      },
+      {
+        "type": "text",
+        "id": "badge_bestseller_tag",
+        "label": "Tag para selo \"Mais vendido\"",
+        "default": "mais-vendido"
+      }
+    ]
+  },
+  {
+    "name": "Amostras de cor",
+    "settings": [
+      {
+        "type": "textarea",
+        "id": "swatch_option_names",
+        "label": "Nomes das opções exibidas como amostra",
+        "info": "Um por linha. Ex.: Cor, Fragrância.",
+        "default": "Cor\nTom\nTonalidade\nColor\nShade"
+      },
+      {
+        "type": "textarea",
+        "id": "swatch_colors",
+        "label": "Mapa de cores",
+        "info": "Um por linha, no formato Nome:#hex. Ex.: Nude Rosado:#D9A494. As amostras nativas da Shopify (metaobjetos de cor) têm prioridade quando configuradas.",
+        "default": "Azul:#1A5CA8\nVerde:#2E7D32\nAmarelo:#F5C227\nVermelho:#C62828\nPreto:#111111\nBranco:#FFFFFF"
+      }
+    ]
+  },
+  {
+    "name": "Preço e pagamento",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Parcelamento"
+      },
+      {
+        "type": "checkbox",
+        "id": "installments_enabled",
+        "label": "Mostrar parcelamento",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "installments_max",
+        "min": 2,
+        "max": 12,
+        "step": 1,
+        "label": "Número máximo de parcelas sem juros",
+        "default": 12
+      },
+      {
+        "type": "number",
+        "id": "installments_min_value",
+        "label": "Valor mínimo da parcela (R$)",
+        "default": 10
+      },
+      {
+        "type": "header",
+        "content": "Pix"
+      },
+      {
+        "type": "checkbox",
+        "id": "pix_enabled",
+        "label": "Mostrar preço no Pix",
+        "info": "O desconto precisa estar configurado também no checkout (gateway de pagamento ou desconto automático).",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "pix_discount",
+        "min": 0,
+        "max": 20,
+        "step": 1,
+        "unit": "%",
+        "label": "Desconto no Pix",
+        "default": 5
+      },
+      {
+        "type": "checkbox",
+        "id": "pix_confirmed",
+        "label": "Confirmo que este desconto é aplicado no checkout",
+        "info": "Obrigatório para exibir o preço com desconto no Pix. Pelo Código de Defesa do Consumidor, o preço anunciado precisa ser cobrado. Marque somente depois de testar uma compra com Pix e ver o desconto aplicado.",
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": "Formato"
+      },
+      {
+        "type": "checkbox",
+        "id": "currency_code_enabled",
+        "label": "Mostrar código da moeda",
+        "default": false
+      },
+      {
+        "type": "header",
+        "content": "Ícones de pagamento"
+      },
+      {
+        "type": "paragraph",
+        "content": "As bandeiras vêm automaticamente dos meios de pagamento ativos na Shopify (Cielo, Stripe etc.). Se o seu gateway aceita Pix ou boleto mas não expõe o ícone, ative abaixo."
+      },
+      {
+        "type": "checkbox",
+        "id": "payment_icon_pix",
+        "label": "Mostrar ícone do Pix",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "payment_icon_boleto",
+        "label": "Mostrar ícone de boleto",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Carrinho",
+    "settings": [
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "Tipo de carrinho",
+        "options": [
+          {
+            "value": "drawer",
+            "label": "Gaveta lateral"
+          },
+          {
+            "value": "page",
+            "label": "Página"
+          }
+        ],
+        "info": "A gaveta lateral mantém o cliente na jornada de compra e costuma converter melhor.",
+        "default": "drawer"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_precheckout",
+        "label": "Passar pela página \"Finalizar pedido\" antes do checkout",
+        "info": "A gaveta leva o cliente à página de pré-checkout (itens, dados, frete e forma de pagamento) e só então ao checkout da Shopify. Desligue para ir direto ao checkout.",
+        "default": true
+      },
+      {
+        "type": "header",
+        "content": "Barra de frete grátis"
+      },
+      {
+        "type": "checkbox",
+        "id": "free_shipping_bar",
+        "label": "Mostrar progresso para frete grátis",
+        "default": true
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Valor mínimo para frete grátis (R$)",
+        "info": "Deve ser igual à regra de frete grátis configurada em Configurações > Frete e entrega. O tema apenas exibe o valor.",
+        "default": 150
+      },
+      {
+        "type": "header",
+        "content": "Aumento de ticket"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_upsell",
+        "label": "Mostrar recomendações no carrinho",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "cart_upsell_title",
+        "label": "Título das recomendações",
+        "default": "Aproveite e leve também"
+      },
+      {
+        "type": "collection",
+        "id": "cart_upsell_collection",
+        "label": "Coleção de apoio",
+        "info": "Usada quando não há recomendações automáticas disponíveis."
+      },
+      {
+        "type": "header",
+        "content": "Opções"
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_bar",
+        "label": "Barra de resumo do pedido no celular",
+        "info": "Mostra total e botão de finalizar enquanto o cliente monta o pedido na vitrine.",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_shipping_estimator",
+        "label": "Calcular frete por CEP no carrinho",
+        "info": "Usa as regras de frete da loja; o cliente vê prazo e valor antes do checkout.",
+        "default": true
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_note",
+        "label": "Permitir observações no pedido",
+        "default": false
+      },
+      {
+        "type": "checkbox",
+        "id": "cart_trust",
+        "label": "Mostrar selos de segurança",
+        "default": true
+      }
+    ]
+  },
+  {
+    "name": "Urgência e estoque",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "low_stock_enabled",
+        "label": "Mostrar aviso de estoque baixo",
+        "info": "Exibe o estoque real. Requer rastreamento de estoque ativo no produto.",
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "low_stock_threshold",
+        "min": 1,
+        "max": 20,
+        "step": 1,
+        "label": "Limite para estoque baixo",
+        "default": 5
+      }
+    ]
+  },
+  {
+    "name": "Busca",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "predictive_search",
+        "label": "Ativar sugestões de busca",
+        "default": true
+      },
+      {
+        "type": "textarea",
+        "id": "search_popular_terms",
+        "label": "Buscas populares",
+        "info": "Um termo por linha. Exibidas ao abrir a busca.",
+        "default": "Desinfetante\nPapel higiênico\nSaco de lixo\nÁlcool\nDetergente\nLuva"
+      }
+    ]
+  },
+  {
+    "name": "Análise e rastreamento",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "O tema envia eventos ao dataLayer (busca, cliques em WhatsApp/telefone, promoções, profundidade de rolagem, seções e listas vistas). Eles só saem da loja se você ligar o Google Tag Manager abaixo, e ele só carrega depois que o visitante permite análise no banner de privacidade da Shopify."
+      },
+      {
+        "type": "text",
+        "id": "gtm_id",
+        "label": "ID do contêiner do Google Tag Manager",
+        "info": "Ex.: GTM-ABC1234. Deixe em branco para não carregar nada. Compras e checkout são medidos pelo pixel da Shopify (veja docs/analytics/eventos.md); não instale GA4 no GTM e no app Google & YouTube ao mesmo tempo."
+      }
+    ]
+  },
+  {
+    "name": "SEO e compartilhamento",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Título e descrição de cada produto, coleção e página são editados no admin (seção 'Listagem em mecanismos de busca'). Quando a descrição está vazia, o tema gera uma automaticamente."
+      },
+      {
+        "type": "textarea",
+        "id": "seo_description",
+        "label": "Descrição padrão da loja",
+        "info": "Usada na página inicial e em páginas sem descrição própria. Até 155 caracteres.",
+        "default": "Distribuidora de materiais de limpeza para empresas e residências. Preço de distribuidora, entrega rápida, Pix com desconto e parcelamento."
+      },
+      {
+        "type": "image_picker",
+        "id": "seo_share_image",
+        "label": "Imagem padrão de compartilhamento",
+        "info": "Aparece ao compartilhar links no WhatsApp e redes sociais quando a página não tem imagem própria. Recomendado: 1200 x 630 px."
+      }
+    ]
+  },
+  {
+    "name": "Dados da empresa",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Exigidos pelo Decreto 7.962/2013 para lojas online no Brasil e um dos principais sinais de confiança em compras de empresa. Aparecem no rodapé e nos dados estruturados para o Google."
+      },
+      {
+        "type": "text",
+        "id": "company_legal_name",
+        "label": "Razão social"
+      },
+      {
+        "type": "text",
+        "id": "company_cnpj",
+        "label": "CNPJ",
+        "placeholder": "00.000.000/0001-00"
+      },
+      {
+        "type": "text",
+        "id": "company_address",
+        "label": "Endereço",
+        "placeholder": "Rua Exemplo, 123 – Bairro"
+      },
+      {
+        "type": "text",
+        "id": "company_city",
+        "label": "Cidade/UF e CEP",
+        "default": "Vila Velha/ES"
+      }
+    ]
+  },
+  {
+    "name": "Redes sociais",
+    "settings": [
+      {
+        "type": "text",
+        "id": "social_instagram",
+        "label": "Instagram",
+        "info": "https://instagram.com/sualoja"
+      },
+      {
+        "type": "text",
+        "id": "social_tiktok",
+        "label": "TikTok"
+      },
+      {
+        "type": "text",
+        "id": "social_facebook",
+        "label": "Facebook"
+      },
+      {
+        "type": "text",
+        "id": "social_youtube",
+        "label": "YouTube"
+      },
+      {
+        "type": "text",
+        "id": "social_pinterest",
+        "label": "Pinterest"
+      },
+      {
+        "type": "text",
+        "id": "social_whatsapp",
+        "label": "WhatsApp",
+        "info": "Número com DDI e DDD, apenas dígitos. Ex.: 5511999999999. Ativa o botão flutuante de atendimento."
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_message",
+        "label": "Mensagem inicial do WhatsApp",
+        "default": "Olá! Quero fazer um pedido na New Clean."
+      }
+    ]
+  },
+  {
+    "name": "Central de ajuda",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Botão flutuante \"Posso ajudar?\" com autoatendimento e canais humanos. O WhatsApp usa o número definido em Redes sociais."
+      },
+      {
+        "type": "checkbox",
+        "id": "help_enabled",
+        "label": "Mostrar central de ajuda",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "help_label",
+        "label": "Título",
+        "default": "Posso ajudar?"
+      },
+      {
+        "type": "header",
+        "content": "Horário de atendimento"
+      },
+      {
+        "type": "select",
+        "id": "help_days",
+        "label": "Dias",
+        "options": [
+          {
+            "value": "weekdays",
+            "label": "Segunda a sexta"
+          },
+          {
+            "value": "mon-sat",
+            "label": "Segunda a sábado"
+          },
+          {
+            "value": "everyday",
+            "label": "Todos os dias"
+          }
+        ],
+        "default": "weekdays"
+      },
+      {
+        "type": "text",
+        "id": "help_open",
+        "label": "Abre às",
+        "info": "Formato 24h, ex.: 08:00 (horário de Brasília)",
+        "default": "08:00"
+      },
+      {
+        "type": "text",
+        "id": "help_close",
+        "label": "Fecha às",
+        "default": "18:00"
+      },
+      {
+        "type": "text",
+        "id": "help_hours",
+        "label": "Texto do horário",
+        "default": "Seg a sex, 8h às 18h"
+      },
+      {
+        "type": "header",
+        "content": "Aviso de mensagem"
+      },
+      {
+        "type": "checkbox",
+        "id": "help_teaser_enabled",
+        "label": "Mostrar aviso de mensagem pendente",
+        "info": "Um balão e um contador aparecem no botão até o cliente abrir a central pela primeira vez.",
+        "default": true
+      },
+      {
+        "type": "text",
+        "id": "help_teaser_text",
+        "label": "Mensagem do balão",
+        "default": "Olá! Precisa de ajuda para montar seu pedido?"
+      },
+      {
+        "type": "range",
+        "id": "help_teaser_delay",
+        "label": "Mostrar após",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "unit": "s",
+        "default": 6
+      },
+      {
+        "type": "header",
+        "content": "Autoatendimento"
+      },
+      {
+        "type": "text",
+        "id": "help_options_heading",
+        "label": "Título da lista",
+        "default": "Escolha por onde começar"
+      },
+      {
+        "type": "select",
+        "id": "help_option_1_icon",
+        "label": "Opção 1: ícone",
+        "options": [
+          {
+            "value": "search",
+            "label": "Busca"
+          },
+          {
+            "value": "box",
+            "label": "Caixa"
+          },
+          {
+            "value": "truck",
+            "label": "Entrega"
+          },
+          {
+            "value": "help",
+            "label": "Dúvida"
+          },
+          {
+            "value": "chat",
+            "label": "Conversa"
+          },
+          {
+            "value": "credit-card",
+            "label": "Pagamento"
+          },
+          {
+            "value": "refresh",
+            "label": "Troca"
+          },
+          {
+            "value": "account",
+            "label": "Conta"
+          },
+          {
+            "value": "gift",
+            "label": "Presente"
+          },
+          {
+            "value": "shield",
+            "label": "Segurança"
+          }
+        ],
+        "default": "search"
+      },
+      {
+        "type": "text",
+        "id": "help_option_1_title",
+        "label": "Opção 1: título",
+        "default": "Buscar produto na loja"
+      },
+      {
+        "type": "text",
+        "id": "help_option_1_text",
+        "label": "Opção 1: descrição",
+        "default": "Digite o nome ou o código do produto"
+      },
+      {
+        "type": "url",
+        "id": "help_option_1_link",
+        "label": "Opção 1: link",
+        "info": "Sugestão: /search. Sem link, a opção não aparece."
+      },
+      {
+        "type": "select",
+        "id": "help_option_2_icon",
+        "label": "Opção 2: ícone",
+        "options": [
+          {
+            "value": "search",
+            "label": "Busca"
+          },
+          {
+            "value": "box",
+            "label": "Caixa"
+          },
+          {
+            "value": "truck",
+            "label": "Entrega"
+          },
+          {
+            "value": "help",
+            "label": "Dúvida"
+          },
+          {
+            "value": "chat",
+            "label": "Conversa"
+          },
+          {
+            "value": "credit-card",
+            "label": "Pagamento"
+          },
+          {
+            "value": "refresh",
+            "label": "Troca"
+          },
+          {
+            "value": "account",
+            "label": "Conta"
+          },
+          {
+            "value": "gift",
+            "label": "Presente"
+          },
+          {
+            "value": "shield",
+            "label": "Segurança"
+          }
+        ],
+        "default": "box"
+      },
+      {
+        "type": "text",
+        "id": "help_option_2_title",
+        "label": "Opção 2: título",
+        "default": "Fazer um pedido rápido"
+      },
+      {
+        "type": "text",
+        "id": "help_option_2_text",
+        "label": "Opção 2: descrição",
+        "default": "Vários itens de uma vez, ideal para empresas"
+      },
+      {
+        "type": "url",
+        "id": "help_option_2_link",
+        "label": "Opção 2: link",
+        "info": "Sugestão: /pages/pedido-rapido. Sem link, a opção não aparece."
+      },
+      {
+        "type": "select",
+        "id": "help_option_3_icon",
+        "label": "Opção 3: ícone",
+        "options": [
+          {
+            "value": "search",
+            "label": "Busca"
+          },
+          {
+            "value": "box",
+            "label": "Caixa"
+          },
+          {
+            "value": "truck",
+            "label": "Entrega"
+          },
+          {
+            "value": "help",
+            "label": "Dúvida"
+          },
+          {
+            "value": "chat",
+            "label": "Conversa"
+          },
+          {
+            "value": "credit-card",
+            "label": "Pagamento"
+          },
+          {
+            "value": "refresh",
+            "label": "Troca"
+          },
+          {
+            "value": "account",
+            "label": "Conta"
+          },
+          {
+            "value": "gift",
+            "label": "Presente"
+          },
+          {
+            "value": "shield",
+            "label": "Segurança"
+          }
+        ],
+        "default": "truck"
+      },
+      {
+        "type": "text",
+        "id": "help_option_3_title",
+        "label": "Opção 3: título",
+        "default": "Acompanhar meu pedido"
+      },
+      {
+        "type": "text",
+        "id": "help_option_3_text",
+        "label": "Opção 3: descrição",
+        "default": "Status, prazo e nota fiscal"
+      },
+      {
+        "type": "url",
+        "id": "help_option_3_link",
+        "label": "Opção 3: link",
+        "info": "Sugestão: /account. Sem link, a opção não aparece."
+      },
+      {
+        "type": "select",
+        "id": "help_option_4_icon",
+        "label": "Opção 4: ícone",
+        "options": [
+          {
+            "value": "search",
+            "label": "Busca"
+          },
+          {
+            "value": "box",
+            "label": "Caixa"
+          },
+          {
+            "value": "truck",
+            "label": "Entrega"
+          },
+          {
+            "value": "help",
+            "label": "Dúvida"
+          },
+          {
+            "value": "chat",
+            "label": "Conversa"
+          },
+          {
+            "value": "credit-card",
+            "label": "Pagamento"
+          },
+          {
+            "value": "refresh",
+            "label": "Troca"
+          },
+          {
+            "value": "account",
+            "label": "Conta"
+          },
+          {
+            "value": "gift",
+            "label": "Presente"
+          },
+          {
+            "value": "shield",
+            "label": "Segurança"
+          }
+        ],
+        "default": "help"
+      },
+      {
+        "type": "text",
+        "id": "help_option_4_title",
+        "label": "Opção 4: título",
+        "default": "Dúvidas frequentes"
+      },
+      {
+        "type": "text",
+        "id": "help_option_4_text",
+        "label": "Opção 4: descrição",
+        "default": "Frete, pagamento, trocas e empresas"
+      },
+      {
+        "type": "url",
+        "id": "help_option_4_link",
+        "label": "Opção 4: link",
+        "info": "Sugestão: /pages/faq. Sem link, a opção não aparece."
+      },
+      {
+        "type": "header",
+        "content": "Falar com uma pessoa"
+      },
+      {
+        "type": "text",
+        "id": "help_people_text",
+        "label": "Texto",
+        "default": "Prefere falar com uma pessoa?"
+      },
+      {
+        "type": "text",
+        "id": "help_phone",
+        "label": "Telefone",
+        "info": "Ex.: (27) 3000-0000"
+      },
+      {
+        "type": "text",
+        "id": "help_email",
+        "label": "E-mail"
+      }
+    ]
+  }
+]

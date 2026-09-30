@@ -1,0 +1,65 @@
+{%- comment -%}
+  Renders a single product media item for the gallery.
+
+  Accepts:
+  - media: {Object} product media (required)
+  - eager: {Boolean} load the image eagerly with high priority (optional)
+  - sizes: {String} sizes attribute (optional)
+  - ratio: {String} fixed aspect ratio such as '1'; defaults to the media's own ratio (optional)
+
+  Usage:
+  {% render 'product-media', media: media, eager: forloop.first %}
+{%- endcomment -%}
+
+{%- liquid
+  assign sizes = sizes | default: '(min-width: 1000px) 50vw, 100vw'
+  assign loading = 'lazy'
+  assign priority = 'auto'
+  if eager
+    assign loading = 'eager'
+    assign priority = 'high'
+  endif
+  assign media_alt = media.alt | default: product.title
+  assign media_ratio = ratio | default: media.preview_image.aspect_ratio | default: 1
+-%}
+
+{%- case media.media_type -%}
+  {%- when 'video', 'external_video' -%}
+    <deferred-media class="product-media product-media--video media" style="aspect-ratio: {{ media_ratio }};">
+      {{
+        media.preview_image
+        | image_url: width: 1200
+        | image_tag: widths: '400, 600, 800, 1000, 1200', sizes: sizes, loading: loading, fetchpriority: priority, alt: media_alt
+      }}
+      <button type="button" class="product-media__play" data-deferred-trigger aria-label="{{ 'accessibility.play_video' | t }}">
+        {% render 'icon', icon: 'play', size: 24 %}
+      </button>
+      <template>
+        {%- if media.media_type == 'video' -%}
+          {{ media | video_tag: controls: true, autoplay: true, playsinline: true, image_size: '1200x' }}
+        {%- else -%}
+          {{ media | external_video_url: autoplay: true | external_video_tag: loading: 'lazy' }}
+        {%- endif -%}
+      </template>
+    </deferred-media>
+  {%- else -%}
+    <button
+      type="button"
+      class="product-media media"
+      style="aspect-ratio: {{ media_ratio }};"
+      data-zoom-src="{{ media.preview_image | image_url: width: 2400 }}"
+      data-zoom-alt="{{ media_alt | escape }}"
+      aria-label="{{ 'products.product.zoom' | t }}"
+    >
+      {{
+        media.preview_image
+        | image_url: width: 1600
+        | image_tag:
+          widths: '400, 600, 800, 1000, 1200, 1600',
+          sizes: sizes,
+          loading: loading,
+          fetchpriority: priority,
+          alt: media_alt
+      }}
+    </button>
+{%- endcase -%}

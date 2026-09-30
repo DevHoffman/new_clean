@@ -1,0 +1,289 @@
+{{ 'section-trust-bar.css' | asset_url | stylesheet_tag }}
+
+{%- if section.blocks.size > 0 -%}
+  <div
+    class="section scheme-{{ section.settings.color_scheme }} trust-bar trust-bar--{{ section.settings.mobile_layout }}"
+    style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+  >
+    <div class="container">
+      {%- liquid
+        assign visible_items = 0
+        for block in section.blocks
+          assign vt = block.settings.title
+          assign vx = block.settings.text
+          if vt contains '[pix]' or vx contains '[pix]'
+            unless settings.pix_enabled and settings.pix_confirmed and settings.pix_discount > 0
+              continue
+            endunless
+          endif
+          assign visible_items = visible_items | plus: 1
+        endfor
+      -%}
+      <ul class="trust-bar__list" role="list" style="--trust-items: {{ visible_items | at_least: 1 }};">
+        {%- for block in section.blocks -%}
+          {%- capture trust_title -%}{% render 'claims', text: block.settings.title %}{%- endcapture -%}
+          {%- capture trust_text -%}{% render 'claims', text: block.settings.text %}{%- endcapture -%}
+          {%- if block.settings.title != blank and trust_title == blank -%}
+            {%- continue -%}
+          {%- endif -%}
+          {%- if trust_title == blank and trust_text == blank -%}
+            {%- continue -%}
+          {%- endif -%}
+          <li class="trust-bar__item" {{ block.shopify_attributes }}>
+            <span class="trust-bar__icon">
+              {% render 'icon', icon: block.settings.icon, size: 24 %}
+            </span>
+            <div class="trust-bar__text">
+              {%- if trust_title != blank -%}
+                <p class="trust-bar__title">{{ trust_title }}</p>
+              {%- endif -%}
+              {%- if trust_text != blank -%}
+                <p class="trust-bar__description">{{ trust_text }}</p>
+              {%- endif -%}
+            </div>
+          </li>
+        {%- endfor -%}
+      </ul>
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Barra de benefícios",
+  "tag": "section",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": "Layout no celular",
+      "options": [
+        {
+          "value": "grid",
+          "label": "Grade 2 x 2"
+        },
+        {
+          "value": "scroll",
+          "label": "Linha com rolagem horizontal"
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "header",
+      "content": "Aparência"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        {
+          "value": "default",
+          "label": "Padrão"
+        },
+        {
+          "value": "alt",
+          "label": "Fundo alternativo"
+        },
+        {
+          "value": "inverse",
+          "label": "Invertido"
+        },
+        {
+          "value": "accent",
+          "label": "Destaque"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Espaçamento superior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Benefício",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Ícone",
+          "options": [
+            {
+              "value": "truck",
+              "label": "Caminhão (frete)"
+            },
+            {
+              "value": "box",
+              "label": "Caixa (entrega)"
+            },
+            {
+              "value": "credit-card",
+              "label": "Cartão de crédito"
+            },
+            {
+              "value": "pix",
+              "label": "Pix"
+            },
+            {
+              "value": "refresh",
+              "label": "Setas (troca)"
+            },
+            {
+              "value": "shield",
+              "label": "Escudo (segurança)"
+            },
+            {
+              "value": "lock",
+              "label": "Cadeado"
+            },
+            {
+              "value": "check",
+              "label": "Check"
+            },
+            {
+              "value": "leaf",
+              "label": "Folha"
+            },
+            {
+              "value": "heart",
+              "label": "Coração"
+            },
+            {
+              "value": "sparkle",
+              "label": "Brilho"
+            },
+            {
+              "value": "droplet",
+              "label": "Gota"
+            },
+            {
+              "value": "flask",
+              "label": "Frasco de laboratório"
+            },
+            {
+              "value": "sun",
+              "label": "Sol"
+            },
+            {
+              "value": "award",
+              "label": "Medalha"
+            },
+            {
+              "value": "star",
+              "label": "Estrela"
+            },
+            {
+              "value": "gift",
+              "label": "Presente"
+            },
+            {
+              "value": "clock",
+              "label": "Relógio"
+            },
+            {
+              "value": "chat",
+              "label": "Balão de conversa"
+            },
+            {
+              "value": "mail",
+              "label": "E-mail"
+            },
+            {
+              "value": "eye",
+              "label": "Olho"
+            },
+            {
+              "value": "whatsapp",
+              "label": "WhatsApp"
+            },
+            {
+              "value": "file-text",
+              "label": "Nota fiscal"
+            }
+          ],
+          "default": "truck"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título",
+          "default": "Frete grátis",
+          "info": "Aceita [frete], [pix] e [parcelas]: o valor vem das configurações do tema. O item some se o Pix não estiver confirmado."
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto",
+          "default": "Em compras acima de R$ 150",
+          "info": "Aceita [frete], [pix] e [parcelas]: o valor vem das configurações do tema. O item some se o Pix não estiver confirmado."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Barra de benefícios",
+      "settings": {
+        "color_scheme": "alt",
+        "padding_top": 24,
+        "padding_bottom": 24
+      },
+      "blocks": [
+        {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "title": "Frete grátis",
+            "text": "Em compras acima de R$ 150"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "credit-card",
+            "title": "Parcele em até 12x",
+            "text": "No cartão de crédito"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "pix",
+            "title": "5% off no Pix",
+            "text": "Desconto no pagamento à vista"
+          }
+        },
+        {
+          "type": "item",
+          "settings": {
+            "icon": "clock",
+            "title": "Entrega rápida",
+            "text": "Para sua empresa ou sua casa"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

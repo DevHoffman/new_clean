@@ -1,0 +1,24 @@
+{%- comment -%}
+  Shopify's default rules plus a few for URLs that only duplicate content or
+  are meant for people, not crawlers. Keeping them out of the index leaves the
+  crawl budget for the 1.100+ product pages. Structure follows Shopify's
+  documented robots.txt.liquid.
+{%- endcomment -%}
+{% for group in robots.default_groups %}
+  {{- group.user_agent }}
+
+  {%- for rule in group.rules -%}
+    {{ rule }}
+  {%- endfor -%}
+
+  {%- if group.user_agent.value == '*' -%}
+    {{ 'Disallow: /*?*filter.' }}
+    {{ 'Disallow: /*?*sort_by=' }}
+    {{ 'Disallow: /*?*nc_fx=' }}
+    {{ 'Disallow: /discount/' }}
+  {%- endif -%}
+
+  {%- if group.sitemap != blank -%}
+    {{ group.sitemap }}
+  {%- endif -%}
+{% endfor %}

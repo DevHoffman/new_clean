@@ -1,0 +1,1024 @@
+{{ 'section-main-product.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'product.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign form_id = 'product-form-' | append: section.id
+  assign first_media = product.selected_or_first_available_variant.featured_media | default: product.featured_media
+  assign media_ratio = blank
+  if section.settings.media_ratio != 'adapt'
+    assign media_ratio = section.settings.media_ratio
+  endif
+-%}
+
+<div class="section product-section" style="--pt: 0px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+    {%- if section.settings.show_breadcrumbs -%}
+      {% render 'breadcrumbs' %}
+    {%- endif -%}
+
+    <product-info
+      class="product"
+      data-section-id="{{ section.id }}"
+      data-product-url="{{ product.url }}"
+      data-product-id="{{ product.id }}"
+      data-product-handle="{{ product.handle }}"
+    >
+      {%- comment -%} Gallery {%- endcomment -%}
+      <div class="product__media">
+        <product-gallery class="product-gallery product-gallery--{{ section.settings.media_fit }}{% if product.media.size < 2 %} product-gallery--single{% endif %}">
+          {%- if product.media.size > 1 -%}
+            <div class="product-gallery__thumbs" role="group" aria-label="{{ 'products.product.gallery' | t }}">
+              {%- if first_media -%}
+                <button type="button" class="product-gallery__thumb media" data-thumb="{{ first_media.id }}" aria-current="true" aria-label="{{ 'products.product.view_media' | t: index: 1 }}">
+                  {{ first_media.preview_image | image_url: width: 160 | image_tag: widths: '80, 160', sizes: '72px', loading: 'lazy', alt: '' }}
+                </button>
+              {%- endif -%}
+              {%- assign thumb_index = 1 -%}
+              {%- for media in product.media -%}
+                {%- unless media.id == first_media.id -%}
+                  {%- assign thumb_index = thumb_index | plus: 1 -%}
+                  <button type="button" class="product-gallery__thumb media" data-thumb="{{ media.id }}" aria-label="{{ 'products.product.view_media' | t: index: thumb_index }}">
+                    {{ media.preview_image | image_url: width: 160 | image_tag: widths: '80, 160', sizes: '72px', loading: 'lazy', alt: '' }}
+                    {%- if media.media_type == 'video' or media.media_type == 'external_video' -%}
+                      <span class="product-gallery__thumb-icon">{% render 'icon', icon: 'play', size: 12 %}</span>
+                    {%- endif -%}
+                  </button>
+                {%- endunless -%}
+              {%- endfor -%}
+            </div>
+          {%- endif -%}
+
+          <div class="product-gallery__main">
+            <div class="product-gallery__badges">
+              {%- if product.compare_at_price > product.price and settings.badge_sale_percent -%}
+                {%- assign discount = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round -%}
+                <span class="badge badge--sale">{{ 'products.product.discount_off' | t: percent: discount }}</span>
+              {%- endif -%}
+              {%- if settings.badge_bestseller_tag != blank and product.tags contains settings.badge_bestseller_tag -%}
+                <span class="badge badge--accent">{{ 'products.product.bestseller' | t }}</span>
+              {%- elsif settings.badge_new_tag != blank and product.tags contains settings.badge_new_tag -%}
+                <span class="badge badge--dark">{{ 'products.product.new' | t }}</span>
+              {%- endif -%}
+            </div>
+
+            <slider-component>
+              <ul class="slider" role="list" style="--slides-mobile: 1; --slides-tablet: 1; --slides-desktop: 1; --slider-peek: 0px; --slider-gap: 0px;">
+                {%- if first_media -%}
+                  <li class="slider__slide" data-media-id="{{ first_media.id }}">
+                    {% render 'product-media', media: first_media, eager: true, ratio: media_ratio %}
+                  </li>
+                {%- elsif product.media.size == 0 -%}
+                  <li class="slider__slide">
+                    <div class="media product-card__no-image" style="position: relative; aspect-ratio: 1;">
+                      {% render 'icon', icon: 'box', size: 56 %}
+                      <span>{{ 'products.product.no_image' | t }}</span>
+                    </div>
+                  </li>
+                {%- endif -%}
+                {%- for media in product.media -%}
+                  {%- unless media.id == first_media.id -%}
+                    <li class="slider__slide" data-media-id="{{ media.id }}">
+                      {% render 'product-media', media: media, ratio: media_ratio %}
+                    </li>
+                  {%- endunless -%}
+                {%- endfor -%}
+              </ul>
+              {%- if product.media.size > 1 -%}
+                <div class="slider__dots product-gallery__dots" data-slider-dots></div>
+              {%- endif -%}
+            </slider-component>
+          </div>
+        </product-gallery>
+      </div>
+
+      {%- comment -%} Info {%- endcomment -%}
+      <div class="product__info">
+        <div class="product__info-inner">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when '@app' -%}
+                {% render block %}
+
+              {%- when 'title' -%}
+                <div class="product__block product__title" {{ block.shopify_attributes }}>
+                  {%- if block.settings.show_vendor and product.vendor != blank -%}
+                    <p class="eyebrow">{{ product.vendor }}</p>
+                  {%- endif -%}
+                  <h1 class="h2">{% render 'product-title', title: product.title %}</h1>
+                </div>
+
+              {%- when 'sku' -%}
+                <div class="product__block product__sku text-small text-muted" data-region="sku" {{ block.shopify_attributes }}>
+                  {%- if variant.sku != blank -%}
+                    {{ 'products.product.sku' | t: sku: variant.sku }}
+                  {%- endif -%}
+                </div>
+
+              {%- when 'whatsapp' -%}
+                {%- if settings.social_whatsapp != blank -%}
+                  {%- liquid
+                    assign whatsapp_url = request.origin | append: product.url
+                    assign whatsapp_text = 'products.product.whatsapp_message' | t: title: product.title, url: whatsapp_url
+                  -%}
+                  <div class="product__block product__whatsapp" {{ block.shopify_attributes }}>
+                    {%- if block.settings.text != blank -%}
+                      <p class="text-small text-muted">{{ block.settings.text }}</p>
+                    {%- endif -%}
+                    <a
+                      href="https://wa.me/{{ settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' }}?text={{ whatsapp_text | url_encode }}"
+                      class="button button--secondary button--full"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      {% render 'icon', icon: 'whatsapp', size: 18 %}
+                      <span class="button__label">{{ block.settings.label }}</span>
+                    </a>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'rating' -%}
+                {%- if product.metafields.reviews.rating.value != blank -%}
+                  <div class="product__block product__rating" {{ block.shopify_attributes }}>
+                    {% render 'rating', product: product, link: block.settings.anchor %}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'price' -%}
+                <div class="product__block" data-region="price" {{ block.shopify_attributes }}>
+                  {% render 'price', product: product, variant: variant, show_payment_info: true, show_badge: true, class: 'price--large' %}
+                  {%- if shop.shipping_policy.body != blank -%}
+                    <p class="text-xs text-muted product__tax">
+                      {{ 'products.product.shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                    </p>
+                  {%- endif -%}
+                </div>
+
+              {%- when 'text' -%}
+                {%- if block.settings.text != blank -%}
+                  <div class="product__block product__text rte" {{ block.shopify_attributes }}>
+                    {{ block.settings.text }}
+                  </div>
+                {%- endif -%}
+
+              {%- when 'benefits' -%}
+                {%- assign benefits = block.settings.items | newline_to_br | split: '<br />' -%}
+                {%- if block.settings.items != blank -%}
+                  <ul class="product__block product__benefits" role="list" {{ block.shopify_attributes }}>
+                    {%- for benefit in benefits -%}
+                      {%- assign benefit_text = benefit | strip -%}
+                      {%- if benefit_text != blank -%}
+                        <li>
+                          {% render 'icon', icon: 'check', size: 16 %}
+                          <span>{{ benefit_text }}</span>
+                        </li>
+                      {%- endif -%}
+                    {%- endfor -%}
+                  </ul>
+                {%- endif -%}
+
+              {%- when 'variant_picker' -%}
+                {%- unless product.has_only_default_variant -%}
+                  <div class="product__block" data-region="variants" {{ block.shopify_attributes }}>
+                    {% render 'variant-picker', product: product, scope: section.id, picker_type: block.settings.picker_type %}
+                  </div>
+                {%- endunless -%}
+
+              {%- when 'quantity' -%}
+                <div class="product__block product__quantity" {{ block.shopify_attributes }}>
+                  <label class="variant-picker__label" for="Quantity-{{ section.id }}">{{ 'products.product.quantity.label' | t }}</label>
+                  <quantity-input class="quantity">
+                    <button type="button" class="quantity__button" data-quantity="minus" aria-label="{{ 'products.product.quantity.decrease' | t }}">
+                      {% render 'icon', icon: 'minus', size: 14 %}
+                    </button>
+                    <input
+                      type="number"
+                      class="quantity__input"
+                      id="Quantity-{{ section.id }}"
+                      name="quantity"
+                      form="{{ form_id }}"
+                      value="{{ variant.quantity_rule.min | default: 1 }}"
+                      min="{{ variant.quantity_rule.min | default: 1 }}"
+                      {% if variant.quantity_rule.max != null %}
+                        max="{{ variant.quantity_rule.max }}"
+                      {% endif %}
+                      step="{{ variant.quantity_rule.increment | default: 1 }}"
+                      inputmode="numeric"
+                    >
+                    <button type="button" class="quantity__button" data-quantity="plus" aria-label="{{ 'products.product.quantity.increase' | t }}">
+                      {% render 'icon', icon: 'plus', size: 14 %}
+                    </button>
+                  </quantity-input>
+                </div>
+
+              {%- when 'inventory' -%}
+                <div class="product__block" data-region="inventory" {{ block.shopify_attributes }}>
+                  {%- if variant.available -%}
+                    {%- if settings.low_stock_enabled
+                      and variant.inventory_management == 'shopify'
+                      and variant.inventory_policy == 'deny'
+                      and variant.inventory_quantity > 0
+                      and variant.inventory_quantity <= settings.low_stock_threshold
+                    -%}
+                      <p class="product__inventory product__inventory--low">
+                        <span class="product__inventory-dot"></span>
+                        {{ 'products.product.inventory.low' | t: count: variant.inventory_quantity }}
+                      </p>
+                    {%- elsif block.settings.show_in_stock -%}
+                      <p class="product__inventory product__inventory--in-stock">
+                        <span class="product__inventory-dot"></span>
+                        {{ 'products.product.inventory.in_stock' | t }}
+                      </p>
+                    {%- endif -%}
+                  {%- endif -%}
+                </div>
+
+              {%- when 'buy_buttons' -%}
+                <div class="product__block" data-region="buy" data-buy-buttons {{ block.shopify_attributes }}>
+                  {% render 'buy-buttons',
+                    product: product,
+                    form_id: form_id,
+                    show_dynamic_checkout: block.settings.show_dynamic_checkout,
+                    show_price: block.settings.show_price
+                  %}
+                </div>
+
+              {%- when 'complementary' -%}
+                <product-recommendations
+                  class="product__block product-addons"
+                  data-url="{{ routes.product_recommendations_url }}?product_id={{ product.id }}&section_id=product-complementary&limit={{ block.settings.limit }}&intent=complementary"
+                  hidden
+                  {{ block.shopify_attributes }}
+                ></product-recommendations>
+
+              {%- when 'volume_pricing' -%}
+                <div class="product__block" data-region="volume" {{ block.shopify_attributes }}>
+                  {%- if variant.quantity_price_breaks.size > 0 -%}
+                    <volume-pricing class="volume-pricing" data-quantity-input="Quantity-{{ section.id }}">
+                      <p class="volume-pricing__title">
+                        {% render 'icon', icon: 'box', size: 18 %}
+                        {{ block.settings.heading }}
+                      </p>
+                      <table class="volume-pricing__table">
+                        <thead>
+                          <tr>
+                            <th scope="col">{{ 'products.product.volume.quantity' | t }}</th>
+                            <th scope="col">{{ 'products.product.volume.unit_price' | t }}</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr data-min="{{ variant.quantity_rule.min | default: 1 }}">
+                            <td>{{ 'products.product.volume.from' | t: quantity: variant.quantity_rule.min | default: 1 }}</td>
+                            <td>{{ variant.price | money }}</td>
+                          </tr>
+                          {%- for break in variant.quantity_price_breaks -%}
+                            {%- assign saving = variant.price | minus: break.price | times: 100.0 | divided_by: variant.price | round -%}
+                            <tr data-min="{{ break.minimum_quantity }}">
+                              <td>{{ 'products.product.volume.from' | t: quantity: break.minimum_quantity }}</td>
+                              <td>
+                                {{ break.price | money }}
+                                {%- if saving > 0 -%}
+                                  <span class="badge badge--success">-{{ saving }}%</span>
+                                {%- endif -%}
+                              </td>
+                            </tr>
+                          {%- endfor -%}
+                        </tbody>
+                      </table>
+                      {%- if block.settings.text != blank -%}
+                        <p class="text-xs text-muted">{{ block.settings.text }}</p>
+                      {%- endif -%}
+                    </volume-pricing>
+                  {%- endif -%}
+                </div>
+
+              {%- when 'trust_badges' -%}
+                <ul class="product__block product__trust" role="list" {{ block.shopify_attributes }}>
+                  {%- for i in (1..3) -%}
+                    {%- liquid
+                      assign icon_key = 'icon_' | append: i
+                      assign title_key = 'title_' | append: i
+                      assign text_key = 'text_' | append: i
+                    -%}
+                    {%- if block.settings[title_key] != blank -%}
+                      <li>
+                        {% render 'icon', icon: block.settings[icon_key], size: 22 %}
+                        <div>
+                          <p class="product__trust-title">{{ block.settings[title_key] }}</p>
+                          {%- if block.settings[text_key] != blank -%}
+                            <p class="text-xs text-muted">{{ block.settings[text_key] }}</p>
+                          {%- endif -%}
+                        </div>
+                      </li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                </ul>
+
+              {%- when 'payment_icons' -%}
+                <div class="product__block product__payments" {{ block.shopify_attributes }}>
+                  {% render 'payment-icons' %}
+                </div>
+
+              {%- when 'description' -%}
+                {%- if product.description != blank -%}
+                  <details class="accordion product__accordion" {% if block.settings.open %}open{% endif %} {{ block.shopify_attributes }}>
+                    <summary class="accordion__summary">
+                      <span class="accordion__title">{{ block.settings.heading }}</span>
+                      {% render 'icon', icon: 'chevron-down', size: 16 %}
+                    </summary>
+                    <div class="accordion__content rte">{{ product.description }}</div>
+                  </details>
+                {%- elsif settings.social_whatsapp != blank -%}
+                  {%- liquid
+                    assign ask_url = request.origin | append: product.url
+                    assign ask_text = 'products.product.ask.message' | t: title: product.title, url: ask_url
+                  -%}
+                  <div class="product__block product__ask" {{ block.shopify_attributes }}>
+                    <span class="product__ask-icon">{% render 'icon', icon: 'chat', size: 20 %}</span>
+                    <div>
+                      <p class="product__ask-title">{{ 'products.product.ask.title' | t }}</p>
+                      <p class="text-small text-muted">{{ 'products.product.ask.text' | t }}</p>
+                      <a
+                        class="link-arrow"
+                        href="https://wa.me/{{ settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' }}?text={{ ask_text | url_encode }}"
+                        target="_blank"
+                        rel="noopener"
+                      >
+                        {{ 'products.product.ask.cta' | t }}
+                        {% render 'icon', icon: 'arrow-right', size: 16 %}
+                      </a>
+                    </div>
+                  </div>
+                {%- endif -%}
+
+              {%- when 'accordion' -%}
+                {%- liquid
+                  assign accordion_content = block.settings.content
+                  if block.settings.page != blank
+                    assign accordion_content = block.settings.page.content
+                  endif
+                -%}
+                {%- if accordion_content != blank -%}
+                  <details class="accordion product__accordion" {% if block.settings.open %}open{% endif %} {{ block.shopify_attributes }}>
+                    <summary class="accordion__summary">
+                      <span class="accordion__title">
+                        {%- if block.settings.icon != 'none' -%}
+                          {% render 'icon', icon: block.settings.icon, size: 18 %}
+                        {%- endif -%}
+                        {{ block.settings.heading }}
+                      </span>
+                      {% render 'icon', icon: 'chevron-down', size: 16 %}
+                    </summary>
+                    <div class="accordion__content rte">{{ accordion_content }}</div>
+                  </details>
+                {%- endif -%}
+
+              {%- when 'share' -%}
+                {%- liquid
+                  assign share_url = request.origin | append: product.url
+                  assign share_text = product.title | append: ' ' | append: share_url
+                -%}
+                <div class="product__block product__share" {{ block.shopify_attributes }}>
+                  <span class="text-small">{{ 'general.share' | t }}:</span>
+                  <a href="https://wa.me/?text={{ share_text | url_encode }}" class="icon-button" target="_blank" rel="noopener" aria-label="WhatsApp">
+                    {% render 'icon', icon: 'whatsapp', size: 18 %}
+                  </a>
+                  <a href="https://www.facebook.com/sharer/sharer.php?u={{ share_url | url_encode }}" class="icon-button" target="_blank" rel="noopener" aria-label="Facebook">
+                    {% render 'icon', icon: 'facebook', size: 18 %}
+                  </a>
+                  <a href="https://pinterest.com/pin/create/button/?url={{ share_url | url_encode }}&description={{ product.title | url_encode }}" class="icon-button" target="_blank" rel="noopener" aria-label="Pinterest">
+                    {% render 'icon', icon: 'pinterest', size: 18 %}
+                  </a>
+                </div>
+
+              {%- when 'custom_liquid' -%}
+                <div class="product__block" {{ block.shopify_attributes }}>
+                  {{ block.settings.custom_liquid }}
+                </div>
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      </div>
+
+      <script type="application/json" data-selected-variant>
+        {{ variant | json }}
+      </script>
+    </product-info>
+
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: 'view_item',
+        ecommerce: {
+          currency: {{ cart.currency.iso_code | json }},
+          value: {{ variant.price | divided_by: 100.0 | json }},
+          items: [
+            {
+              item_id: {{ variant.sku | default: variant.id | json }},
+              item_name: {{ product.title | json }},
+              item_variant: {{ variant.id | json }},
+              price: {{ variant.price | divided_by: 100.0 | json }},
+              quantity: 1
+            }
+          ]
+        }
+      });
+    </script>
+  </div>
+</div>
+
+{%- if section.settings.sticky_atc -%}
+  <sticky-atc class="sticky-atc" data-section-id="{{ section.id }}" hidden>
+    <div class="container sticky-atc__inner">
+      <div class="sticky-atc__product">
+        {%- if first_media -%}
+          <div class="media sticky-atc__image">
+            {{ first_media.preview_image | image_url: width: 120 | image_tag: widths: '60, 120', sizes: '52px', loading: 'lazy', alt: '' }}
+          </div>
+        {%- endif -%}
+        <div class="sticky-atc__text">
+          <p class="sticky-atc__title">{% render 'product-title', title: product.title %}</p>
+          <div data-region="sticky-price" data-region-for="{{ section.id }}">
+            {% render 'price', product: product, variant: variant %}
+          </div>
+        </div>
+      </div>
+      <div class="sticky-atc__action" data-region="sticky-button" data-region-for="{{ section.id }}">
+        <button
+          type="submit"
+          form="{{ form_id }}"
+          class="button sticky-atc__button"
+          {% unless variant.available %}
+            disabled
+          {% endunless %}
+        >
+          <span class="button__label">
+            {%- if variant.available -%}
+              {{ 'products.product.add_to_cart' | t }}
+            {%- else -%}
+              {{ 'products.product.sold_out' | t }}
+            {%- endif -%}
+          </span>
+        </button>
+      </div>
+    </div>
+  </sticky-atc>
+{%- endif -%}
+
+<modal-element class="modal product-zoom" id="ProductZoom" role="dialog" aria-modal="true" aria-label="{{ 'products.product.zoom' | t }}" hidden>
+  <div class="modal__overlay" data-modal-close></div>
+  <div class="modal__panel product-zoom__panel" tabindex="-1">
+    <button type="button" class="modal__close icon-button" data-modal-close aria-label="{{ 'accessibility.close' | t }}">
+      {% render 'icon', icon: 'close' %}
+    </button>
+    <img class="product-zoom__image" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" width="1200" height="1200" loading="lazy" data-zoom-image>
+  </div>
+</modal-element>
+
+<script type="application/ld+json">
+  {{ product | structured_data }}
+</script>
+
+{% schema %}
+{
+  "name": "Produto",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Mostrar navegação estrutural",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_atc",
+      "label": "Barra fixa de compra",
+      "info": "Mantém o botão de compra visível enquanto o cliente rola a página. Uma das otimizações de maior impacto no mobile.",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Galeria"
+    },
+    {
+      "type": "select",
+      "id": "media_ratio",
+      "label": "Proporção das imagens",
+      "options": [
+        {
+          "value": "1",
+          "label": "Quadrada (1:1)"
+        },
+        {
+          "value": "0.8",
+          "label": "Retrato (4:5)"
+        },
+        {
+          "value": "adapt",
+          "label": "Adaptar à imagem"
+        }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "media_fit",
+      "label": "Ajuste da imagem",
+      "options": [
+        {
+          "value": "contain",
+          "label": "Mostrar a imagem inteira"
+        },
+        {
+          "value": "cover",
+          "label": "Preencher o espaço"
+        }
+      ],
+      "default": "contain"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "title",
+      "name": "Título",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_vendor",
+          "label": "Mostrar marca",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "sku",
+      "name": "Código do produto",
+      "limit": 1
+    },
+    {
+      "type": "rating",
+      "name": "Avaliações",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "anchor",
+          "label": "Âncora da seção de avaliações",
+          "info": "Ex.: #avaliacoes. Ao clicar nas estrelas, a página rola até as avaliações.",
+          "default": "#avaliacoes"
+        }
+      ]
+    },
+    {
+      "type": "price",
+      "name": "Preço",
+      "limit": 1
+    },
+    {
+      "type": "text",
+      "name": "Texto",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Texto",
+          "info": "Conecte a um metacampo para exibir um resumo diferente por produto."
+        }
+      ]
+    },
+    {
+      "type": "benefits",
+      "name": "Benefícios",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "items",
+          "label": "Benefícios",
+          "info": "Um por linha. Conecte a um metacampo para variar por produto.",
+          "default": "Produto original com nota fiscal\nEnvio rápido\nAtendimento por WhatsApp"
+        }
+      ]
+    },
+    {
+      "type": "variant_picker",
+      "name": "Seletor de variantes",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "picker_type",
+          "label": "Estilo",
+          "options": [
+            {
+              "value": "pills",
+              "label": "Botões"
+            },
+            {
+              "value": "dropdown",
+              "label": "Lista suspensa"
+            }
+          ],
+          "info": "Opções de cor sempre aparecem como amostras.",
+          "default": "pills"
+        }
+      ]
+    },
+    {
+      "type": "quantity",
+      "name": "Quantidade",
+      "limit": 1
+    },
+    {
+      "type": "inventory",
+      "name": "Estoque",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_in_stock",
+          "label": "Mostrar \"Em estoque\"",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Botões de compra",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_price",
+          "label": "Mostrar preço no botão",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "label": "Mostrar botões de checkout acelerado",
+          "info": "Shop Pay, Google Pay, Apple Pay, conforme disponibilidade.",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "whatsapp",
+      "name": "Comprar pelo WhatsApp",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Usa o número de WhatsApp definido em Configurações do tema > Redes sociais."
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto",
+          "default": "Compra para empresa ou em grande quantidade?"
+        },
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Texto do botão",
+          "default": "Pedir cotação pelo WhatsApp"
+        }
+      ]
+    },
+    {
+      "type": "complementary",
+      "name": "Compre junto",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Exibe os produtos complementares definidos no app Shopify Search & Discovery."
+        },
+        {
+          "type": "range",
+          "id": "limit",
+          "label": "Máximo de produtos",
+          "min": 1,
+          "max": 4,
+          "step": 1,
+          "default": 2
+        }
+      ]
+    },
+    {
+      "type": "volume_pricing",
+      "name": "Preço por quantidade",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "Exibe as faixas de preço por quantidade cadastradas no catálogo B2B da Shopify (Shopify Plus ou app de preços por volume compatível). Sem faixas cadastradas, o bloco fica oculto."
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "default": "Compre mais, pague menos"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto de apoio",
+          "default": "O desconto é aplicado automaticamente no carrinho."
+        }
+      ]
+    },
+    {
+      "type": "trust_badges",
+      "name": "Garantias",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon_1",
+          "label": "Ícone 1",
+          "options": [
+            {
+              "value": "truck",
+              "label": "Entrega"
+            },
+            {
+              "value": "shield",
+              "label": "Segurança"
+            },
+            {
+              "value": "refresh",
+              "label": "Troca"
+            },
+            {
+              "value": "lock",
+              "label": "Cadeado"
+            },
+            {
+              "value": "award",
+              "label": "Qualidade"
+            },
+            {
+              "value": "leaf",
+              "label": "Natural"
+            },
+            {
+              "value": "heart",
+              "label": "Coração"
+            },
+            {
+              "value": "box",
+              "label": "Caixa"
+            }
+          ],
+          "default": "truck"
+        },
+        {
+          "type": "text",
+          "id": "title_1",
+          "label": "Título 1",
+          "default": "Envio rápido"
+        },
+        {
+          "type": "text",
+          "id": "text_1",
+          "label": "Texto 1",
+          "default": "Pedidos despachados com agilidade"
+        },
+        {
+          "type": "select",
+          "id": "icon_2",
+          "label": "Ícone 2",
+          "options": [
+            {
+              "value": "truck",
+              "label": "Entrega"
+            },
+            {
+              "value": "shield",
+              "label": "Segurança"
+            },
+            {
+              "value": "refresh",
+              "label": "Troca"
+            },
+            {
+              "value": "lock",
+              "label": "Cadeado"
+            },
+            {
+              "value": "award",
+              "label": "Qualidade"
+            },
+            {
+              "value": "leaf",
+              "label": "Natural"
+            },
+            {
+              "value": "heart",
+              "label": "Coração"
+            },
+            {
+              "value": "box",
+              "label": "Caixa"
+            }
+          ],
+          "default": "refresh"
+        },
+        {
+          "type": "text",
+          "id": "title_2",
+          "label": "Título 2",
+          "default": "Compra garantida"
+        },
+        {
+          "type": "text",
+          "id": "text_2",
+          "label": "Texto 2",
+          "default": "Troca ou devolução conforme a política da loja"
+        },
+        {
+          "type": "select",
+          "id": "icon_3",
+          "label": "Ícone 3",
+          "options": [
+            {
+              "value": "truck",
+              "label": "Entrega"
+            },
+            {
+              "value": "shield",
+              "label": "Segurança"
+            },
+            {
+              "value": "refresh",
+              "label": "Troca"
+            },
+            {
+              "value": "lock",
+              "label": "Cadeado"
+            },
+            {
+              "value": "award",
+              "label": "Qualidade"
+            },
+            {
+              "value": "leaf",
+              "label": "Natural"
+            },
+            {
+              "value": "heart",
+              "label": "Coração"
+            },
+            {
+              "value": "box",
+              "label": "Caixa"
+            }
+          ],
+          "default": "shield"
+        },
+        {
+          "type": "text",
+          "id": "title_3",
+          "label": "Título 3",
+          "default": "Compra segura"
+        },
+        {
+          "type": "text",
+          "id": "text_3",
+          "label": "Texto 3",
+          "default": "Seus dados protegidos"
+        }
+      ]
+    },
+    {
+      "type": "payment_icons",
+      "name": "Bandeiras de pagamento",
+      "limit": 1
+    },
+    {
+      "type": "description",
+      "name": "Descrição",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "default": "Descrição"
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Aberto por padrão",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "accordion",
+      "name": "Sanfona",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "default": "Entrega e trocas"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Ícone",
+          "options": [
+            {
+              "value": "none",
+              "label": "Nenhum"
+            },
+            {
+              "value": "truck",
+              "label": "Entrega"
+            },
+            {
+              "value": "refresh",
+              "label": "Troca"
+            },
+            {
+              "value": "credit-card",
+              "label": "Pagamento"
+            },
+            {
+              "value": "shield",
+              "label": "Segurança"
+            },
+            {
+              "value": "box",
+              "label": "Embalagem"
+            },
+            {
+              "value": "flask",
+              "label": "Composição"
+            },
+            {
+              "value": "droplet",
+              "label": "Modo de uso"
+            },
+            {
+              "value": "chat",
+              "label": "Dúvidas"
+            }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Conteúdo",
+          "info": "Conecte a um metacampo (ex.: modo de uso, composição, ficha técnica) para variar por produto."
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": "Ou exibir o conteúdo de uma página",
+          "info": "Útil para textos iguais em todos os produtos, como trocas e devoluções."
+        },
+        {
+          "type": "checkbox",
+          "id": "open",
+          "label": "Aberto por padrão",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "share",
+      "name": "Compartilhar",
+      "limit": 1
+    },
+    {
+      "type": "custom_liquid",
+      "name": "Liquid personalizado",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Código Liquid"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,127 @@
+{{ 'section-search-bar.css' | asset_url | stylesheet_tag }}
+
+{%- comment -%}
+  Catalogue search band. A plain GET form: it does not open the header search
+  modal and works without JavaScript.
+{%- endcomment -%}
+
+{%- liquid
+  assign input_id = 'SearchBar-' | append: section.id
+  assign popular_terms = settings.search_popular_terms | newline_to_br | split: '<br />'
+  assign show_popular = false
+  if section.settings.show_popular and settings.search_popular_terms != blank
+    assign show_popular = true
+  endif
+-%}
+
+<div
+  class="section scheme-{{ section.settings.color_scheme }} search-bar"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="container container--medium">
+    <div class="search-bar__inner">
+      {%- if section.settings.heading != blank or section.settings.text != blank -%}
+        <div class="search-bar__header">
+          {%- if section.settings.heading != blank -%}
+            <h2 class="h3 search-bar__heading">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.text != blank -%}
+            <p class="search-bar__text">{{ section.settings.text }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search-form search-bar__form">
+        <div class="search-form__field search-bar__field">
+          {% render 'icon', icon: 'search', size: 22 %}
+          <label class="visually-hidden" for="{{ input_id }}">{{ 'templates.search.label' | t }}</label>
+          <input
+            class="field__input search-form__input search-bar__input"
+            type="search"
+            name="q"
+            id="{{ input_id }}"
+            {% if section.settings.placeholder != blank %}
+              placeholder="{{ section.settings.placeholder | escape }}"
+            {% else %}
+              placeholder="{{ 'templates.search.placeholder' | t }}"
+            {% endif %}
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            enterkeyhint="search"
+            required
+          >
+          <input type="hidden" name="type" value="product">
+          <input type="hidden" name="options[prefix]" value="last">
+        </div>
+        <button type="submit" class="button button--large search-bar__submit">
+          {{- 'templates.search.submit' | t -}}
+        </button>
+      </form>
+
+      {%- if show_popular -%}
+        <div class="search-popular search-bar__popular">
+          <span class="search-popular__label">{{ 'templates.search.popular' | t }}</span>
+          {%- for term in popular_terms -%}
+            {%- assign popular_term = term | strip -%}
+            {%- if popular_term != blank -%}
+              <a class="chip" href="{{ routes.search_url }}?q={{ popular_term | url_encode }}&type=product&options%5Bprefix%5D=last">
+                {{- popular_term | escape -}}
+              </a>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Busca na loja",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "O que você precisa hoje?"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texto",
+      "info": "Opcional.",
+      "default": "Busque pelo nome do produto e encontre tudo na loja."
+    },
+    {
+      "type": "text",
+      "id": "placeholder",
+      "label": "Texto de exemplo do campo",
+      "info": "Quando vazio, usa o texto padrão da busca.",
+      "default": "Ex.: desinfetante, papel toalha, saco de lixo"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_popular",
+      "label": "Mostrar buscas populares",
+      "info": "Os termos são editados em Configurações do tema > Busca.",
+      "default": true
+    },
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 40 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 40 }
+  ],
+  "presets": [
+    {
+      "name": "Busca na loja"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,77 @@
+{%- comment -%}
+  Compact, horizontally scrollable list of upsell products for the cart.
+  Products already in the cart, sold out or without a photo are skipped.
+
+  Accepts:
+  - products: {Array} products to list (required)
+  - limit: {Number} maximum number of products shown (optional, default 6)
+
+  Usage:
+  {% render 'cart-upsell-list', products: recommendations.products %}
+{%- endcomment -%}
+
+{%- liquid
+  assign limit = limit | default: 6
+  assign cart_product_ids = cart.items | map: 'product_id'
+  assign shown = 0
+-%}
+
+{%- capture upsell_items -%}
+  {%- for product in products -%}
+    {%- liquid
+      if shown >= limit
+        break
+      endif
+      if cart_product_ids contains product.id or product.available == false or product.featured_media == blank
+        continue
+      endif
+      assign shown = shown | plus: 1
+    -%}
+    <li class="cart-upsell__item">
+      <a href="{{ product.url }}" class="media" tabindex="-1" aria-hidden="true">
+        {%- if product.featured_media -%}
+          {{
+            product.featured_media.preview_image
+            | image_url: width: 216
+            | image_tag: widths: '72, 144, 216', sizes: '72px', loading: 'lazy', alt: product.featured_media.alt
+          }}
+        {%- else -%}
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </a>
+      <div>
+        <a href="{{ product.url }}" class="cart-upsell__name">{% render 'product-title', title: product.title %}</a>
+        {% render 'price', product: product %}
+        {%- if product.has_only_default_variant -%}
+          <product-form data-quick>
+            {%- form 'product', product, id: nil, novalidate: 'novalidate' -%}
+              <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+              <button type="submit" class="button button--small" name="add" aria-label="{{ 'products.product.add_to_cart' | t }}: {{ product.title | escape }}">
+                <span class="button__label">{{ 'cart.upsell.add' | t }}</span>
+                <span class="button__spinner" aria-hidden="true"></span>
+              </button>
+            {%- endform -%}
+          </product-form>
+        {%- else -%}
+          <button
+            type="button"
+            class="button button--small"
+            data-quick-add-url="{{ product.url }}"
+            aria-haspopup="dialog"
+            aria-label="{{ 'products.product.choose_options' | t }}: {{ product.title | escape }}"
+          >
+            <span class="button__label">{{ 'cart.upsell.choose' | t }}</span>
+            <span class="button__spinner" aria-hidden="true"></span>
+          </button>
+        {%- endif -%}
+      </div>
+    </li>
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- if shown > 0 -%}
+  <p class="cart-upsell__title">{{ settings.cart_upsell_title }}</p>
+  <ul class="cart-upsell__list" role="list">
+    {{ upsell_items }}
+  </ul>
+{%- endif -%}

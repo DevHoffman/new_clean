@@ -1,0 +1,39 @@
+{
+  "sections": {
+    "main": {
+      "type": "contact-form",
+      "blocks": {
+        "whatsapp": {
+          "type": "whatsapp",
+          "settings": {
+            "title": "WhatsApp",
+            "text": "O jeito mais rápido de falar com a gente."
+          }
+        },
+        "email": {
+          "type": "email",
+          "settings": {
+            "title": "E-mail",
+            "text": "Para assuntos que precisam de mais detalhes."
+          }
+        },
+        "hours": {
+          "type": "hours",
+          "settings": {
+            "title": "Horário de atendimento",
+            "text": "<p>Informe aqui os dias e horários de atendimento.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "whatsapp",
+        "email",
+        "hours"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

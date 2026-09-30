@@ -1,0 +1,36 @@
+{%- comment -%}
+  Renders star rating from the standard reviews metafields
+  (reviews.rating / reviews.rating_count), filled by most review apps.
+
+  Accepts:
+  - product: {Object} product (required)
+  - show_count: {Boolean} show review count (optional, default true)
+  - link: {String} anchor or URL the rating links to (optional)
+
+  Usage:
+  {% render 'rating', product: product %}
+{%- endcomment -%}
+
+{%- if product.metafields.reviews.rating.value != blank -%}
+  {%- liquid
+    assign rating = product.metafields.reviews.rating.value
+    assign rating_count = product.metafields.reviews.rating_count.value | default: 0
+    assign rating_max = rating.scale_max | default: 5
+    assign rating_percent = rating.rating | times: 100.0 | divided_by: rating_max | round
+    assign rating_value = rating.rating | round: 1
+    assign show_count = show_count | default: true, allow_false: true
+  -%}
+  {%- if link -%}<a href="{{ link }}" class="rating rating--link">{%- else -%}<div class="rating">{%- endif -%}
+    <span
+      class="rating__stars"
+      role="img"
+      aria-label="{{ 'products.product.rating.label' | t: rating: rating_value, max: rating_max }}"
+      style="--rating-percent: {{ rating_percent }}%;"
+    ></span>
+    {%- if show_count -%}
+      <span class="rating__value" aria-hidden="true">{{ rating_value }}</span>
+      <span class="rating__count">({{ rating_count }})</span>
+      <span class="visually-hidden">{{ 'products.product.rating.count' | t: count: rating_count }}</span>
+    {%- endif -%}
+  {%- if link -%}</a>{%- else -%}</div>{%- endif -%}
+{%- endif -%}

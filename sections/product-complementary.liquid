@@ -1,0 +1,45 @@
+{%- comment -%}
+  "Compre junto" add-ons. Rendered through the product recommendations
+  endpoint (intent=complementary) by the main product section. Checked items
+  are added to the cart together with the main product.
+{%- endcomment -%}
+
+<product-recommendations>
+  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    {%- capture addon_items -%}
+      {%- for product in recommendations.products -%}
+        {%- assign addon_variant = product.selected_or_first_available_variant -%}
+        {%- if product.available -%}
+          <li>
+            <label class="product-addons__item">
+              <input type="checkbox" data-addon-variant="{{ addon_variant.id }}" aria-label="{{ 'products.product.addons.add' | t: title: product.title | escape }}">
+              <span class="media">
+                {%- if product.featured_media -%}
+                  {{
+                    product.featured_media.preview_image
+                    | image_url: width: 168
+                    | image_tag: widths: '56, 112, 168', sizes: '56px', loading: 'lazy', alt: ''
+                  }}
+                {%- endif -%}
+              </span>
+              <span>
+                <span class="product-addons__name">
+                  {% render 'product-title', title: product.title %}
+                  {%- unless product.has_only_default_variant %} – {{ addon_variant.title }}{% endunless -%}
+                </span>
+                {% render 'price', product: product, variant: addon_variant %}
+              </span>
+            </label>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    {%- endcapture -%}
+
+    {%- if addon_items contains 'product-addons__item' -%}
+      <p class="product-addons__title">{{ 'products.product.addons.title' | t }}</p>
+      <ul class="product-addons__list" role="list">
+        {{ addon_items }}
+      </ul>
+    {%- endif -%}
+  {%- endif -%}
+</product-recommendations>

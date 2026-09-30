@@ -1,0 +1,15 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-collection",
+      "settings": {}
+    },
+    "recently-viewed": {
+      "type": "recently-viewed",
+      "settings": {
+        "color_scheme": "alt"
+      }
+    }
+  },
+  "order": ["main", "recently-viewed"]
+}

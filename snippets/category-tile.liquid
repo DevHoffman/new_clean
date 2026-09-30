@@ -1,0 +1,42 @@
+{%- comment -%}
+  A category tile. Params: block, sizes, marquee (bool), duplicate (bool: aria-hidden copy of the marquee)
+{%- endcomment -%}
+{%- liquid
+  assign tile_collection = block.settings.collection
+  assign tile_product = block.settings.product
+  assign tile_image = block.settings.image | default: tile_product.featured_image
+  assign tile_is_product_photo = false
+  if block.settings.image == blank and tile_product.featured_image != blank
+    assign tile_is_product_photo = true
+  endif
+  assign tile_title = block.settings.title | default: tile_collection.title
+  assign tile_url = tile_collection.url | default: block.settings.link | default: routes.all_products_collection_url
+-%}
+<li class="{% unless marquee %}slider__slide {% endunless %}category-tiles__item" {% unless duplicate %}{{ block.shopify_attributes }}{% endunless %}>
+  <a class="category-tiles__link" href="{{ tile_url }}"{% if duplicate %} tabindex="-1"{% endif %}>
+    {%- if tile_image != blank -%}
+      <span class="media category-tiles__media{% if tile_is_product_photo %} category-tiles__media--photo{% endif %}">
+        {{
+          tile_image
+          | image_url: width: 800
+          | image_tag:
+            widths: '120, 180, 240, 360, 480, 640, 800',
+            sizes: sizes,
+            loading: 'lazy',
+            alt: ''
+        }}
+      </span>
+    {%- else -%}
+      <span class="category-tiles__media category-tiles__media--icon">
+        {% render 'icon-category', icon: block.settings.icon, size: 40 %}
+      </span>
+    {%- endif -%}
+    <span class="category-tiles__title">
+      {%- if tile_title != blank -%}
+        {{ tile_title }}
+      {%- else -%}
+        {{ 'sections.category_tiles.placeholder_title' | t }}
+      {%- endif -%}
+    </span>
+  </a>
+</li>

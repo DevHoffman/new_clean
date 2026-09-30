@@ -1,0 +1,42 @@
+{%- comment -%}
+  Echoes the meta description for the current page, with fallbacks for
+  products/collections without one. Capture it where needed.
+
+  Usage:
+  {%- capture description -%}{% render 'seo-description' %}{%- endcapture -%}
+{%- endcomment -%}
+
+{%- liquid
+  assign description = page_description
+
+  if description == blank
+    case request.page_type
+      when 'product'
+        assign price = product.price | money
+        capture pretty_title
+          render 'product-title', title: product.title
+        endcapture
+        assign description = 'seo.product_description' | t: title: pretty_title, price: price, shop: shop.name
+      when 'collection'
+        capture seo_collection_title
+          render 'collection-title', collection: collection
+        endcapture
+        assign description = 'seo.collection_description' | t: title: seo_collection_title, count: collection.all_products_count, shop: shop.name
+      when 'article'
+        assign description = article.excerpt_or_content | strip_html | truncate: 155
+      when 'page'
+        assign description = page.content | strip_html | truncate: 155
+      else
+        assign description = settings.seo_description
+    endcase
+  endif
+
+  if description == blank
+    assign description = settings.seo_description
+  endif
+
+  if description == blank
+    assign description = shop.description
+  endif
+  echo description | strip_html | strip_newlines | strip
+-%}

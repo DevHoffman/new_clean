@@ -1,0 +1,159 @@
+<!doctype html>
+<html class="no-js{% if settings.smooth_scroll %} has-smooth-scroll{% endif %}{% if settings.reveal_animations %} has-reveal{% endif %}" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    {% render 'fx-variant' %}
+    <meta name="theme-color" content="{{ settings.color_background }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" sizes="32x32" href="{{ settings.favicon | image_url: width: 32, height: 32 }}">
+      <link rel="icon" type="image/png" sizes="192x192" href="{{ settings.favicon | image_url: width: 192, height: 192 }}">
+      <link rel="apple-touch-icon" sizes="180x180" href="{{ settings.favicon | image_url: width: 180, height: 180 }}">
+    {%- else -%}
+      <link rel="icon" type="image/svg+xml" href="{{ 'favicon.svg' | asset_url }}">
+      <link rel="icon" type="image/png" sizes="32x32" href="{{ 'favicon-32.png' | asset_url }}">
+      <link rel="icon" type="image/png" sizes="192x192" href="{{ 'favicon-192.png' | asset_url }}">
+      <link rel="apple-touch-icon" sizes="180x180" href="{{ 'apple-touch-icon.png' | asset_url }}">
+    {%- endif -%}
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <link rel="manifest" href="{{ 'manifest.json' | asset_url }}">
+
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    {%- unless settings.font_heading.system? and settings.font_body.system? -%}
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    {%- endunless -%}
+
+    <title>
+      {%- capture doc_title -%}{% render 'page-title' %}{%- endcapture -%}
+      {{ doc_title | escape }}
+      {%- if current_tags %} &ndash; {{ 'general.meta.tags' | t: tags: current_tags | join: ', ' }}{% endif -%}
+      {%- if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless -%}
+    </title>
+
+    {% render 'seo-meta' %}
+    {% render 'meta-tags' %}
+
+    {%- unless settings.font_body.system? -%}
+      {{ settings.font_body | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+    {%- endunless -%}
+    {%- unless settings.font_heading.system? -%}
+      {{ settings.font_heading | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+    {%- endunless -%}
+
+    {% render 'css-variables' %}
+    {{ 'base.css' | asset_url | stylesheet_tag: preload: true }}
+
+    <script>
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+      window.theme = {
+        routes: {
+          root: {{ routes.root_url | json }},
+          cart: {{ routes.cart_url | json }},
+          cartAdd: {{ routes.cart_add_url | append: '.js' | json }},
+          cartChange: {{ routes.cart_change_url | append: '.js' | json }},
+          cartUpdate: {{ routes.cart_update_url | append: '.js' | json }},
+          predictiveSearch: {{ routes.predictive_search_url | json }},
+          productRecommendations: {{ routes.product_recommendations_url | json }}
+        },
+        settings: {
+          cartType: {{ settings.cart_type | json }},
+          moneyFormat: {{ shop.money_format | json }},
+          smoothScroll: {{ settings.smooth_scroll | json }},
+          revealAnimations: {{ settings.reveal_animations | json }},
+          headerMouseEffect: {{ settings.header_mouse_effect | json }}
+        },
+        strings: {
+          addToCart: {{ 'products.product.add_to_cart' | t | json }},
+          soldOut: {{ 'products.product.sold_out' | t | json }},
+          unavailable: {{ 'products.product.unavailable' | t | json }},
+          added: {{ 'products.product.added' | t | json }},
+          cartError: {{ 'cart.error' | t | json }},
+          quantityError: {{ 'cart.quantity_error' | t: quantity: '[quantity]' | json }},
+          helpOnline: {{ 'help.online' | t | json }},
+          helpOffline: {{ 'help.offline' | t | json }},
+          quickOrderRequested: {{ 'sections.quick_order.requested' | t: line: '[line]' | json }},
+          quickOrderNotFound: {{ 'sections.quick_order.not_found' | t: line: '[line]' | json }},
+          quickOrderAdded: {{ 'sections.quick_order.added' | t | json }},
+          attributesSaved: {{ 'cart.checkout_page.saved' | t | json }},
+          shippingFrom: {{ 'cart.checkout_page.shipping_from' | t: price: '[price]' | json }},
+          couponApplied: {{ 'cart.checkout_page.coupon_applied' | t: code: '[code]' | json }},
+          couponInvalid: {{ 'cart.checkout_page.coupon_invalid' | t | json }},
+          reorderDone: {{ 'customer.orders.reorder_done' | t | json }},
+          shippingInvalid: {{ 'cart.shipping_estimator.invalid' | t | json }},
+          shippingError: {{ 'cart.shipping_estimator.error' | t | json }},
+          shippingNoRates: {{ 'cart.shipping_estimator.no_rates' | t | json }},
+          shippingFree: {{ 'cart.shipping_estimator.free' | t | json }},
+          shippingDaysOne: {{ 'cart.shipping_estimator.days.one' | t: count: 1 | json }},
+          shippingDaysOther: {{ 'cart.shipping_estimator.days.other' | t: count: '[count]' | json }}
+        }
+      };
+    </script>
+
+    <script src="{{ 'theme.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'analytics.js' | asset_url }}" defer="defer"></script>
+
+    {{ content_for_header }}
+    {% render 'gtm' %}
+  </head>
+
+  <body class="template-{{ template.name | handle }}{% if template.suffix %} template-{{ template.name | handle }}--{{ template.suffix | handle }}{% endif %}">
+    {%- if settings.preloader_enabled and request.design_mode == false -%}
+      {% render 'preloader' %}
+    {%- endif -%}
+
+    <a class="skip-link button" href="#MainContent">{{ 'accessibility.skip_to_content' | t }}</a>
+
+    {% sections 'header-group' %}
+
+    <main id="MainContent" class="main-content" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    {%- if settings.cart_type == 'drawer' and template.name != 'cart' -%}
+      {% section 'cart-drawer' %}
+    {%- endif -%}
+
+    {%- if settings.card_quick_add -%}
+      <quick-add-modal class="modal quick-add" id="QuickAdd" role="dialog" aria-modal="true" aria-label="{{ 'products.product.choose_options' | t }}" hidden>
+        <div class="modal__overlay" data-modal-close></div>
+        <div class="modal__panel quick-add__panel" tabindex="-1">
+          <button type="button" class="modal__close icon-button" data-modal-close aria-label="{{ 'accessibility.close' | t }}">
+            {% render 'icon', icon: 'close' %}
+          </button>
+          <div class="quick-add__content" data-quick-add-content></div>
+        </div>
+      </quick-add-modal>
+    {%- endif -%}
+
+    {%- if settings.cart_type == 'drawer' and settings.cart_bar -%}
+      {%- assign cart_bar_templates = 'index,collection,search,list-collections,page' | split: ',' -%}
+      {%- if cart_bar_templates contains template.name -%}
+        {% section 'cart-bar' %}
+      {%- endif -%}
+    {%- endif -%}
+
+    {%- if settings.back_to_top -%}
+      <back-to-top class="back-to-top" hidden>
+        <button type="button" class="back-to-top__button" aria-label="{{ 'general.back_to_top' | t }}">
+          <svg class="back-to-top__ring" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+            <circle class="back-to-top__track" cx="24" cy="24" r="22" pathLength="100"></circle>
+            <circle class="back-to-top__progress" cx="24" cy="24" r="22" pathLength="100"></circle>
+          </svg>
+          {% render 'icon', icon: 'arrow-up', size: 18 %}
+        </button>
+      </back-to-top>
+    {%- endif -%}
+
+    {% render 'help-widget' %}
+
+    <div class="visually-hidden" aria-live="polite" role="status" id="LiveRegion"></div>
+
+    {% render 'structured-data' %}
+  </body>
+</html>

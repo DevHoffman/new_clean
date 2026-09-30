@@ -1,0 +1,117 @@
+/* Brands: endless marquee. The list is rendered several times inside the track
+   and the track slides by exactly half its width, so the loop is seamless. */
+.brand-list__marquee {
+  position: relative;
+  overflow: hidden;
+  /* Room for the hover lift and shadow, which overflow would otherwise clip */
+  padding-block: 8px 14px;
+  /* Soft fade on both edges */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.brand-list__track {
+  display: flex;
+  width: max-content;
+  animation: brand-marquee var(--marquee-duration, 40s) linear infinite;
+  will-change: transform;
+}
+
+.brand-list__marquee:hover .brand-list__track,
+.brand-list__marquee:focus-within .brand-list__track {
+  animation-play-state: paused;
+}
+
+@keyframes brand-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.brand-list__items {
+  display: flex;
+  flex: none;
+  gap: 12px;
+  padding-right: 12px;
+}
+
+.brand-list__items li {
+  flex: none;
+}
+
+.brand-list__item {
+  display: grid;
+  place-items: center;
+  width: 148px;
+  height: 72px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.brand-list__item:hover {
+  border-color: rgba(var(--color-accent-rgb), 0.5);
+  box-shadow: 0 8px 20px rgba(var(--color-text-rgb), 0.08);
+  transform: translateY(-2px);
+}
+
+.brand-list__name {
+  font-family: var(--font-heading);
+  font-weight: var(--font-heading-weight);
+  font-size: 1.0625rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  opacity: 0.75;
+}
+
+.brand-list__item:hover .brand-list__name {
+  color: var(--color-accent);
+  opacity: 1;
+}
+
+.brand-list__logo {
+  max-width: 100%;
+  max-height: 44px;
+  width: auto;
+  object-fit: contain;
+  filter: grayscale(1);
+  opacity: 0.75;
+  transition: filter 0.2s ease, opacity 0.2s ease;
+}
+
+.brand-list__item:hover .brand-list__logo {
+  filter: none;
+  opacity: 1;
+}
+
+@media (min-width: 750px) {
+  .brand-list__items {
+    gap: 16px;
+    padding-right: 16px;
+  }
+
+  .brand-list__item {
+    width: 176px;
+    height: 80px;
+  }
+}
+
+/* "Reduce motion": a static, swipeable row instead of an animation */
+@media (prefers-reduced-motion: reduce) {
+  .brand-list__marquee {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .brand-list__track {
+    animation: none;
+  }
+
+  .brand-list__track > .brand-list__items:not(:first-child) {
+    display: none;
+  }
+}

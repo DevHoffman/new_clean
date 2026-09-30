@@ -1,0 +1,214 @@
+{{ 'section-testimonials.css' | asset_url | stylesheet_tag }}
+
+<div
+  class="section scheme-{{ section.settings.color_scheme }} testimonials"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+  data-slider-scope
+>
+  <div class="container">
+    <div class="section-header">
+      <div class="section-header__text">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="h2">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.overall_rating != blank -%}
+          <p class="testimonials__overall">
+            <span class="rating__stars" style="--rating-percent: 100%; --star-size: 16px;" aria-hidden="true"></span>
+            <span>{{ section.settings.overall_rating }}</span>
+          </p>
+        {%- endif -%}
+      </div>
+      <div class="slider__buttons slider__buttons--desktop">
+        <button type="button" class="slider__button" data-slider-prev aria-label="{{ 'accessibility.previous' | t }}">
+          {% render 'icon', icon: 'chevron-left', size: 18 %}
+        </button>
+        <button type="button" class="slider__button" data-slider-next aria-label="{{ 'accessibility.next' | t }}">
+          {% render 'icon', icon: 'chevron-right', size: 18 %}
+        </button>
+      </div>
+    </div>
+
+    <slider-component>
+      <ul class="slider slider--bleed" role="list" style="--slides-mobile: 1; --slides-tablet: 2; --slides-desktop: 3;">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign review = block.settings
+            assign rating_percent = review.rating | times: 20
+          -%}
+          <li class="slider__slide" {{ block.shopify_attributes }}>
+            <figure class="testimonials__card">
+              <span
+                class="rating__stars testimonials__stars"
+                role="img"
+                aria-label="{{ 'sections.testimonials.rating_label' | t: rating: review.rating }}"
+                style="--rating-percent: {{ rating_percent }}%; --star-size: 16px;"
+              ></span>
+
+              {%- if review.quote != blank -%}
+                <blockquote class="testimonials__quote">
+                  <p>{{ review.quote | escape | newline_to_br }}</p>
+                </blockquote>
+              {%- endif -%}
+
+              <figcaption class="testimonials__author">
+                {%- if review.author_image != blank -%}
+                  <span class="media testimonials__avatar">
+                    {{
+                      review.author_image
+                      | image_url: width: 144
+                      | image_tag: widths: '48, 96, 144', sizes: '48px', loading: 'lazy', alt: ''
+                    }}
+                  </span>
+                {%- endif -%}
+                <span class="testimonials__author-info">
+                  {%- if review.author != blank -%}
+                    <span class="testimonials__name">{{ review.author }}</span>
+                  {%- endif -%}
+                  {%- if review.verified -%}
+                    <span class="testimonials__verified">
+                      {% render 'icon', icon: 'check', size: 14 %}
+                      {{ 'sections.testimonials.verified' | t }}
+                    </span>
+                  {%- endif -%}
+                </span>
+              </figcaption>
+
+              {%- if review.product != blank -%}
+                <a class="testimonials__product" href="{{ review.product.url }}">
+                  {%- if review.product.featured_image != blank -%}
+                    <span class="media testimonials__product-media">
+                      {{
+                        review.product.featured_image
+                        | image_url: width: 144
+                        | image_tag: widths: '48, 96, 144', sizes: '48px', loading: 'lazy', alt: ''
+                      }}
+                    </span>
+                  {%- endif -%}
+                  <span class="testimonials__product-title">{{ review.product.title }}</span>
+                  {% render 'icon', icon: 'chevron-right', size: 16 %}
+                </a>
+              {%- endif -%}
+            </figure>
+          </li>
+        {%- endfor -%}
+      </ul>
+      <div class="slider__dots" data-slider-dots></div>
+    </slider-component>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Depoimentos",
+  "tag": "section",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto de apoio"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "O que dizem nossos clientes"
+    },
+    {
+      "type": "text",
+      "id": "overall_rating",
+      "label": "Texto da nota geral",
+      "info": "Opcional. Ex.: \"4,9/5 com base em 2.300 avaliações\". Use somente dados reais da sua loja."
+    },
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "Depoimento",
+      "settings": [
+        {
+          "type": "range",
+          "id": "rating",
+          "label": "Nota",
+          "min": 1,
+          "max": 5,
+          "step": 1,
+          "default": 5
+        },
+        {
+          "type": "textarea",
+          "id": "quote",
+          "label": "Depoimento",
+          "default": "Escreva aqui o depoimento de um cliente."
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "label": "Nome do cliente",
+          "default": "Nome do cliente"
+        },
+        {
+          "type": "checkbox",
+          "id": "verified",
+          "label": "Mostrar selo \"compra verificada\"",
+          "info": "Marque somente quando a compra tiver sido confirmada.",
+          "default": false
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Produto avaliado"
+        },
+        {
+          "type": "image_picker",
+          "id": "author_image",
+          "label": "Foto do cliente"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Depoimentos",
+      "settings": {
+        "color_scheme": "alt"
+      },
+      "blocks": [
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Escreva aqui o depoimento de um cliente.",
+            "author": "Nome do cliente"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Escreva aqui o depoimento de um cliente.",
+            "author": "Nome do cliente"
+          }
+        },
+        {
+          "type": "testimonial",
+          "settings": {
+            "quote": "Escreva aqui o depoimento de um cliente.",
+            "author": "Nome do cliente"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

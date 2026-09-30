@@ -1,0 +1,178 @@
+{% layout none %}
+
+{%- liquid
+  assign formatted_balance = gift_card.balance | money
+  assign formatted_initial = gift_card.initial_value | money
+  assign formatted_code = gift_card.code | format_code
+
+  assign is_usable = true
+  if gift_card.expired or gift_card.enabled == false
+    assign is_usable = false
+  endif
+-%}
+
+<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="{{ settings.color_background }}">
+    <meta name="robots" content="noindex">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    {%- if settings.favicon != blank -%}
+      <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 96, height: 96 }}">
+    {%- endif -%}
+
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+    {%- unless settings.font_heading.system? and settings.font_body.system? -%}
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    {%- endunless -%}
+
+    <title>{{ 'gift_cards.issued.title' | t: shop: shop.name, value: formatted_initial }}</title>
+    <meta name="description" content="{{ 'gift_cards.issued.subtext' | t | escape }}">
+
+    {% render 'css-variables' %}
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'gift-card.css' | asset_url | stylesheet_tag }}
+
+    <script>
+      document.documentElement.className = document.documentElement.className.replace('no-js', 'js');
+    </script>
+    <script src="{{ 'vendor/qrcode.js' | shopify_asset_url }}" defer="defer"></script>
+    <script src="{{ 'copy-button.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'gift-card.js' | asset_url }}" defer="defer"></script>
+
+    {{ content_for_header }}
+  </head>
+
+  <body class="template-gift-card gift-card-page">
+    <header class="gift-card__header">
+      <a href="{{ shop.url }}" class="gift-card__logo">
+        {%- if settings.logo != blank -%}
+          {{
+            settings.logo
+            | image_url: width: 320
+            | image_tag: widths: '160, 320', sizes: '140px', loading: 'eager', alt: shop.name, class: 'gift-card__logo-image'
+          }}
+        {%- else -%}
+          <span class="h3">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+    </header>
+
+    <main class="gift-card" id="MainContent">
+      <div class="gift-card__intro">
+        <span class="eyebrow">{{ 'gift_cards.issued.eyebrow' | t }}</span>
+        <h1 class="h2">{{ 'gift_cards.issued.heading' | t }}</h1>
+        <p class="text-muted">{{ 'gift_cards.issued.subtext' | t }}</p>
+      </div>
+
+      <div class="gift-card__card{% unless is_usable %} gift-card__card--inactive{% endunless %}">
+        <div class="gift-card__visual">
+          <img
+            src="{{ 'gift-card/card.svg' | shopify_asset_url }}"
+            alt=""
+            width="570"
+            height="358"
+            loading="eager"
+            class="gift-card__image"
+          >
+          <div class="gift-card__value">
+            <span class="visually-hidden">{{ 'gift_cards.issued.balance' | t }}</span>
+            <span class="gift-card__balance">{{ formatted_balance }}</span>
+          </div>
+        </div>
+
+        <div class="gift-card__details">
+          <dl class="gift-card__facts">
+            <div>
+              <dt>{{ 'gift_cards.issued.balance' | t }}</dt>
+              <dd>{{ formatted_balance }}</dd>
+            </div>
+            {%- if gift_card.balance != gift_card.initial_value -%}
+              <div>
+                <dt>{{ 'gift_cards.issued.initial_value' | t }}</dt>
+                <dd>{{ formatted_initial }}</dd>
+              </div>
+            {%- endif -%}
+          </dl>
+
+          {%- if gift_card.enabled == false -%}
+            <p class="form-message form-message--error gift-card__status" role="status">
+              {{ 'gift_cards.issued.disabled' | t }}
+            </p>
+          {%- elsif gift_card.expired -%}
+            {%- assign expiry_date = gift_card.expires_on | date: format: 'abbreviated_date' -%}
+            <p class="form-message form-message--error gift-card__status" role="status">
+              {{ 'gift_cards.issued.expired' | t: expiry: expiry_date }}
+            </p>
+          {%- elsif gift_card.expires_on -%}
+            {%- assign expiry_date = gift_card.expires_on | date: format: 'abbreviated_date' -%}
+            <p class="gift-card__status text-small text-muted">
+              {{ 'gift_cards.issued.active' | t: expiry: expiry_date }}
+            </p>
+          {%- endif -%}
+
+          <div class="gift-card__code-box">
+            <label class="field__label" for="GiftCardCode">{{ 'gift_cards.issued.code_label' | t }}</label>
+            <input
+              class="field__input gift-card__code"
+              type="text"
+              id="GiftCardCode"
+              value="{{ formatted_code }}"
+              readonly
+              autocomplete="off"
+              spellcheck="false"
+              aria-describedby="GiftCardHint"
+            >
+            <p class="text-small text-muted" id="GiftCardHint">{{ 'gift_cards.issued.code_hint' | t }}</p>
+
+            <copy-button
+              class="js-only gift-card__copy"
+              data-value="{{ gift_card.code | escape }}"
+              data-success="{{ 'gift_cards.issued.copied' | t | escape }}"
+            >
+              <button type="button" class="button button--secondary button--full">
+                <span data-copy-label>{{ 'gift_cards.issued.copy_code' | t }}</span>
+              </button>
+            </copy-button>
+          </div>
+
+          {%- if is_usable -%}
+            <gift-card-qr
+              class="gift-card__qr js-only"
+              data-identifier="{{ gift_card.qr_identifier }}"
+              data-alt="{{ 'gift_cards.issued.qr_alt' | t | escape }}"
+            ></gift-card-qr>
+          {%- endif -%}
+        </div>
+      </div>
+
+      <div class="gift-card__actions">
+        {%- if is_usable -%}
+          <a href="{{ shop.url }}" class="button button--full">{{ 'gift_cards.issued.shop_link' | t }}</a>
+        {%- endif -%}
+
+        {%- if gift_card.pass_url and is_usable -%}
+          <a href="{{ gift_card.pass_url }}" class="gift-card__wallet">
+            <img
+              src="{{ 'gift-card/add-to-apple-wallet.svg' | shopify_asset_url }}"
+              width="120"
+              height="40"
+              loading="lazy"
+              alt="{{ 'gift_cards.issued.add_to_apple_wallet' | t }}"
+            >
+          </a>
+        {%- endif -%}
+
+        <print-button class="js-only">
+          <button type="button" class="link text-small">{{ 'gift_cards.issued.print' | t }}</button>
+        </print-button>
+      </div>
+    </main>
+
+    <div class="visually-hidden" aria-live="polite" role="status" id="LiveRegion"></div>
+  </body>
+</html>

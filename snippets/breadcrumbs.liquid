@@ -1,0 +1,94 @@
+{%- comment -%}
+  Renders breadcrumbs with BreadcrumbList structured data.
+
+  Usage:
+  {% render 'breadcrumbs' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign crumbs_titles = ''
+  assign crumbs_urls = ''
+  assign separator = '|||'
+
+  case request.page_type
+    when 'product'
+      if collection
+        capture crumb_collection_title
+          render 'collection-title', collection: collection
+        endcapture
+        assign crumbs_titles = crumb_collection_title
+        assign crumbs_urls = collection.url
+      elsif product.collections.first
+        assign crumbs_titles = product.collections.first.title
+        assign crumbs_urls = product.collections.first.url
+      endif
+      capture current_title
+        render 'product-title', title: product.title
+      endcapture
+    when 'collection'
+      capture current_title
+        render 'collection-title', collection: collection
+      endcapture
+    when 'blog'
+      assign current_title = blog.title
+    when 'article'
+      assign crumbs_titles = blog.title
+      assign crumbs_urls = blog.url
+      assign current_title = article.title
+    when 'page'
+      assign current_title = page.title
+    when 'search'
+      assign current_title = 'templates.search.title' | t
+    when 'cart'
+      assign current_title = 'cart.title' | t
+    when 'list-collections'
+      assign current_title = 'templates.list_collections.title' | t
+    else
+      assign current_title = page_title
+  endcase
+
+  assign crumbs_titles = crumbs_titles | split: separator
+  assign crumbs_urls = crumbs_urls | split: separator
+  assign position = 1
+-%}
+
+<nav class="breadcrumbs" aria-label="{{ 'general.breadcrumbs' | t }}">
+  <ol>
+    <li><a href="{{ routes.root_url }}">{{ 'general.home' | t }}</a></li>
+    {%- for crumb_title in crumbs_titles -%}
+      <li><a href="{{ crumbs_urls[forloop.index0] }}">{{ crumb_title }}</a></li>
+    {%- endfor -%}
+    <li><span aria-current="page">{{ current_title }}</span></li>
+  </ol>
+</nav>
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": {{ position }},
+        "name": {{ 'general.home' | t | json }},
+        "item": {{ request.origin | append: routes.root_url | json }}
+      }
+      {%- for crumb_title in crumbs_titles -%}
+        {%- assign position = position | plus: 1 -%}
+        ,{
+          "@type": "ListItem",
+          "position": {{ position }},
+          "name": {{ crumb_title | json }},
+          "item": {{ request.origin | append: crumbs_urls[forloop.index0] | json }}
+        }
+      {%- endfor -%}
+      {%- assign position = position | plus: 1 -%}
+      ,{
+        "@type": "ListItem",
+        "position": {{ position }},
+        "name": {{ current_title | json }},
+        "item": {{ canonical_url | json }}
+      }
+    ]
+  }
+</script>

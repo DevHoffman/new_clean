@@ -1,0 +1,141 @@
+/* Video hero */
+.video-hero {
+  --video-hero-height: 480px;
+  position: relative;
+}
+
+.video-hero--small {
+  --video-hero-height: 360px;
+}
+
+.video-hero--large {
+  --video-hero-height: 560px;
+}
+
+@media (min-width: 750px) {
+  .video-hero {
+    --video-hero-height: 520px;
+  }
+
+  .video-hero--small {
+    --video-hero-height: 400px;
+  }
+
+  .video-hero--large {
+    --video-hero-height: 680px;
+  }
+}
+
+.video-hero__media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: var(--video-hero-height);
+  overflow: hidden;
+  background: var(--color-bg-alt);
+}
+
+.video-hero__poster,
+.video-hero__video,
+.video-hero__iframe,
+.video-hero__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video-hero__poster,
+.video-hero__video {
+  object-fit: cover;
+}
+
+.video-hero__iframe {
+  z-index: 2;
+  border: 0;
+  background: #000;
+}
+
+.video-hero__overlay {
+  background: #000;
+  opacity: var(--video-hero-overlay, 0);
+  pointer-events: none;
+}
+
+.video-hero--dark .video-hero__overlay {
+  background: #fff;
+}
+
+.video-hero__container {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  padding-block: 48px;
+}
+
+.video-hero__content {
+  width: 100%;
+  max-width: 600px;
+}
+
+.video-hero__content > * + * {
+  margin-top: 12px;
+}
+
+.video-hero--light {
+  --color-text: #fff;
+  --color-bg: #111;
+  --color-button: #fff;
+  --color-button-text: #111;
+  color: #fff;
+}
+
+.video-hero--light .video-hero__eyebrow {
+  color: inherit;
+}
+
+.video-hero--center .video-hero__container {
+  justify-content: center;
+  text-align: center;
+}
+
+.video-hero--right .video-hero__container {
+  justify-content: flex-end;
+}
+
+.video-hero__text {
+  max-width: 46ch;
+  font-size: 1rem;
+}
+
+.video-hero--center .video-hero__text {
+  margin-inline: auto;
+}
+
+.video-hero__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.video-hero--center .video-hero__buttons {
+  justify-content: center;
+}
+
+/* External video playing: the player takes over the whole area */
+.video-hero__media.is-loaded .video-hero__container {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-hero__video {
+    display: none;
+  }
+}
+
+@media (min-width: 750px) {
+  .video-hero__text {
+    font-size: 1.125rem;
+  }
+}

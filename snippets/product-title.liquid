@@ -1,0 +1,47 @@
+{%- comment -%}
+  Outputs a product title. Titles typed in ALL CAPS (common in distributor
+  catalogues) are converted to title case when the theme setting is on:
+  "ACABAMENTO ACRILICO 5L STARTPRO" → "Acabamento Acrilico 5L Startpro".
+  Words with digits or up to two letters (5L, C/, UN) stay as they are and
+  Portuguese connectors stay lowercase.
+
+  Accepts:
+  - title: {String} product title (required)
+
+  Usage:
+  {% render 'product-title', title: product.title %}
+{%- endcomment -%}
+
+{%- liquid
+  assign upper_title = title | upcase
+  if settings.normalize_titles and title == upper_title
+    assign connectors = 'de,da,do,das,dos,e,com,para,em,sem,a,o' | split: ','
+    assign words = title | split: ' '
+    assign output = ''
+    for word in words
+      assign clean = word | strip
+      if clean == blank
+        continue
+      endif
+      assign lower = clean | downcase
+      assign has_digit = false
+      for digit in (0..9)
+        assign digit_text = digit | append: ''
+        if clean contains digit_text
+          assign has_digit = true
+        endif
+      endfor
+      if has_digit or clean.size <= 2
+        assign piece = clean
+      elsif connectors contains lower and forloop.first == false
+        assign piece = lower
+      else
+        assign piece = lower | capitalize
+      endif
+      assign output = output | append: piece | append: ' '
+    endfor
+    echo output | strip
+  else
+    echo title
+  endif
+-%}

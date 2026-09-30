@@ -1,0 +1,195 @@
+{{ 'section-main-list-collections.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'section-main-list-collections.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  case section.settings.image_ratio
+    when 'square'
+      assign card_ratio = '1 / 1'
+    when 'landscape'
+      assign card_ratio = '4 / 3'
+    else
+      assign card_ratio = '4 / 5'
+  endcase
+
+-%}
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+    {%- if section.settings.show_breadcrumbs -%}
+      {% render 'breadcrumbs' %}
+    {%- endif -%}
+
+    <div class="section-header section-header--center">
+      <div class="section-header__text">
+        <h1 class="h1">
+          {%- if section.settings.heading != blank -%}
+            {{ section.settings.heading }}
+          {%- else -%}
+            {{ 'templates.list_collections.title' | t }}
+          {%- endif -%}
+        </h1>
+        {%- if section.settings.text != blank -%}
+          <p class="section-header__description">{{ section.settings.text }}</p>
+        {%- endif -%}
+      </div>
+    </div>
+
+    {%- paginate collections by section.settings.per_page -%}
+      {%- if collections.size > 0 -%}
+        {%- if section.settings.show_filter and collections.size > 8 -%}
+          <collection-filter class="collection-filter">
+            <label class="visually-hidden" for="CollectionFilter">{{ 'templates.list_collections.filter_label' | t }}</label>
+            <input
+              id="CollectionFilter"
+              class="collection-filter__input"
+              type="search"
+              placeholder="{{ 'templates.list_collections.filter_label' | t }}"
+              autocomplete="off"
+              data-filter-input
+            >
+            <p class="collection-filter__empty text-muted" data-filter-empty hidden>{{ 'templates.list_collections.filter_empty' | t }}</p>
+          </collection-filter>
+        {%- endif -%}
+        <ul
+          class="grid main-list-collections__grid"
+          role="list"
+          style="--cols-mobile: {{ section.settings.columns_mobile }}; --cols-tablet: 3; --cols-desktop: {{ section.settings.columns_desktop }}; --collection-ratio: {{ card_ratio }};"
+        >
+          {%- for collection in collections -%}
+            {%- liquid
+              assign card_image = collection.featured_image | default: collection.products.first.featured_media.preview_image
+              assign loading = 'lazy'
+              if section.index == 1 and forloop.index <= 4
+                assign loading = 'eager'
+              endif
+            -%}
+            <li data-collection-title="{{ collection.title | escape }}">
+              <a href="{{ collection.url }}" class="collection-tile">
+                <div class="collection-tile__media media">
+                  {%- if card_image -%}
+                    {{
+                      card_image
+                      | image_url: width: 1000
+                      | image_tag:
+                        widths: '200, 300, 400, 600, 800, 1000',
+                        sizes: '(min-width: 1000px) 25vw, (min-width: 750px) 33vw, 50vw',
+                        loading: loading,
+                        alt: ''
+                    }}
+                  {%- else -%}
+                    {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                  {%- endif -%}
+                </div>
+                <div class="collection-tile__info">
+                  <h2 class="collection-tile__title h4">{{ collection.title }}</h2>
+                  {%- if section.settings.show_count -%}
+                    <p class="text-small text-muted">
+                      {{ 'templates.list_collections.products_count' | t: count: collection.all_products_count }}
+                    </p>
+                  {%- endif -%}
+                </div>
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+
+        {% render 'pagination', paginate: paginate %}
+      {%- else -%}
+        <div class="empty-state">
+          <p class="h3">{{ 'templates.list_collections.empty' | t }}</p>
+          <a href="{{ routes.root_url }}" class="button button--secondary">{{ 'general.back_to_home' | t }}</a>
+        </div>
+      {%- endif -%}
+    {%- endpaginate -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Lista de coleções",
+  "class": "section-main-list-collections",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Todas as categorias"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texto",
+      "default": "Encontre o produto certo para cada tipo de limpeza."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Mostrar caminho de navegação",
+      "default": false
+    },
+    { "type": "header", "content": "Grade" },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Proporção da imagem",
+      "options": [
+        { "value": "portrait", "label": "Retrato (4:5)" },
+        { "value": "square", "label": "Quadrada (1:1)" },
+        { "value": "landscape", "label": "Paisagem (4:3)" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Colunas no celular",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Colunas no desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filter",
+      "label": "Mostrar campo para filtrar categorias pelo nome",
+      "info": "Aparece quando há mais de 8 coleções na página.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "per_page",
+      "label": "Coleções por página",
+      "min": 8,
+      "max": 48,
+      "step": 4,
+      "default": 48
+    },
+    {
+      "type": "checkbox",
+      "id": "show_count",
+      "label": "Mostrar quantidade de produtos",
+      "default": false
+    },
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ]
+}
+{% endschema %}

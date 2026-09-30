@@ -1,0 +1,397 @@
+{{ 'section-category-tiles.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign columns = section.settings.columns_desktop
+  assign desktop_vw = 100 | divided_by: columns
+  assign sizes = '(min-width: 1000px) ' | append: desktop_vw | append: 'vw, (min-width: 750px) 25vw, 40vw'
+-%}
+
+<div
+  class="section scheme-{{ section.settings.color_scheme }} category-tiles category-tiles--{{ section.settings.shape }}{% if section.settings.desktop_grid %} category-tiles--grid{% endif %}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="container">
+    {%- if section.settings.heading != blank or section.settings.eyebrow != blank -%}
+      <div class="section-header section-header--center">
+        <div class="section-header__text">
+          {%- if section.settings.eyebrow != blank -%}
+            <span class="eyebrow">{{ section.settings.eyebrow }}</span>
+          {%- endif -%}
+          {%- if section.settings.heading != blank -%}
+            <h2 class="h2">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.marquee -%}
+      {%- liquid
+        assign copies = 2
+        if section.blocks.size < 8
+          assign copies = 4
+        endif
+      -%}
+      <div class="category-tiles__marquee" style="--marquee-duration: {{ section.settings.speed }}s;">
+        <div class="category-tiles__track">
+          {%- for copy in (1..copies) -%}
+            {%- assign is_copy = true -%}
+            {%- if forloop.first -%}{%- assign is_copy = false -%}{%- endif -%}
+            <ul class="category-tiles__items" role="list" {% unless forloop.first %}aria-hidden="true"{% endunless %}>
+              {%- for block in section.blocks -%}
+                {% render 'category-tile', block: block, sizes: '(min-width: 750px) 176px, 128px', marquee: true, duplicate: is_copy %}
+              {%- endfor -%}
+            </ul>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- else -%}
+    <slider-component>
+      <ul
+        class="slider slider--bleed category-tiles__list"
+        role="list"
+        style="--slides-mobile: {% if section.settings.desktop_grid %}2{% else %}3{% endif %}; --slides-tablet: 4; --slides-desktop: {{ columns }};"
+      >
+        {%- for block in section.blocks -%}
+          {% render 'category-tile', block: block, sizes: sizes, marquee: false, duplicate: false %}
+        {%- endfor -%}
+      </ul>
+    </slider-component>
+    {%- endif -%}
+
+    {%- if section.settings.show_all -%}
+      <div class="category-tiles__all">
+        <a class="button button--secondary" href="{{ section.settings.all_link | default: routes.collections_url }}">
+          {{- section.settings.all_label | default: 'Ver todas as categorias' -}}
+          {% render 'icon', icon: 'arrow-right', size: 16 %}
+        </a>
+      </div>
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Compre por categoria",
+  "tag": "section",
+  "max_blocks": 16,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto de apoio"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Compre por categoria"
+    },
+    {
+      "type": "select",
+      "id": "shape",
+      "label": "Formato das imagens e dos ícones",
+      "options": [
+        {
+          "value": "round",
+          "label": "Redondo"
+        },
+        {
+          "value": "rounded",
+          "label": "Retângulo arredondado"
+        }
+      ],
+      "default": "round"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Colunas no desktop",
+      "min": 3,
+      "max": 8,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "checkbox",
+      "id": "marquee",
+      "label": "Categorias passando em carrossel contínuo",
+      "info": "Como na faixa de marcas: pausa ao passar o mouse e não anima para quem usa \"reduzir movimento\". Desmarcado, usa a linha rolável ou a grade abaixo.",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "speed",
+      "label": "Duração de uma volta completa",
+      "min": 20,
+      "max": 120,
+      "step": 10,
+      "unit": "s",
+      "info": "Quanto maior, mais lento. Só vale com o carrossel contínuo.",
+      "default": 50
+    },
+    {
+      "type": "checkbox",
+      "id": "desktop_grid",
+      "label": "Grade com várias linhas no desktop",
+      "info": "Mostra todas as categorias de uma vez, com fotos maiores. Desmarcado, vira uma linha rolável.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Todas as categorias"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_all",
+      "label": "Mostrar botão \"Ver todas as categorias\"",
+      "info": "Leva à página com todas as coleções da loja, que tem filtro por nome. Essencial quando há mais categorias do que cabem aqui.",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "all_label",
+      "label": "Texto do botão",
+      "default": "Ver todas as categorias"
+    },
+    {
+      "type": "url",
+      "id": "all_link",
+      "label": "Link do botão",
+      "info": "Vazio = página de todas as coleções."
+    },
+    {
+      "type": "header",
+      "content": "Aparência"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        {
+          "value": "default",
+          "label": "Padrão"
+        },
+        {
+          "value": "alt",
+          "label": "Fundo alternativo"
+        },
+        {
+          "value": "inverse",
+          "label": "Invertido"
+        },
+        {
+          "value": "accent",
+          "label": "Destaque"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Espaçamento superior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Categoria",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Título",
+          "info": "Quando vazio, usa o nome da coleção."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Link alternativo",
+          "info": "Usado enquanto a coleção não existir ou não estiver escolhida. Para levar a uma busca, use /search?q=desinfetante&type=product"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Coleção",
+          "info": "Fornece o link (tem prioridade sobre o link alternativo) e o título. A imagem só vem daqui se você escolher; senão, vale o ícone."
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Produto que ilustra a categoria",
+          "info": "A foto do produto vira a imagem da categoria. Escolha um produto de foto nítida, fundo branco e boa venda."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Imagem",
+          "info": "Opcional. Sobrepõe a foto do produto."
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Ícone",
+          "info": "Exibido quando não há imagem.",
+          "options": [
+            {
+              "value": "spray",
+              "label": "Borrifador"
+            },
+            {
+              "value": "broom",
+              "label": "Vassoura"
+            },
+            {
+              "value": "paper-roll",
+              "label": "Rolo de papel"
+            },
+            {
+              "value": "trash-bag",
+              "label": "Saco de lixo"
+            },
+            {
+              "value": "glove",
+              "label": "Luva"
+            },
+            {
+              "value": "cup",
+              "label": "Copo descartável"
+            },
+            {
+              "value": "soap",
+              "label": "Sabonete"
+            },
+            {
+              "value": "bucket",
+              "label": "Balde"
+            },
+            {
+              "value": "sponge",
+              "label": "Esponja"
+            },
+            {
+              "value": "dispenser",
+              "label": "Dispenser"
+            },
+            {
+              "value": "coffee",
+              "label": "Café"
+            },
+            {
+              "value": "box",
+              "label": "Caixa"
+            },
+            {
+              "value": "building",
+              "label": "Prédio"
+            },
+            {
+              "value": "utensils",
+              "label": "Talheres"
+            },
+            {
+              "value": "medical",
+              "label": "Saúde"
+            },
+            {
+              "value": "briefcase",
+              "label": "Maleta"
+            },
+            {
+              "value": "school",
+              "label": "Escola"
+            },
+            {
+              "value": "home",
+              "label": "Casa"
+            }
+          ],
+          "default": "box"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Compre por categoria",
+      "settings": {
+        "columns_desktop": 8
+      },
+      "blocks": [
+        {
+          "type": "category",
+          "settings": {
+            "title": "Desinfetantes",
+            "icon": "spray"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Papel higiênico e toalha",
+            "icon": "paper-roll"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Sacos de lixo",
+            "icon": "trash-bag"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Álcool",
+            "icon": "dispenser"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Limpadores e multiuso",
+            "icon": "bucket"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Sabonetes",
+            "icon": "soap"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Vassouras e rodos",
+            "icon": "broom"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Descartáveis",
+            "icon": "cup"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

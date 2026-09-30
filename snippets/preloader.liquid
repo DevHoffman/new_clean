@@ -1,0 +1,54 @@
+{%- comment -%}
+  First-visit loading screen. It is removed as soon as the document is parsed
+  and is skipped on the following pages of the same visit, so it never slows
+  down navigation. A CSS failsafe hides it even if JavaScript fails.
+
+  Usage:
+  {% render 'preloader' %}
+{%- endcomment -%}
+
+<div class="preloader" id="Preloader" aria-hidden="true">
+  <div class="preloader__inner">
+    {%- if settings.logo != blank -%}
+      {{ settings.logo | image_url: width: 360 | image_tag: class: 'preloader__logo', loading: 'eager', alt: '', sizes: '180px', widths: '180, 360' }}
+    {%- else -%}
+      <img
+        class="preloader__logo preloader__logo--fallback"
+        src="{{ 'logo-new-clean.png' | asset_img_url: '360x' }}"
+        alt=""
+        width="500"
+        height="350"
+        loading="eager"
+      >
+    {%- endif -%}
+    <span class="preloader__bar"><span></span></span>
+  </div>
+</div>
+<script>
+  (function () {
+    var preloader = document.getElementById('Preloader');
+    var seen = document.documentElement.getAttribute('data-fx') === 'lite';
+    try {
+      seen = seen || window.sessionStorage.getItem('newclean:loaded') === '1';
+      window.sessionStorage.setItem('newclean:loaded', '1');
+    } catch (error) {
+      // Storage unavailable: show the preloader
+    }
+    if (seen) {
+      preloader.parentNode.removeChild(preloader);
+      return;
+    }
+    var started = Date.now();
+    function hide() {
+      var wait = Math.max(0, 450 - (Date.now() - started));
+      window.setTimeout(function () {
+        preloader.classList.add('is-hidden');
+        window.setTimeout(function () {
+          if (preloader.parentNode) preloader.parentNode.removeChild(preloader);
+        }, 450);
+      }, wait);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', hide);
+    else hide();
+  })();
+</script>

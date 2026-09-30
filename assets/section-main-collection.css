@@ -1,0 +1,35 @@
+/* Hero
+   ========================================================================== */
+.collection-hero {
+  background: var(--color-bg-alt);
+  padding-bottom: 28px;
+}
+
+.collection-hero__inner {
+  display: grid;
+  gap: 20px;
+  padding-top: 8px;
+}
+
+.collection-hero__description {
+  max-width: 64ch;
+  margin-top: 10px;
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+}
+
+.collection-hero__image {
+  aspect-ratio: 16 / 7;
+}
+
+@media (min-width: 1000px) {
+  .collection-hero {
+    padding-bottom: 40px;
+  }
+
+  .collection-hero--image .collection-hero__inner {
+    grid-template-columns: 1fr 40%;
+    align-items: center;
+    gap: 48px;
+  }
+}

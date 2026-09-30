@@ -1,0 +1,57 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-page",
+      "settings": {
+        "padding_bottom": 0
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "question_1": {
+          "type": "question",
+          "settings": {
+            "question": "Como funcionam o frete e o prazo de entrega?",
+            "answer": "<p>O frete e o prazo são calculados no checkout conforme o seu CEP, antes de você finalizar a compra.</p>"
+          }
+        },
+        "question_2": {
+          "type": "question",
+          "settings": {
+            "question": "Quais são as formas de pagamento?",
+            "answer": "<p>As formas de pagamento disponíveis, incluindo Pix e parcelamento no cartão, aparecem no checkout com as condições válidas para o seu pedido.</p>"
+          }
+        },
+        "question_3": {
+          "type": "question",
+          "settings": {
+            "question": "Posso comprar para a minha empresa?",
+            "answer": "<p>Sim. Atendemos empresas, condomínios e outros estabelecimentos, além de residências. Para pedidos em maior volume, compras recorrentes ou dúvidas sobre nota fiscal, fale com o nosso atendimento.</p>"
+          }
+        },
+        "question_4": {
+          "type": "question",
+          "settings": {
+            "question": "Como funcionam as trocas e devoluções?",
+            "answer": "<p>Se houver algum problema com o seu pedido, fale com o nosso atendimento. As condições e os prazos estão descritos na política de trocas e devoluções da loja.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "question_1",
+        "question_2",
+        "question_3",
+        "question_4"
+      ],
+      "settings": {
+        "heading": "",
+        "padding_top": 24
+      }
+    }
+  },
+  "order": [
+    "main",
+    "faq"
+  ]
+}

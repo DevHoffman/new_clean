@@ -1,0 +1,9 @@
+{%- comment -%}
+  Rendered through the product recommendations endpoint by the cart.
+{%- endcomment -%}
+
+<product-recommendations>
+  {%- if recommendations.performed and recommendations.products_count > 0 -%}
+    {% render 'cart-upsell-list', products: recommendations.products %}
+  {%- endif -%}
+</product-recommendations>

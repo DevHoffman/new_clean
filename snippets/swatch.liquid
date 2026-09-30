@@ -1,0 +1,44 @@
+{%- comment -%}
+  Outputs the inline style for a colour swatch.
+  Priority: native Shopify swatch (category metafields) > variant image fallback
+  is handled by the caller > colour map from theme settings > CSS colour name.
+
+  Accepts:
+  - value: {Object|String} product option value object, or its name
+  - name: {String} option value name (required when value is a string)
+
+  Usage:
+  <span class="swatch" style="{% render 'swatch', value: value %}"></span>
+{%- endcomment -%}
+
+{%- liquid
+  assign swatch_name = name | default: value.name | default: value
+  assign swatch_color = blank
+  assign swatch_image = blank
+
+  if value.swatch.image
+    assign swatch_image = value.swatch.image | image_url: width: 80
+  elsif value.swatch.color
+    assign swatch_color = value.swatch.color
+  else
+    assign swatch_key = swatch_name | downcase | strip
+    assign swatch_map = settings.swatch_colors | newline_to_br | split: '<br />'
+    for entry in swatch_map
+      assign pair = entry | strip | split: ':'
+      assign pair_key = pair.first | downcase | strip
+      if pair_key == swatch_key
+        assign swatch_color = pair.last | strip
+        break
+      endif
+    endfor
+    if swatch_color == blank
+      assign swatch_color = swatch_name | handleize | remove: '-'
+    endif
+  endif
+-%}
+
+{%- if swatch_image -%}
+  background-image: url({{ swatch_image }});
+{%- else -%}
+  background-color: {{ swatch_color }};
+{%- endif -%}

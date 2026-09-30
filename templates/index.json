@@ -1,0 +1,554 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "blocks": {
+        "hero_slide_1": {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Entrega rápida para sua empresa ou lar",
+            "heading": "Limpeza de verdade começa com o produto certo",
+            "text": "Materiais de limpeza profissionais e domésticos com preço de distribuidora.",
+            "button_label": "Ver a loja",
+            "button_link": "shopify://collections/all",
+            "button_secondary_label": "Falar com um vendedor",
+            "text_position": "left",
+            "text_color": "light",
+            "overlay_opacity": 0,
+            "showcase_collection": "novidades",
+            "showcase_badge": "Frete grátis acima de [frete]",
+            "trust_line": "Nota fiscal em todos os pedidos · Atendimento por WhatsApp"
+          }
+        }
+      },
+      "block_order": [
+        "hero_slide_1"
+      ],
+      "settings": {
+        "height": "medium",
+        "autoplay": false
+      }
+    },
+    "search_bar": {
+      "type": "search-bar",
+      "settings": {
+        "heading": "O que você precisa hoje?",
+        "text": "Busque pelo nome do produto e encontre tudo na loja.",
+        "placeholder": "Ex.: desinfetante, papel toalha, saco de lixo",
+        "show_popular": true,
+        "color_scheme": "default",
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    },
+    "trust_bar": {
+      "type": "trust-bar",
+      "blocks": {
+        "trust_bar_item_1": {
+          "type": "item",
+          "settings": {
+            "icon": "truck",
+            "title": "Frete grátis",
+            "text": "Em compras acima de [frete]"
+          }
+        },
+        "trust_bar_item_2": {
+          "type": "item",
+          "settings": {
+            "icon": "pix",
+            "title": "[pix] off no Pix",
+            "text": "Desconto no pagamento à vista"
+          }
+        },
+        "trust_bar_item_3": {
+          "type": "item",
+          "settings": {
+            "icon": "credit-card",
+            "title": "Parcele em até [parcelas]",
+            "text": "No cartão de crédito"
+          }
+        },
+        "trust_bar_item_4": {
+          "type": "item",
+          "settings": {
+            "icon": "clock",
+            "title": "Entrega rápida",
+            "text": "Para sua empresa ou sua casa"
+          }
+        },
+        "trust_bar_item_5": {
+          "type": "item",
+          "settings": {
+            "icon": "file-text",
+            "title": "Nota fiscal",
+            "text": "Em todos os pedidos"
+          }
+        }
+      },
+      "block_order": [
+        "trust_bar_item_1",
+        "trust_bar_item_2",
+        "trust_bar_item_3",
+        "trust_bar_item_4",
+        "trust_bar_item_5"
+      ],
+      "settings": {
+        "mobile_layout": "grid",
+        "color_scheme": "alt",
+        "padding_top": 24,
+        "padding_bottom": 24
+      }
+    },
+    "category_tiles": {
+      "type": "category-tiles",
+      "blocks": {
+        "category_tiles_category_1": {
+          "type": "category",
+          "settings": {
+            "title": "Desinfetantes",
+            "link": "/search?q=desinfetante&type=product",
+            "icon": "spray",
+            "collection": "desinfetantes"
+          }
+        },
+        "category_tiles_category_2": {
+          "type": "category",
+          "settings": {
+            "title": "Papel higiênico e toalha",
+            "link": "/search?q=papel&type=product",
+            "icon": "paper-roll",
+            "collection": "papel-higienico-e-toalha"
+          }
+        },
+        "category_tiles_category_3": {
+          "type": "category",
+          "settings": {
+            "title": "Sacos de lixo",
+            "link": "/search?q=saco&type=product",
+            "icon": "trash-bag",
+            "collection": "sacos-de-lixo"
+          }
+        },
+        "category_tiles_category_4": {
+          "type": "category",
+          "settings": {
+            "title": "Álcool",
+            "link": "/search?q=alcool&type=product",
+            "icon": "dispenser",
+            "collection": "alcool"
+          }
+        },
+        "category_tiles_category_5": {
+          "type": "category",
+          "settings": {
+            "title": "Limpadores e multiuso",
+            "link": "/search?q=limpador&type=product",
+            "icon": "bucket",
+            "collection": "limpadores-e-multiuso"
+          }
+        },
+        "category_tiles_category_6": {
+          "type": "category",
+          "settings": {
+            "title": "Sabonetes",
+            "link": "/search?q=sabonete&type=product",
+            "icon": "soap",
+            "collection": "sabonetes-e-higiene"
+          }
+        },
+        "category_tiles_category_7": {
+          "type": "category",
+          "settings": {
+            "title": "Vassouras e rodos",
+            "link": "/search?q=vassoura&type=product",
+            "icon": "broom",
+            "collection": "vassouras-rodos-e-cabos"
+          }
+        },
+        "category_tiles_category_8": {
+          "type": "category",
+          "settings": {
+            "title": "Descartáveis",
+            "link": "/search?q=copo&type=product",
+            "icon": "cup",
+            "collection": "descartaveis"
+          }
+        }
+      },
+      "block_order": [
+        "category_tiles_category_1",
+        "category_tiles_category_2",
+        "category_tiles_category_3",
+        "category_tiles_category_4",
+        "category_tiles_category_5",
+        "category_tiles_category_6",
+        "category_tiles_category_7",
+        "category_tiles_category_8"
+      ],
+      "settings": {
+        "eyebrow": "Encontre rápido",
+        "heading": "Compre por categoria",
+        "shape": "round",
+        "columns_desktop": 8,
+        "color_scheme": "default",
+        "padding_top": 56,
+        "padding_bottom": 56,
+        "desktop_grid": false,
+        "show_all": true,
+        "all_label": "Ver todas as categorias",
+        "marquee": true,
+        "speed": 50
+      }
+    },
+    "novidades": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "Novidades",
+        "eyebrow": "Acabou de chegar",
+        "collection": "novidades",
+        "products_to_show": 8,
+        "columns_desktop": 4,
+        "layout": "slider",
+        "show_view_all": true,
+        "view_all_label": "Ver tudo",
+        "color_scheme": "alt",
+        "padding_top": 56,
+        "padding_bottom": 56,
+        "hide_when_empty": true
+      }
+    },
+    "promo_banner": {
+      "type": "promo-banner",
+      "settings": {
+        "alignment": "left",
+        "eyebrow": "Promoção",
+        "heading": "Ofertas da semana",
+        "text": "Os preços mais baixos da semana, com estoque limitado.",
+        "button_label": "Ver todas as ofertas",
+        "button_link": "shopify://collections/ofertas",
+        "hide_when_expired": false,
+        "color_scheme": "default",
+        "padding_top": 56,
+        "padding_bottom": 56,
+        "layout": "card",
+        "badge_text": "",
+        "badge_caption": "",
+        "countdown_mode": "week",
+        "countdown_label": "A oferta termina em",
+        "products_collection": "ofertas",
+        "products_limit": 4,
+        "only_on_sale": true,
+        "hide_without_products": true,
+        "products_label": "Produtos em promoção"
+      }
+    },
+    "b2b_cta": {
+      "type": "b2b-cta",
+      "blocks": {
+        "b2b_cta_benefit_1": {
+          "type": "benefit",
+          "settings": {
+            "icon": "chat",
+            "text": "Atendimento dedicado para empresas"
+          }
+        },
+        "b2b_cta_benefit_2": {
+          "type": "benefit",
+          "settings": {
+            "icon": "refresh",
+            "text": "Pedidos recorrentes sem complicação"
+          }
+        },
+        "b2b_cta_benefit_3": {
+          "type": "benefit",
+          "settings": {
+            "icon": "mail",
+            "text": "Nota fiscal em todos os pedidos"
+          }
+        },
+        "b2b_cta_benefit_4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "truck",
+            "text": "Entrega na Grande Vitória"
+          }
+        }
+      },
+      "block_order": [
+        "b2b_cta_benefit_1",
+        "b2b_cta_benefit_2",
+        "b2b_cta_benefit_3",
+        "b2b_cta_benefit_4"
+      ],
+      "settings": {
+        "eyebrow": "Para empresas",
+        "heading": "Compra para empresa?",
+        "text": "<p>Condomínios, restaurantes, clínicas, escritórios e escolas: fale com a nossa equipe e monte o pedido de materiais de limpeza do seu negócio.</p>",
+        "button_label": "Falar com um vendedor",
+        "whatsapp_message": "Olá! Quero comprar materiais de limpeza para a minha empresa.",
+        "color_scheme": "inverse",
+        "padding_top": 64,
+        "padding_bottom": 64,
+        "showcase_products": [
+          "desinfetante-wave-5l-azulim",
+          "toa-de-papel-mili-200fls-2x100-fls",
+          "saco-lixo-60l-preto-super-ref-c-100-almofada-newclean"
+        ]
+      }
+    },
+    "shop_by_concern": {
+      "type": "shop-by-concern",
+      "blocks": {
+        "shop_by_concern_concern_1": {
+          "type": "concern",
+          "settings": {
+            "title": "Condomínios",
+            "text": "Áreas comuns e portaria",
+            "icon": "building",
+            "link": "/pages/pedido-rapido"
+          }
+        },
+        "shop_by_concern_concern_2": {
+          "type": "concern",
+          "settings": {
+            "title": "Restaurantes e bares",
+            "text": "Cozinha, salão e banheiros",
+            "icon": "utensils",
+            "link": "/pages/pedido-rapido"
+          }
+        },
+        "shop_by_concern_concern_3": {
+          "type": "concern",
+          "settings": {
+            "title": "Clínicas e consultórios",
+            "text": "Higiene e descartáveis",
+            "icon": "medical",
+            "link": "/pages/pedido-rapido"
+          }
+        },
+        "shop_by_concern_concern_4": {
+          "type": "concern",
+          "settings": {
+            "title": "Escritórios",
+            "text": "Copa, banheiros e estações",
+            "icon": "briefcase",
+            "link": "/pages/pedido-rapido"
+          }
+        },
+        "shop_by_concern_concern_5": {
+          "type": "concern",
+          "settings": {
+            "title": "Escolas",
+            "text": "Salas, pátios e refeitório",
+            "icon": "school",
+            "link": "/pages/pedido-rapido"
+          }
+        },
+        "shop_by_concern_concern_6": {
+          "type": "concern",
+          "settings": {
+            "title": "Casa",
+            "text": "Limpeza do dia a dia",
+            "icon": "home",
+            "link": "/collections/all"
+          }
+        }
+      },
+      "block_order": [
+        "shop_by_concern_concern_1",
+        "shop_by_concern_concern_2",
+        "shop_by_concern_concern_3",
+        "shop_by_concern_concern_4",
+        "shop_by_concern_concern_5",
+        "shop_by_concern_concern_6"
+      ],
+      "settings": {
+        "heading": "Compre por segmento",
+        "description": "Produtos de limpeza para cada tipo de ambiente, da sua empresa à sua casa.",
+        "columns_desktop": 6,
+        "color_scheme": "alt",
+        "padding_top": 56,
+        "padding_bottom": 56
+      }
+    },
+    "faq": {
+      "type": "faq",
+      "blocks": {
+        "faq_question_1": {
+          "type": "question",
+          "settings": {
+            "question": "Como funcionam o frete e o prazo de entrega?",
+            "answer": "<p>O frete e o prazo são calculados no checkout conforme o seu CEP, antes de você finalizar a compra.</p>"
+          }
+        },
+        "faq_question_2": {
+          "type": "question",
+          "settings": {
+            "question": "Quais são as formas de pagamento?",
+            "answer": "<p>As formas de pagamento disponíveis, incluindo Pix e parcelamento no cartão, aparecem no checkout com as condições válidas para o seu pedido.</p>"
+          }
+        },
+        "faq_question_3": {
+          "type": "question",
+          "settings": {
+            "question": "Posso comprar para a minha empresa?",
+            "answer": "<p>Sim. Atendemos empresas, condomínios e outros estabelecimentos, além de residências. Para pedidos em maior volume, compras recorrentes ou dúvidas sobre nota fiscal, fale com o nosso atendimento.</p>"
+          }
+        },
+        "faq_question_4": {
+          "type": "question",
+          "settings": {
+            "question": "Como funcionam as trocas e devoluções?",
+            "answer": "<p>Se houver algum problema com o seu pedido, fale com o nosso atendimento. As condições e os prazos estão descritos na política de trocas e devoluções da loja.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "faq_question_1",
+        "faq_question_2",
+        "faq_question_3",
+        "faq_question_4"
+      ],
+      "settings": {
+        "heading": "Perguntas frequentes",
+        "color_scheme": "default",
+        "padding_top": 56,
+        "padding_bottom": 56
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "color_scheme": "alt"
+      }
+    },
+    "mais_vendidos": {
+      "type": "featured-collection",
+      "settings": {
+        "eyebrow": "Os favoritos dos nossos clientes",
+        "heading": "Mais vendidos",
+        "collection": "mais-vendidos",
+        "products_to_show": 8,
+        "columns_desktop": 4,
+        "layout": "slider",
+        "show_view_all": true,
+        "view_all_label": "Ver todos",
+        "hide_incomplete": true,
+        "color_scheme": "default",
+        "padding_top": 56,
+        "padding_bottom": 56,
+        "hide_when_empty": true
+      }
+    },
+    "marcas": {
+      "type": "brand-list",
+      "blocks": {
+        "brand_1": {
+          "type": "brand",
+          "settings": {
+            "name": "Azulim"
+          }
+        },
+        "brand_2": {
+          "type": "brand",
+          "settings": {
+            "name": "Start"
+          }
+        },
+        "brand_3": {
+          "type": "brand",
+          "settings": {
+            "name": "Tuff"
+          }
+        },
+        "brand_4": {
+          "type": "brand",
+          "settings": {
+            "name": "Nobre"
+          }
+        },
+        "brand_5": {
+          "type": "brand",
+          "settings": {
+            "name": "Mili"
+          }
+        },
+        "brand_6": {
+          "type": "brand",
+          "settings": {
+            "name": "Indy"
+          }
+        },
+        "brand_7": {
+          "type": "brand",
+          "settings": {
+            "name": "Uppro"
+          }
+        },
+        "brand_8": {
+          "type": "brand",
+          "settings": {
+            "name": "Skala"
+          }
+        },
+        "brand_9": {
+          "type": "brand",
+          "settings": {
+            "name": "Veja"
+          }
+        },
+        "brand_10": {
+          "type": "brand",
+          "settings": {
+            "name": "Bombril"
+          }
+        },
+        "brand_11": {
+          "type": "brand",
+          "settings": {
+            "name": "Comfort"
+          }
+        },
+        "brand_12": {
+          "type": "brand",
+          "settings": {
+            "name": "Qualifood"
+          }
+        }
+      },
+      "block_order": [
+        "brand_1",
+        "brand_2",
+        "brand_3",
+        "brand_4",
+        "brand_5",
+        "brand_6",
+        "brand_7",
+        "brand_8",
+        "brand_9",
+        "brand_10",
+        "brand_11",
+        "brand_12"
+      ],
+      "settings": {
+        "color_scheme": "default",
+        "padding_top": 48,
+        "padding_bottom": 48
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "search_bar",
+    "trust_bar",
+    "category_tiles",
+    "mais_vendidos",
+    "promo_banner",
+    "novidades",
+    "marcas",
+    "b2b_cta",
+    "shop_by_concern",
+    "faq",
+    "newsletter"
+  ]
+}

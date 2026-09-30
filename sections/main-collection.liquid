@@ -1,0 +1,269 @@
+{{ 'section-main-collection.css' | asset_url | stylesheet_tag }}
+{{ 'component-facets.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign per_page = section.settings.columns_desktop | times: section.settings.rows
+  assign show_filters = false
+  if section.settings.enable_filters and collection.filters.size > 0
+    assign show_filters = true
+  endif
+
+  capture collection_display_title
+    render 'collection-title', collection: collection
+  endcapture
+
+  assign clear_url = collection.url
+  if collection.sort_by != blank
+    assign clear_url = collection.url | append: '?sort_by=' | append: collection.sort_by
+  endif
+
+  assign active_count = 0
+  for filter in collection.filters
+    if filter.type == 'price_range'
+      if filter.min_value.value != null or filter.max_value.value != null
+        assign active_count = active_count | plus: 1
+      endif
+    else
+      assign active_count = active_count | plus: filter.active_values.size
+    endif
+  endfor
+-%}
+
+<div class="collection-hero{% if section.settings.show_image and collection.image %} collection-hero--image{% endif %}">
+  <div class="container">
+    {%- if section.settings.show_breadcrumbs -%}
+      {% render 'breadcrumbs' %}
+    {%- endif -%}
+    <div class="collection-hero__inner">
+      <div class="collection-hero__text">
+        <h1 class="h1">{{ collection_display_title }}</h1>
+        {%- if section.settings.show_description and collection.description != blank -%}
+          <div class="collection-hero__description rte">{{ collection.description }}</div>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.show_image and collection.image -%}
+        <div class="media collection-hero__image">
+          {{
+            collection.image
+            | image_url: width: 1200
+            | image_tag:
+              widths: '400, 600, 800, 1200',
+              sizes: '(min-width: 1000px) 40vw, 100vw',
+              loading: 'eager',
+              fetchpriority: 'high',
+              alt: collection.image.alt
+          }}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<div class="section" style="--pt: 24px; --pb: {{ section.settings.padding_bottom }}px;">
+  <facet-filters class="container collection" data-section-id="{{ section.id }}">
+    {%- paginate collection.products by per_page -%}
+      {%- comment -%}
+        The form is empty on purpose: its fields point to it with the `form`
+        attribute, so product cards (which contain their own forms) never end
+        up nested inside it.
+      {%- endcomment -%}
+      <form class="facets-form" id="FacetsForm" data-facets-form hidden></form>
+
+      <div class="collection__inner">
+        {%- comment -%} Toolbar {%- endcomment -%}
+        <div class="collection__toolbar">
+          {%- if show_filters -%}
+            <button type="button" class="button button--secondary button--small collection__filter-toggle" data-modal-open="#FacetsDrawer" aria-haspopup="dialog">
+              {% render 'icon', icon: 'filter', size: 16 %}
+              <span class="button__label">
+                {{ 'collections.facets.filter' | t }}
+                <span data-region="active-count">{% if active_count > 0 %}({{ active_count }}){% endif %}</span>
+              </span>
+            </button>
+          {%- endif -%}
+
+          <p class="collection__count text-small text-muted" data-region="count" aria-live="polite">
+            {{ 'collections.products_count' | t: count: collection.products_count }}
+          </p>
+
+          {%- if section.settings.enable_sorting -%}
+            <div class="collection__sort">
+              <label for="SortBy" class="visually-hidden">{{ 'collections.facets.sort_by' | t }}</label>
+              <select name="sort_by" id="SortBy" class="select" form="FacetsForm">
+                {%- assign sort_by = collection.sort_by | default: collection.default_sort_by -%}
+                {%- for option in collection.sort_options -%}
+                  <option value="{{ option.value | escape }}" {% if option.value == sort_by %}selected{% endif %}>
+                    {{ option.name | escape }}
+                  </option>
+                {%- endfor -%}
+              </select>
+            </div>
+          {%- endif -%}
+        </div>
+
+        <div class="collection__layout{% if show_filters %} collection__layout--filters{% endif %}">
+          {%- comment -%} Filters: drawer on mobile, sidebar on desktop {%- endcomment -%}
+          {%- if show_filters -%}
+            {% render 'facets-drawer', filters: collection.filters, clear_url: clear_url, results_count: collection.products_count %}
+          {%- endif -%}
+
+          {%- comment -%} Results {%- endcomment -%}
+          <div class="collection__results" id="CollectionResults" data-region="results">
+            {% render 'facets-active', filters: collection.filters, clear_url: clear_url, active_count: active_count %}
+
+            {%- if collection.products.size == 0 -%}
+              <div class="empty-state">
+                <h2 class="h3">{{ 'collections.empty' | t }}</h2>
+                {%- if active_count > 0 -%}
+                  <p class="text-muted">{{ 'collections.empty_filtered' | t }}</p>
+                  <a href="{{ collection.url }}" class="button" data-facet-link>{{ 'collections.facets.clear_all' | t }}</a>
+                {%- else -%}
+                  <a href="{{ routes.all_products_collection_url }}" class="button">{{ 'general.continue_shopping' | t }}</a>
+                {%- endif -%}
+              </div>
+            {%- else -%}
+              <ul
+                class="grid collection__grid"
+                role="list"
+                style="--cols-mobile: {{ section.settings.columns_mobile }}; --cols-tablet: 3; --cols-desktop: {{ section.settings.columns_desktop }};"
+              >
+                {%- for product in collection.products -%}
+                  {%- liquid
+                    assign lazy = true
+                    if forloop.index <= 4
+                      assign lazy = false
+                    endif
+                  -%}
+                  <li>
+                    {% render 'product-card', product: product, lazy: lazy %}
+                  </li>
+                {%- endfor -%}
+              </ul>
+
+              {% render 'pagination', paginate: paginate, anchor: '#CollectionResults' %}
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+    {%- endpaginate -%}
+  </facet-filters>
+</div>
+
+{%- if section.settings.show_seo_text and collection.metafields.custom.seo_text != blank -%}
+  <div class="section scheme-alt" style="--pt: 40px; --pb: 40px;">
+    <div class="container container--narrow rte text-small text-muted">
+      {{ collection.metafields.custom.seo_text | metafield_tag }}
+    </div>
+  </div>
+{%- endif -%}
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": {{ collection_display_title | json }},
+    "description": {{ collection.description | strip_html | truncate: 300 | json }},
+    "url": {{ request.origin | append: collection.url | json }}
+  }
+</script>
+
+{% schema %}
+{
+  "name": "Coleção",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Topo"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumbs",
+      "label": "Mostrar navegação estrutural",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Mostrar descrição",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Mostrar imagem da coleção",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Vitrine"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Colunas no mobile",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "label": "Colunas no desktop",
+      "min": 2,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "rows",
+      "label": "Linhas por página",
+      "min": 2,
+      "max": 10,
+      "step": 1,
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Filtros e ordenação"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filters",
+      "label": "Ativar filtros",
+      "info": "Configure os filtros no app Shopify Search & Discovery. Sugestões: tipo de produto, marca, disponibilidade e preço.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "Ativar ordenação",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "SEO"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_seo_text",
+      "label": "Mostrar texto de SEO no fim da página",
+      "info": "Usa o metacampo de coleção custom.seo_text (texto formatado).",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 72
+    }
+  ]
+}
+{% endschema %}

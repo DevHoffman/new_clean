@@ -1,0 +1,181 @@
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+    <div class="customer-auth{% if section.blocks.size > 0 %} customer-auth--split{% endif %}">
+      <div class="customer-auth__panel">
+        <div class="customer-auth__header">
+          <h1 class="h2">{{ 'customer.register.title' | t }}</h1>
+          <p class="text-muted">{{ 'customer.register.subtext' | t }}</p>
+        </div>
+
+        {%- form 'create_customer', novalidate: 'novalidate' -%}
+          {%- if form.errors -%}
+            <div class="form-message form-message--error" role="alert">
+              {{ form.errors | default_errors }}
+            </div>
+          {%- endif -%}
+
+          <div class="customer-form__row">
+            <div class="field">
+              <label class="field__label" for="RegisterFirstName">{{ 'customer.register.first_name' | t }}</label>
+              <input
+                class="field__input"
+                type="text"
+                name="customer[first_name]"
+                id="RegisterFirstName"
+                value="{{ form.first_name }}"
+                autocomplete="given-name"
+              >
+            </div>
+            <div class="field">
+              <label class="field__label" for="RegisterLastName">{{ 'customer.register.last_name' | t }}</label>
+              <input
+                class="field__input"
+                type="text"
+                name="customer[last_name]"
+                id="RegisterLastName"
+                value="{{ form.last_name }}"
+                autocomplete="family-name"
+              >
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="RegisterEmail">{{ 'customer.register.email' | t }}</label>
+            <input
+              class="field__input"
+              type="email"
+              inputmode="email"
+              name="customer[email]"
+              id="RegisterEmail"
+              value="{{ form.email }}"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              required
+              aria-required="true"
+              {% if form.errors contains 'email' %}
+                aria-invalid="true"
+              {% endif %}
+            >
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="RegisterPassword">{{ 'customer.register.password' | t }}</label>
+            <input
+              class="field__input"
+              type="password"
+              name="customer[password]"
+              id="RegisterPassword"
+              autocomplete="new-password"
+              required
+              aria-required="true"
+              aria-describedby="RegisterPasswordHint"
+              {% if form.errors contains 'password' %}
+                aria-invalid="true"
+              {% endif %}
+            >
+            <p class="customer-form__hint" id="RegisterPasswordHint">{{ 'customer.register.password_hint' | t }}</p>
+          </div>
+
+          <label class="checkbox customer-form__checkbox" for="RegisterMarketing">
+            <input type="hidden" name="customer[accepts_marketing]" value="false">
+            <input
+              type="checkbox"
+              name="customer[accepts_marketing]"
+              id="RegisterMarketing"
+              value="true"
+              {% if form.accepts_marketing %}
+                checked
+              {% endif %}
+            >
+            <span>{{ 'customer.register.accepts_marketing' | t }}</span>
+          </label>
+
+          <div class="customer-auth__actions">
+            <button type="submit" class="button button--full">{{ 'customer.register.submit' | t }}</button>
+          </div>
+        {%- endform -%}
+
+        <div class="customer-auth__footer">
+          <p>
+            {{ 'customer.register.have_account' | t }}
+            <a href="{{ routes.account_login_url }}" class="link">{{ 'customer.register.login' | t }}</a>
+          </p>
+        </div>
+      </div>
+
+      {%- if section.blocks.size > 0 -%}
+        <aside class="customer-benefits" aria-labelledby="RegisterBenefits-{{ section.id }}">
+          <h2 class="h3" id="RegisterBenefits-{{ section.id }}">{{ section.settings.benefits_heading }}</h2>
+          <ul class="customer-benefits__list" role="list">
+            {%- for block in section.blocks -%}
+              <li class="customer-benefits__item" {{ block.shopify_attributes }}>
+                {% render 'icon', icon: block.settings.icon, size: 22 %}
+                <span>{{ block.settings.text }}</span>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </aside>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Criar conta",
+  "class": "section-main-register",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "text",
+      "id": "benefits_heading",
+      "label": "Título dos benefícios",
+      "default": "Vantagens de ter uma conta"
+    },
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ],
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "Benefício",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Ícone",
+          "options": [
+            { "value": "check", "label": "Check" },
+            { "value": "truck", "label": "Entrega" },
+            { "value": "box", "label": "Pedido" },
+            { "value": "heart", "label": "Coração" },
+            { "value": "gift", "label": "Presente" },
+            { "value": "sparkle", "label": "Brilho" },
+            { "value": "clock", "label": "Relógio" },
+            { "value": "shield", "label": "Segurança" },
+            { "value": "refresh", "label": "Recompra" },
+            { "value": "mail", "label": "E-mail" }
+          ],
+          "default": "check"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto",
+          "default": "Acompanhe seus pedidos em tempo real"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

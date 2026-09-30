@@ -1,0 +1,57 @@
+{%- comment -%}
+  Rendered through the Section Rendering API by the quick order page:
+  /search?q=...&type=product&section_id=quick-order-results
+{%- endcomment -%}
+
+<div data-quick-order-results>
+  {%- if search.performed -%}
+    {%- liquid
+      assign shown = 0
+      assign limit = 12
+    -%}
+    {%- for item in search.results -%}
+      {%- if item.object_type != 'product' or shown >= limit -%}
+        {%- continue -%}
+      {%- endif -%}
+      {%- assign shown = shown | plus: 1 -%}
+      {%- assign variant = item.selected_or_first_available_variant -%}
+      <div class="quick-order__row{% unless item.available %} is-unavailable{% endunless %}" data-quick-order-row data-variant-id="{{ variant.id }}" data-title="{{ item.title | escape }}">
+        <a href="{{ item.url }}" class="media quick-order__image" tabindex="-1" aria-hidden="true">
+          {%- if item.featured_media -%}
+            {{ item.featured_media.preview_image | image_url: width: 120 | image_tag: widths: '60, 120', sizes: '56px', loading: 'lazy', alt: '' }}
+          {%- else -%}
+            <span class="product-card__no-image">{% render 'icon', icon: 'box', size: 20 %}</span>
+          {%- endif -%}
+        </a>
+        <div class="quick-order__info">
+          <a href="{{ item.url }}" class="quick-order__title">{% render 'product-title', title: item.title %}</a>
+          <p class="quick-order__meta">
+            {%- if variant.sku != blank -%}{{ 'products.product.sku' | t: sku: variant.sku }} · {% endif -%}
+            <strong>{{ variant.price | money }}</strong>
+            {%- unless item.available %} · {{ 'products.product.sold_out' | t }}{% endunless -%}
+          </p>
+        </div>
+        {%- if item.available -%}
+          <quantity-input class="quantity quantity--small quick-order__quantity">
+            <button type="button" class="quantity__button" data-quantity="minus" aria-label="{{ 'products.product.quantity.decrease' | t }}">
+              {% render 'icon', icon: 'minus', size: 12 %}
+            </button>
+            <input type="number" class="quantity__input" value="1" min="1" inputmode="numeric" aria-label="{{ 'products.product.quantity.label' | t }}: {{ item.title | escape }}" data-quick-order-quantity>
+            <button type="button" class="quantity__button" data-quantity="plus" aria-label="{{ 'products.product.quantity.increase' | t }}">
+              {% render 'icon', icon: 'plus', size: 12 %}
+            </button>
+          </quantity-input>
+          <button type="button" class="button button--small quick-order__add" data-quick-order-add>
+            <span class="button__label">{{ 'products.product.quick_add' | t }}</span>
+            <span class="button__spinner" aria-hidden="true"></span>
+          </button>
+        {%- else -%}
+          <span class="badge badge--muted">{{ 'products.product.sold_out' | t }}</span>
+        {%- endif -%}
+      </div>
+    {%- endfor -%}
+    {%- if shown == 0 -%}
+      <p class="quick-order__empty text-muted">{{ 'sections.quick_order.no_results' | t: terms: search.terms }}</p>
+    {%- endif -%}
+  {%- endif -%}
+</div>

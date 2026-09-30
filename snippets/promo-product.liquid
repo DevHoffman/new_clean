@@ -1,0 +1,37 @@
+{%- comment -%}
+  Product tile for the promotion block: photo, discount badge, title and
+  old/new price. The whole tile links to the product page.
+
+  Accepts:
+  - product: {Object} product (required); must have compare_at_price > price
+  - position: {Number} 1-based position, used to load the first tiles eagerly (optional)
+
+  Usage:
+  {% render 'promo-product', product: product, position: forloop.index %}
+{%- endcomment -%}
+
+{%- liquid
+  assign discount = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round
+  assign tile_alt = product.featured_media.alt | default: product.title
+-%}
+
+<a class="promo-product" href="{{ product.url }}">
+  <span class="promo-product__media">
+    <span class="badge badge--sale promo-product__badge">-{{ discount }}%</span>
+    {{
+      product.featured_media.preview_image
+      | image_url: width: 640
+      | image_tag:
+        widths: '200, 320, 480, 640',
+        sizes: '(min-width: 1000px) 260px, 45vw',
+        loading: 'lazy',
+        alt: tile_alt,
+        class: 'promo-product__image'
+    }}
+  </span>
+  <span class="promo-product__title">{% render 'product-title', title: product.title %}</span>
+  <span class="promo-product__price">
+    <s class="promo-product__compare">{{ product.compare_at_price | money }}</s>
+    <strong class="promo-product__current">{{ product.price | money }}</strong>
+  </span>
+</a>

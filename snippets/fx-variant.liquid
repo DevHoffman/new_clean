@@ -1,0 +1,39 @@
+{%- comment -%}
+  A/B test of the decorative effects (preloader, inertia scroll, reveal
+  animations, hero bubbles, menu pill). Runs in <head>, before first paint.
+
+  - Off by default: every visitor gets the full experience.
+  - On: each visitor is assigned "full" or "lite" once (kept in localStorage).
+  - "lite" removes the effects; the variant is pushed to dataLayer as
+    { event: 'fx_variant', fx_variant: 'full' | 'lite' } so GA4 can compare
+    conversion and bounce rate between the groups.
+  - Force a variant for testing: add ?nc_fx=lite or ?nc_fx=full to any URL.
+
+  Usage:
+  {% render 'fx-variant' %}
+{%- endcomment -%}
+
+<script>
+  (function () {
+    var enabled = {{ settings.fx_experiment | json }};
+    var variant = 'full';
+    try {
+      var forced = window.location.search.match(/[?&]nc_fx=(full|lite)/);
+      if (forced) {
+        variant = forced[1];
+        if (enabled) window.localStorage.setItem('newclean:fx', variant);
+      } else if (enabled) {
+        variant = window.localStorage.getItem('newclean:fx');
+        if (variant !== 'full' && variant !== 'lite') {
+          variant = Math.random() < 0.5 ? 'full' : 'lite';
+          window.localStorage.setItem('newclean:fx', variant);
+        }
+      }
+    } catch (error) {
+      // Storage unavailable: keep the full experience
+    }
+    document.documentElement.setAttribute('data-fx', variant);
+    window.dataLayer = window.dataLayer || [];
+    if (enabled) window.dataLayer.push({ event: 'fx_variant', fx_variant: variant });
+  })();
+</script>

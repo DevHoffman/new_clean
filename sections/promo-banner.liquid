@@ -1,0 +1,462 @@
+{{ 'section-promo-banner.css' | asset_url | stylesheet_tag }}
+{%- if section.settings.coupon_code != blank -%}
+  <script src="{{ 'section-promo-banner.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- liquid
+  assign end_date = section.settings.end_date | strip
+  assign countdown_mode = section.settings.countdown_mode | default: 'date'
+  assign show_countdown = false
+  assign expired = false
+  if countdown_mode == 'day' or countdown_mode == 'week'
+    assign show_countdown = true
+    assign end_date = ''
+  elsif countdown_mode == 'date' and end_date != blank
+    assign end_timestamp = end_date | date: '%s' | plus: 0
+    assign now_timestamp = 'now' | date: '%s' | plus: 0
+    if end_timestamp > now_timestamp
+      assign show_countdown = true
+    else
+      assign expired = true
+    endif
+  endif
+
+  assign hide_section = false
+  if expired and section.settings.hide_when_expired
+    assign hide_section = true
+  endif
+
+  assign overlay = section.settings.overlay_opacity | divided_by: 100.0
+
+  comment
+    Products on promotion: only items with a real discount (compare-at price above
+    the price), a photo and stock. Many stores keep compare-at equal to the price,
+    so membership in a collection alone never proves a promotion.
+  endcomment
+  assign promo_count = 0
+  assign promo_limit = section.settings.products_limit | default: 4
+  capture promo_tiles
+    for product in section.settings.products_collection.products
+      if promo_count >= promo_limit
+        break
+      endif
+      if product.featured_media == blank or product.available == false
+        continue
+      endif
+      assign is_discounted = false
+      if product.compare_at_price > product.price
+        assign is_discounted = true
+      endif
+      if section.settings.only_on_sale and is_discounted == false
+        continue
+      endif
+      assign promo_count = promo_count | plus: 1
+      render 'promo-product', product: product, position: promo_count
+    endfor
+  endcapture
+
+  assign no_products = false
+  if section.settings.hide_without_products and promo_count == 0
+    assign no_products = true
+    assign hide_section = true
+  endif
+-%}
+
+{%- if hide_section -%}
+  {%- if request.design_mode -%}
+    <div class="section promo-banner">
+      <div class="container">
+        <p class="form-message form-message--error">
+          {%- if no_products -%}
+            {{ 'sections.promo_banner.no_products_notice' | t }}
+          {%- else -%}
+            {{ 'sections.promo_banner.expired_notice' | t }}
+          {%- endif -%}
+        </p>
+      </div>
+    </div>
+  {%- endif -%}
+{%- else -%}
+  <div
+    class="section scheme-{{ section.settings.color_scheme }} promo-banner promo-banner--{{ section.settings.alignment }} promo-banner--{{ section.settings.layout | default: 'band' }}{% if section.settings.image != blank %} promo-banner--has-image{% endif %}"
+    style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px; --promo-overlay: {{ overlay }};"
+    {% if show_countdown and section.settings.hide_when_expired %}
+      data-countdown-scope
+    {% endif %}
+  >
+    {%- if section.settings.image != blank -%}
+      <div class="promo-banner__media">
+        {{
+          section.settings.image
+          | image_url: width: 2400
+          | image_tag:
+            widths: '400, 600, 800, 1100, 1400, 1800, 2400',
+            sizes: '100vw',
+            loading: 'lazy',
+            alt: section.settings.image.alt
+        }}
+      </div>
+    {%- endif -%}
+
+    <div class="container promo-banner__container">
+      {%- if section.settings.layout == 'card' -%}
+        <div class="promo-card scheme-inverse">
+      {%- endif -%}
+      <div class="promo-banner__content">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="h2">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}
+          <p class="promo-banner__text">{{ section.settings.text }}</p>
+        {%- endif -%}
+
+        {%- if show_countdown -%}
+          <div
+            class="promo-banner__countdown"
+            {% unless section.settings.hide_when_expired %}
+              data-countdown-scope
+            {% endunless %}
+          >
+            {%- if section.settings.countdown_label != blank -%}
+              <p class="promo-banner__countdown-label">{{ section.settings.countdown_label }}</p>
+            {%- endif -%}
+            <countdown-timer
+              class="promo-banner__timer"
+              {% if countdown_mode == 'day' or countdown_mode == 'week' %}
+                data-recurring="{{ countdown_mode }}"
+              {% else %}
+                data-end="{{ end_date | escape }}"
+              {% endif %}
+              role="timer"
+            >
+              <span class="promo-banner__unit">
+                <span class="promo-banner__number" data-days>00</span>
+                <span class="promo-banner__unit-label">{{ 'sections.promo_banner.days' | t }}</span>
+              </span>
+              <span class="promo-banner__unit">
+                <span class="promo-banner__number" data-hours>00</span>
+                <span class="promo-banner__unit-label">{{ 'sections.promo_banner.hours' | t }}</span>
+              </span>
+              <span class="promo-banner__unit">
+                <span class="promo-banner__number" data-minutes>00</span>
+                <span class="promo-banner__unit-label">{{ 'sections.promo_banner.minutes' | t }}</span>
+              </span>
+              <span class="promo-banner__unit">
+                <span class="promo-banner__number" data-seconds>00</span>
+                <span class="promo-banner__unit-label">{{ 'sections.promo_banner.seconds' | t }}</span>
+              </span>
+            </countdown-timer>
+          </div>
+        {%- endif -%}
+
+        {%- if section.settings.coupon_code != blank or section.settings.button_label != blank -%}
+          <div class="promo-banner__actions">
+            {%- if section.settings.coupon_code != blank -%}
+              <copy-code
+                class="promo-banner__coupon"
+                data-code="{{ section.settings.coupon_code | strip | escape }}"
+                data-copied-label="{{ 'sections.promo_banner.copied' | t }}"
+              >
+                <span class="promo-banner__coupon-text">
+                  <span class="promo-banner__coupon-label">{{ 'sections.promo_banner.coupon_label' | t }}</span>
+                  <strong class="promo-banner__coupon-code">{{ section.settings.coupon_code | strip }}</strong>
+                </span>
+                <button
+                  type="button"
+                  class="promo-banner__copy js-only"
+                  data-copy-button
+                  aria-label="{{ 'sections.promo_banner.copy_code' | t: code: section.settings.coupon_code | escape }}"
+                >
+                  <span data-copy-label>{{ 'sections.promo_banner.copy' | t }}</span>
+                </button>
+              </copy-code>
+            {%- endif -%}
+            {%- if section.settings.button_label != blank -%}
+              <a class="button" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+                {{- section.settings.button_label -}}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+      </div>
+      {%- if section.settings.layout == 'card' -%}
+        {%- if section.settings.badge_text != blank -%}
+          <div class="promo-card__badge" aria-hidden="true">
+            <span>{{ section.settings.badge_text }}</span>
+            {%- if section.settings.badge_caption != blank -%}
+              <small>{{ section.settings.badge_caption }}</small>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+        {%- if promo_count > 0 -%}
+          <div class="promo-products" role="list" aria-label="{{ section.settings.products_label | escape }}" style="--promo-cols: {{ promo_count }};">
+            {{ promo_tiles }}
+          </div>
+        {%- endif -%}
+        </div>
+      {%- else -%}
+        {%- if promo_count > 0 -%}
+          <div class="promo-products" role="list" aria-label="{{ section.settings.products_label | escape }}" style="--promo-cols: {{ promo_count }};">
+            {{ promo_tiles }}
+          </div>
+        {%- endif -%}
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "Banner promocional",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Imagem de fundo",
+      "info": "Opcional. Com imagem, o texto fica claro sobre uma sobreposição escura."
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Opacidade da sobreposição",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 40
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Formato",
+      "options": [
+        {
+          "value": "band",
+          "label": "Faixa de largura total"
+        },
+        {
+          "value": "card",
+          "label": "Cartão com selo de desconto"
+        }
+      ],
+      "default": "card"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Selo (ex.: -25%)",
+      "info": "Aparece no formato cartão.",
+      "default": "-25%"
+    },
+    {
+      "type": "text",
+      "id": "badge_caption",
+      "label": "Legenda do selo",
+      "info": "Ex.: OFF, na 4ª unidade",
+      "default": "OFF"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Alinhamento",
+      "options": [
+        {
+          "value": "left",
+          "label": "Esquerda"
+        },
+        {
+          "value": "center",
+          "label": "Centro"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto de apoio",
+      "default": "Promoção da semana"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Compre 3, leve 4 em desinfetantes!"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texto",
+      "default": "Monte seu estoque com economia. Válido enquanto durarem os estoques."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto do botão",
+      "default": "Aproveitar agora"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link do botão"
+    },
+    {
+      "type": "header",
+      "content": "Produtos em promoção"
+    },
+    {
+      "type": "collection",
+      "id": "products_collection",
+      "label": "Coleção com os produtos da promoção",
+      "info": "Crie uma coleção (ex.: \"Ofertas\") e coloque nela os produtos em promoção. Só aparecem produtos com preço \"comparar a\" maior que o preço, com foto e em estoque."
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Produtos exibidos",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "checkbox",
+      "id": "only_on_sale",
+      "label": "Mostrar só produtos com desconto real",
+      "info": "Recomendado. Evita anunciar como promoção um produto cujo preço não caiu.",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_without_products",
+      "label": "Ocultar o bloco se não houver produtos em promoção",
+      "info": "Uma promoção sem produtos confunde o cliente. No editor, um aviso indica que o bloco está oculto.",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "products_label",
+      "label": "Descrição da lista (leitores de tela)",
+      "default": "Produtos em promoção"
+    },
+    {
+      "type": "header",
+      "content": "Cupom"
+    },
+    {
+      "type": "text",
+      "id": "coupon_code",
+      "label": "Código do cupom",
+      "info": "Opcional. O cupom precisa existir em Descontos, no admin da Shopify."
+    },
+    {
+      "type": "header",
+      "content": "Contagem regressiva"
+    },
+    {
+      "type": "select",
+      "id": "countdown_mode",
+      "label": "Contagem regressiva",
+      "options": [
+        {
+          "value": "none",
+          "label": "Sem contagem"
+        },
+        {
+          "value": "date",
+          "label": "Até uma data específica"
+        },
+        {
+          "value": "day",
+          "label": "Até o fim de cada dia (renova à meia-noite)"
+        },
+        {
+          "value": "week",
+          "label": "Até domingo 23h59 (renova toda semana)"
+        }
+      ],
+      "info": "Use as opções que renovam somente se a oferta realmente vale por dia ou por semana. Horário de Brasília.",
+      "default": "none"
+    },
+    {
+      "type": "text",
+      "id": "end_date",
+      "label": "Data e hora de término",
+      "info": "Usado com \"Até uma data específica\". Formato: AAAA-MM-DDTHH:MM:SS-03:00. Ex.: 2026-12-31T23:59:59-03:00."
+    },
+    {
+      "type": "text",
+      "id": "countdown_label",
+      "label": "Texto da contagem",
+      "default": "Termina em"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide_when_expired",
+      "label": "Ocultar a seção inteira quando o prazo terminar",
+      "info": "Desmarcado, apenas a contagem é ocultada.",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Aparência"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        {
+          "value": "default",
+          "label": "Padrão"
+        },
+        {
+          "value": "alt",
+          "label": "Fundo alternativo"
+        },
+        {
+          "value": "inverse",
+          "label": "Invertido"
+        },
+        {
+          "value": "accent",
+          "label": "Destaque"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Espaçamento superior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "presets": [
+    {
+      "name": "Banner promocional",
+      "settings": {
+        "color_scheme": "accent"
+      }
+    }
+  ]
+}
+{% endschema %}

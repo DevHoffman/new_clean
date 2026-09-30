@@ -1,0 +1,125 @@
+<script src="{{ 'recently-viewed.js' | asset_url }}" defer="defer"></script>
+
+{%- comment -%}
+  The list is empty on the first render. <recently-viewed> requests this same
+  section from the search endpoint, where `search.results` holds the products.
+{%- endcomment -%}
+
+<div
+  class="section scheme-{{ section.settings.color_scheme }}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+  data-recently-viewed-section
+  {% unless search.performed %}
+    hidden
+  {% endunless %}
+>
+  <recently-viewed
+    class="container"
+    data-section-id="{{ section.id }}"
+    data-search-url="{{ routes.search_url }}"
+    data-limit="{{ section.settings.limit }}"
+    {% if request.page_type == 'product' %}
+      data-product-id="{{ product.id }}"
+    {% endif %}
+  >
+    <div data-recently-viewed-content data-slider-scope>
+      {%- if search.performed and search.results_count > 0 -%}
+        <div class="section-header">
+          <div class="section-header__text">
+            <h2 class="h2">{{ section.settings.heading }}</h2>
+          </div>
+          <div class="slider__buttons slider__buttons--desktop">
+            <button type="button" class="slider__button" data-slider-prev aria-label="{{ 'accessibility.previous' | t }}">
+              {% render 'icon', icon: 'chevron-left', size: 18 %}
+            </button>
+            <button type="button" class="slider__button" data-slider-next aria-label="{{ 'accessibility.next' | t }}">
+              {% render 'icon', icon: 'chevron-right', size: 18 %}
+            </button>
+          </div>
+        </div>
+
+        <slider-component>
+          <ul class="slider slider--bleed" role="list" data-recently-viewed-list style="--slides-mobile: 2; --slides-tablet: 3; --slides-desktop: {{ section.settings.columns }};">
+            {%- for item in search.results -%}
+              {%- if item.object_type == 'product' -%}
+                <li class="slider__slide" data-product-id="{{ item.id }}">
+                  {% render 'product-card', product: item %}
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        </slider-component>
+      {%- endif -%}
+    </div>
+  </recently-viewed>
+</div>
+
+{% schema %}
+{
+  "name": "Vistos recentemente",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Vistos recentemente"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Máximo de produtos",
+      "min": 4,
+      "max": 10,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Colunas no desktop",
+      "min": 3,
+      "max": 5,
+      "step": 1,
+      "default": 4
+    },
+    { "type": "header", "content": "Aparência" },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        { "value": "default", "label": "Padrão" },
+        { "value": "alt", "label": "Fundo alternativo" },
+        { "value": "inverse", "label": "Invertido" },
+        { "value": "accent", "label": "Destaque" }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Espaçamento superior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "presets": [
+    {
+      "name": "Vistos recentemente"
+    }
+  ]
+}
+{% endschema %}

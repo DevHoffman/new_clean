@@ -1,0 +1,20 @@
+{
+  "id": 68969037985,
+  "name": "DISTRIBUIDORA NEW CLEAN",
+  "city": "VILA VELHA",
+  "province": "Espírito Santo",
+  "country": "BR",
+  "currency": "BRL",
+  "domain": "www.distribuidoranewclean.com.br",
+  "url": "https://www.distribuidoranewclean.com.br",
+  "myshopify_domain": "dfd10g-i2.myshopify.com",
+  "description": "",
+  "ships_to_countries": [
+    "BR"
+  ],
+  "money_format": "R$ {{amount_with_comma_separator}}",
+  "published_collections_count": 1,
+  "published_products_count": 1133,
+  "shopify_pay_enabled_card_brands": [],
+  "offers_shop_pay_installments": false
+}

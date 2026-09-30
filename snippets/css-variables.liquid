@@ -1,0 +1,58 @@
+{%- comment -%}
+  Design tokens generated from theme settings. Rendered inline in <head> so the
+  first paint never waits on a second stylesheet.
+{%- endcomment -%}
+
+{%- liquid
+  assign font_body = settings.font_body
+  assign font_body_bold = font_body | font_modify: 'weight', 'bold'
+  assign font_body_italic = font_body | font_modify: 'style', 'italic'
+  assign font_heading = settings.font_heading
+-%}
+
+{% style %}
+  {{ font_body | font_face: font_display: 'swap' }}
+  {{ font_body_bold | font_face: font_display: 'swap' }}
+  {{ font_body_italic | font_face: font_display: 'swap' }}
+  {{ font_heading | font_face: font_display: 'swap' }}
+
+  :root {
+    --font-body: {{ font_body.family }}, {{ font_body.fallback_families }};
+    --font-body-weight: {{ font_body.weight }};
+    --font-body-weight-bold: {{ font_body_bold.weight | default: 700 }};
+    --font-body-style: {{ font_body.style }};
+    --font-heading: {{ font_heading.family }}, {{ font_heading.fallback_families }};
+    --font-heading-weight: {{ font_heading.weight }};
+    --font-heading-style: {{ font_heading.style }};
+    --heading-scale: {{ settings.heading_scale | divided_by: 100.0 }};
+    --body-scale: {{ settings.body_scale | divided_by: 100.0 }};
+
+    --color-bg: {{ settings.color_background }};
+    --color-bg-alt: {{ settings.color_background_alt }};
+    --color-text: {{ settings.color_text }};
+    --color-text-rgb: {{ settings.color_text.red }}, {{ settings.color_text.green }}, {{ settings.color_text.blue }};
+    --color-text-muted: {{ settings.color_text_muted }};
+    --color-border: {{ settings.color_border }};
+    --color-accent: {{ settings.color_accent }};
+    --color-accent-rgb: {{ settings.color_accent.red }}, {{ settings.color_accent.green }}, {{ settings.color_accent.blue }};
+    --color-button: {{ settings.color_button }};
+    --color-button-text: {{ settings.color_button_text }};
+    /* Brand button colours, unaffected by section colour schemes */
+    --color-brand-button: {{ settings.color_button }};
+    --color-brand-button-text: {{ settings.color_button_text }};
+    --color-sale: {{ settings.color_sale }};
+    --color-success: {{ settings.color_success }};
+    --color-rating: {{ settings.color_rating }};
+    --color-inverse-bg: {{ settings.color_inverse_background }};
+    --color-inverse-text: {{ settings.color_inverse_text }};
+    --color-inverse-text-rgb: {{ settings.color_inverse_text.red }}, {{ settings.color_inverse_text.green }}, {{ settings.color_inverse_text.blue }};
+
+    --page-width: {{ settings.page_width }}px;
+    --radius: {{ settings.radius }}px;
+    --radius-button: {{ settings.radius_button }}px;
+    --card-ratio: {{ settings.card_image_ratio }};
+    --card-fit: {{ settings.card_image_fit }};
+    --button-transform: {% if settings.buttons_uppercase %}uppercase{% else %}none{% endif %};
+    --button-tracking: {% if settings.buttons_uppercase %}0.08em{% else %}0{% endif %};
+  }
+{% endstyle %}

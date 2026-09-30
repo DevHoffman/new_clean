@@ -1,0 +1,105 @@
+{%- comment -%}
+  Cart totals, payment hints and checkout button. Shared by the cart drawer
+  and the cart page. Must be rendered inside the cart <form>.
+
+  Accepts:
+  - show_continue: {Boolean} show a "continue shopping" link (optional)
+  - form_id: {String} id of the cart form the buttons submit (required)
+
+  Usage:
+  {% render 'cart-summary', form_id: 'CartDrawerForm' %}
+{%- endcomment -%}
+
+<div class="cart-summary">
+  {%- for discount in cart.cart_level_discount_applications -%}
+    <div class="cart-summary__row cart-summary__row--discount">
+      <span>{{ discount.title }}</span>
+      <span>-{{ discount.total_allocated_amount | money }}</span>
+    </div>
+  {%- endfor -%}
+
+  <div class="cart-summary__row cart-summary__row--total">
+    <span>{{ 'cart.subtotal' | t }}</span>
+    <span>{{ cart.total_price | money }}</span>
+  </div>
+
+  <div class="cart-summary__note">
+    {%- if settings.pix_enabled and settings.pix_confirmed and settings.pix_discount > 0 and cart.total_price > 0 -%}
+      {%- liquid
+        assign pix_factor = 100 | minus: settings.pix_discount
+        assign pix_money = cart.total_price | times: pix_factor | divided_by: 100.0 | round | money
+      -%}
+      <div class="price__pix">
+        {% render 'icon', icon: 'pix', size: 14 %}
+        <span>{{ 'products.product.price.pix_html' | t: price: pix_money, percent: settings.pix_discount }}</span>
+      </div>
+    {%- endif -%}
+
+    {%- if settings.installments_enabled and cart.total_price > 0 -%}
+      {%- liquid
+        assign min_installment = settings.installments_min_value | default: 1 | times: 100
+        if min_installment < 100
+          assign min_installment = 100
+        endif
+        assign installments = cart.total_price | divided_by: min_installment | floor
+        if installments > settings.installments_max
+          assign installments = settings.installments_max
+        endif
+      -%}
+      {%- if installments >= 2 -%}
+        {%- assign installment_money = cart.total_price | divided_by: installments | money -%}
+        <p>{{ 'products.product.price.installments_html' | t: installments: installments, price: installment_money }}</p>
+      {%- endif -%}
+    {%- endif -%}
+
+    <p>{{ 'cart.shipping_at_checkout' | t }}</p>
+  </div>
+
+  {%- if settings.cart_shipping_estimator -%}
+    {% render 'shipping-estimator', id: form_id %}
+  {%- endif -%}
+
+  {%- if settings.cart_note -%}
+    <details class="cart-note" {% if cart.note != blank %}open{% endif %}>
+      <summary>{{ 'cart.note' | t }}</summary>
+      <cart-note>
+        <label for="CartNote-{{ form_id }}" class="visually-hidden">{{ 'cart.note' | t }}</label>
+        <textarea id="CartNote-{{ form_id }}" name="note" form="{{ form_id }}" class="field__input" placeholder="{{ 'cart.note_placeholder' | t }}">
+          {{- cart.note | escape -}}
+        </textarea>
+      </cart-note>
+    </details>
+  {%- endif -%}
+
+  <div class="cart-summary__actions">
+    {%- if settings.cart_precheckout and template.name != 'cart' -%}
+      <a href="{{ routes.cart_url }}" class="button button--large button--full">
+        <span class="button__label">{{ 'cart.finish_order' | t }}</span>
+        {% render 'icon', icon: 'arrow-right', size: 16 %}
+      </a>
+    {%- else -%}
+      <button type="submit" name="checkout" form="{{ form_id }}" class="button button--large button--full">
+        {% render 'icon', icon: 'lock', size: 16 %}
+        <span class="button__label">{{ 'cart.checkout' | t }}</span>
+      </button>
+    {%- endif -%}
+    {%- if show_continue -%}
+      <a href="{{ routes.all_products_collection_url }}" class="link text-small text-center">
+        {{ 'general.continue_shopping' | t }}
+      </a>
+    {%- endif -%}
+  </div>
+
+  {%- if settings.cart_trust -%}
+    <div class="trust-row">
+      <span class="trust-row__item">
+        {% render 'icon', icon: 'shield', size: 14 %}
+        {{ 'cart.trust.secure' | t }}
+      </span>
+      <span class="trust-row__item">
+        {% render 'icon', icon: 'credit-card', size: 14 %}
+        {{ 'cart.trust.returns' | t }}
+      </span>
+    </div>
+  {%- endif -%}
+</div>

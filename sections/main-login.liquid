@@ -1,0 +1,149 @@
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+    <div class="customer-auth">
+      {%- comment -%} Recover password: must come first in the DOM so :target can hide the login panel {%- endcomment -%}
+      <div class="customer-auth__panel customer-auth__panel--recover" id="recover" tabindex="-1">
+        <div class="customer-auth__header">
+          <h1 class="h2">{{ 'customer.recover_password.title' | t }}</h1>
+          <p class="text-muted">{{ 'customer.recover_password.subtext' | t }}</p>
+        </div>
+
+        {%- form 'recover_customer_password' -%}
+          {%- assign recover_success = form.posted_successfully? -%}
+
+          {%- if form.errors -%}
+            <div class="form-message form-message--error" role="alert">
+              {{ form.errors | default_errors }}
+            </div>
+          {%- endif -%}
+
+          <div class="field">
+            <label class="field__label" for="RecoverEmail">{{ 'customer.login.email' | t }}</label>
+            <input
+              class="field__input"
+              type="email"
+              inputmode="email"
+              name="email"
+              id="RecoverEmail"
+              value="{{ form.email }}"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              required
+              {% if form.errors %}
+                aria-invalid="true"
+              {% endif %}
+            >
+          </div>
+
+          <div class="customer-auth__actions">
+            <button type="submit" class="button button--full">{{ 'customer.recover_password.submit' | t }}</button>
+            <a href="#login" class="link text-small text-center">{{ 'customer.recover_password.cancel' | t }}</a>
+          </div>
+        {%- endform -%}
+      </div>
+
+      <div class="customer-auth__panel customer-auth__panel--login" id="login" tabindex="-1">
+        <div class="customer-auth__header">
+          <h1 class="h2">{{ 'customer.login.title' | t }}</h1>
+          <p class="text-muted">{{ 'customer.login.subtext' | t }}</p>
+        </div>
+
+        {%- if recover_success -%}
+          <div class="form-message form-message--success" role="status">
+            {% render 'icon', icon: 'check', size: 18 %}
+            <span>{{ 'customer.recover_password.success' | t }}</span>
+          </div>
+        {%- endif -%}
+
+        {%- form 'customer_login', novalidate: 'novalidate' -%}
+          {%- if form.errors -%}
+            <div class="form-message form-message--error" role="alert">
+              {{ form.errors | default_errors }}
+            </div>
+          {%- endif -%}
+
+          <div class="field">
+            <label class="field__label" for="CustomerEmail">{{ 'customer.login.email' | t }}</label>
+            <input
+              class="field__input"
+              type="email"
+              inputmode="email"
+              name="customer[email]"
+              id="CustomerEmail"
+              autocomplete="email"
+              autocorrect="off"
+              autocapitalize="off"
+              required
+              {% if form.errors contains 'form' %}
+                aria-invalid="true"
+              {% endif %}
+            >
+          </div>
+
+          {%- if form.password_needed -%}
+            <div class="field">
+              <label class="field__label" for="CustomerPassword">{{ 'customer.login.password' | t }}</label>
+              <input
+                class="field__input"
+                type="password"
+                name="customer[password]"
+                id="CustomerPassword"
+                autocomplete="current-password"
+                required
+                {% if form.errors contains 'form' %}
+                  aria-invalid="true"
+                {% endif %}
+              >
+            </div>
+
+            <a href="#recover" class="link customer-auth__forgot">{{ 'customer.login.forgot_password' | t }}</a>
+          {%- endif -%}
+
+          <div class="customer-auth__actions">
+            <button type="submit" class="button button--full">{{ 'customer.login.submit' | t }}</button>
+          </div>
+        {%- endform -%}
+
+        <div class="customer-auth__footer">
+          <p>{{ 'customer.login.new_customer' | t }}</p>
+          <a href="{{ routes.account_register_url }}" class="button button--secondary button--full">
+            {{ 'customer.login.create_account' | t }}
+          </a>
+        </div>
+
+        {%- if shop.checkout.guest_login -%}
+          <div class="customer-auth__guest">
+            <h2 class="h4">{{ 'customer.login.guest_title' | t }}</h2>
+            <p class="text-small text-muted">{{ 'customer.login.guest_text' | t }}</p>
+            {%- form 'guest_login' -%}
+              <button type="submit" class="button button--secondary button--small">
+                {{ 'customer.login.guest_continue' | t }}
+              </button>
+            {%- endform -%}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Login",
+  "class": "section-main-login",
+  "settings": [
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ]
+}
+{% endschema %}

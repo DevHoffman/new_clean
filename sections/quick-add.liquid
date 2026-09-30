@@ -1,0 +1,66 @@
+{%- comment -%}
+  Rendered through the Section Rendering API by <quick-add-modal>.
+{%- endcomment -%}
+
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign form_id = 'quick-add-form-' | append: product.id
+  assign media = variant.featured_media | default: product.featured_media
+-%}
+
+<div data-quick-add-source>
+  {{ 'section-main-product.css' | asset_url | stylesheet_tag }}
+
+  <product-info
+    class="quick-add-product"
+    data-section-id="{{ section.id }}"
+    data-render-section="quick-add"
+    data-product-url="{{ product.url }}"
+    data-update-url="false"
+  >
+    <a href="{{ product.url }}" class="media quick-add-product__media" tabindex="-1" aria-hidden="true">
+      {%- if media -%}
+        {{
+          media.preview_image
+          | image_url: width: 800
+          | image_tag: widths: '300, 400, 600, 800', sizes: '(min-width: 750px) 400px, 88px', alt: media.alt, class: 'js-variant-image'
+        }}
+      {%- else -%}
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      {%- endif -%}
+    </a>
+
+    <div class="quick-add-product__info">
+      <div class="quick-add-product__header">
+        <div class="media" style="aspect-ratio: 1;" data-region="thumb">
+          {%- if media -%}
+            {{ media.preview_image | image_url: width: 176 | image_tag: widths: '88, 176', sizes: '88px', alt: '' }}
+          {%- endif -%}
+        </div>
+        <div>
+          <h2 class="h4">
+            <a href="{{ product.url }}">{% render 'product-title', title: product.title %}</a>
+          </h2>
+          {% render 'rating', product: product %}
+          <div data-region="price" style="margin-top: 6px;">
+            {% render 'price', product: product, variant: variant, show_payment_info: true, show_badge: true %}
+          </div>
+        </div>
+      </div>
+
+      <div data-region="variants">
+        {% render 'variant-picker', product: product, scope: form_id %}
+      </div>
+
+      <div data-region="buy">
+        {% render 'buy-buttons', product: product, form_id: form_id, show_price: true %}
+      </div>
+
+      <a href="{{ product.url }}" class="link text-small">{{ 'products.product.view_details' | t }}</a>
+    </div>
+
+    <script type="application/json" data-selected-variant>
+      {{ variant | json }}
+    </script>
+  </product-info>
+</div>

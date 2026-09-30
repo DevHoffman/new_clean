@@ -1,0 +1,95 @@
+/* Trust bar */
+.trust-bar__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 12px;
+}
+
+.trust-bar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.trust-bar__icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(var(--color-text-rgb), 0.06);
+  color: var(--color-accent);
+}
+
+.scheme-inverse .trust-bar__icon,
+.scheme-accent .trust-bar__icon {
+  background: rgba(255, 255, 255, 0.14);
+  color: inherit;
+}
+
+.trust-bar__title {
+  font-size: 0.875rem;
+  font-weight: var(--font-body-weight-bold);
+  line-height: 1.3;
+}
+
+.trust-bar__description {
+  margin-top: 2px;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 749px) {
+  .trust-bar--scroll .trust-bar__list {
+    display: flex;
+    gap: 12px;
+    margin-inline: -16px;
+    padding-inline: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 16px;
+    scrollbar-width: none;
+  }
+
+  .trust-bar--scroll .trust-bar__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .trust-bar--scroll .trust-bar__item {
+    flex: 0 0 62%;
+    flex-direction: row;
+    text-align: left;
+    scroll-snap-align: start;
+  }
+}
+
+@media (min-width: 750px) {
+  .trust-bar__list {
+    gap: 24px;
+  }
+
+  .trust-bar__item {
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+  }
+}
+
+@media (min-width: 1000px) {
+  .trust-bar__list {
+    grid-template-columns: repeat(var(--trust-items, 4), minmax(0, 1fr));
+  }
+}
+
+/* An odd item in the 2-column mobile grid takes the full row, centred */
+@media (max-width: 749px) {
+  .trust-bar--grid .trust-bar__list > li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}

@@ -1,0 +1,86 @@
+/* Image with text */
+.image-with-text__grid {
+  display: grid;
+  gap: 28px;
+  align-items: center;
+}
+
+.image-with-text__media {
+  aspect-ratio: 1;
+}
+
+.image-with-text__media--portrait {
+  aspect-ratio: 4 / 5;
+}
+
+.image-with-text__media--landscape {
+  aspect-ratio: 4 / 3;
+}
+
+.image-with-text__content > * + * {
+  margin-top: 14px;
+}
+
+.image-with-text__text {
+  color: var(--color-text-muted);
+}
+
+.image-with-text__benefits {
+  display: grid;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.image-with-text__benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+.image-with-text__benefit-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-top: -2px;
+  border-radius: 50%;
+  background: rgba(var(--color-text-rgb), 0.06);
+  color: var(--color-accent);
+}
+
+.scheme-inverse .image-with-text__benefit-icon,
+.scheme-accent .image-with-text__benefit-icon {
+  background: rgba(255, 255, 255, 0.14);
+  color: inherit;
+}
+
+.image-with-text__content > .image-with-text__button {
+  margin-top: 24px;
+}
+
+@media (max-width: 749px) {
+  .image-with-text__button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 750px) {
+  .image-with-text__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 48px;
+  }
+
+  .image-with-text--right .image-with-text__media {
+    order: 2;
+  }
+}
+
+@media (min-width: 1000px) {
+  .image-with-text__grid {
+    gap: 80px;
+  }
+}

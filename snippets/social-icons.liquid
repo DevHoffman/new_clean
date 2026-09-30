@@ -1,0 +1,38 @@
+{%- comment -%}
+  Renders the social links configured in theme settings.
+
+  Accepts:
+  - class: {String} extra classes (optional)
+
+  Usage:
+  {% render 'social-icons' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign networks = 'instagram,tiktok,facebook,youtube,pinterest' | split: ','
+  assign has_social = false
+  for network in networks
+    assign setting_id = 'social_' | append: network
+    if settings[setting_id] != blank
+      assign has_social = true
+    endif
+  endfor
+-%}
+
+{%- if has_social -%}
+  <ul class="social-list{% if class %} {{ class }}{% endif %}" role="list">
+    {%- for network in networks -%}
+      {%- liquid
+        assign setting_id = 'social_' | append: network
+        assign network_url = settings[setting_id]
+      -%}
+      {%- if network_url != blank -%}
+        <li>
+          <a href="{{ network_url }}" class="icon-button" target="_blank" rel="noopener" aria-label="{{ network | capitalize }}">
+            {% render 'icon', icon: network %}
+          </a>
+        </li>
+      {%- endif -%}
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

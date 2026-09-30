@@ -1,0 +1,75 @@
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="container">
+    <div class="customer-auth">
+      <div class="customer-auth__header">
+        <h1 class="h2">{{ 'customer.activate.title' | t }}</h1>
+        <p class="text-muted">{{ 'customer.activate.subtext' | t }}</p>
+      </div>
+
+      {%- form 'activate_customer_password' -%}
+        {%- if form.errors -%}
+          <div class="form-message form-message--error" role="alert">
+            {{ form.errors | default_errors }}
+          </div>
+        {%- endif -%}
+
+        <div class="field">
+          <label class="field__label" for="ActivatePassword">{{ 'customer.activate.password' | t }}</label>
+          <input
+            class="field__input"
+            type="password"
+            name="customer[password]"
+            id="ActivatePassword"
+            autocomplete="new-password"
+            required
+            {% if form.errors contains 'password' %}
+              aria-invalid="true"
+            {% endif %}
+          >
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="ActivatePasswordConfirm">{{ 'customer.activate.password_confirm' | t }}</label>
+          <input
+            class="field__input"
+            type="password"
+            name="customer[password_confirmation]"
+            id="ActivatePasswordConfirm"
+            autocomplete="new-password"
+            required
+            {% if form.errors contains 'password_confirmation' %}
+              aria-invalid="true"
+            {% endif %}
+          >
+        </div>
+
+        <div class="customer-auth__actions">
+          <button type="submit" class="button button--full">{{ 'customer.activate.submit' | t }}</button>
+          <button type="submit" name="decline" class="button button--secondary button--full">
+            {{ 'customer.activate.cancel' | t }}
+          </button>
+        </div>
+      {%- endform -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Ativar conta",
+  "class": "section-main-activate-account",
+  "settings": [
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ]
+}
+{% endschema %}

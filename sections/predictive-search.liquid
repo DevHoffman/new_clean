@@ -1,0 +1,67 @@
+{%- comment -%}
+  Rendered through the Section Rendering API by <predictive-search>.
+{%- endcomment -%}
+
+<div data-predictive-content>
+  {%- if predictive_search.performed -%}
+    {%- liquid
+      assign products = predictive_search.resources.products
+      assign collections = predictive_search.resources.collections
+      assign queries = predictive_search.resources.queries
+      assign total = products.size | plus: collections.size | plus: queries.size
+    -%}
+
+    {%- if total == 0 -%}
+      <p class="text-muted">{{ 'sections.predictive_search.no_results' | t: terms: predictive_search.terms }}</p>
+    {%- else -%}
+      {%- if queries.size > 0 or collections.size > 0 -%}
+        <div class="predictive-search__group">
+          <h3 class="predictive-search__heading">{{ 'sections.predictive_search.suggestions' | t }}</h3>
+          <div class="predictive-search__links">
+            {%- for query in queries -%}
+              <a href="{{ query.url }}" class="chip">{{ query.styled_text }}</a>
+            {%- endfor -%}
+            {%- for collection in collections -%}
+              <a href="{{ collection.url }}" class="chip">{{ collection.title }}</a>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      {%- if products.size > 0 -%}
+        <div class="predictive-search__group">
+          <h3 class="predictive-search__heading">{{ 'sections.predictive_search.products' | t }}</h3>
+          <div class="predictive-search__products">
+            {%- for product in products -%}
+              <a href="{{ product.url }}" class="predictive-search__item">
+                <div class="media">
+                  {%- if product.featured_media -%}
+                    {{
+                      product.featured_media.preview_image
+                      | image_url: width: 160
+                      | image_tag: widths: '80, 160', sizes: '64px', loading: 'lazy', alt: product.featured_media.alt
+                    }}
+                  {%- else -%}
+                    {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                  {%- endif -%}
+                </div>
+                <div>
+                  <p class="predictive-search__item-title">{% render 'product-title', title: product.title %}</p>
+                  {% render 'rating', product: product %}
+                  {% render 'price', product: product %}
+                </div>
+              </a>
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+
+      <div class="predictive-search__all">
+        <a href="{{ routes.search_url }}?q={{ predictive_search.terms | url_encode }}&options%5Bprefix%5D=last" class="link-arrow">
+          {{ 'sections.predictive_search.view_all' | t: terms: predictive_search.terms }}
+          {% render 'icon', icon: 'arrow-right', size: 16 %}
+        </a>
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+</div>

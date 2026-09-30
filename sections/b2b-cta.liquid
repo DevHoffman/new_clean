@@ -1,0 +1,369 @@
+{{ 'section-b2b-cta.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign has_image = false
+  if section.settings.image != blank
+    assign has_image = true
+  endif
+
+  comment
+    Button target: WhatsApp when the number is set in the theme settings, otherwise the fallback link
+  endcomment
+  assign whatsapp_number = settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | strip
+  assign button_url = section.settings.button_link
+  assign is_whatsapp = false
+  if whatsapp_number != blank
+    assign whatsapp_message = section.settings.whatsapp_message | default: settings.whatsapp_message | url_encode
+    assign button_url = 'https://wa.me/' | append: whatsapp_number
+    if whatsapp_message != blank
+      assign button_url = button_url | append: '?text=' | append: whatsapp_message
+    endif
+    assign is_whatsapp = true
+  endif
+
+  assign category_icons = 'building,utensils,medical,briefcase,school,home' | split: ','
+-%}
+
+<div
+  class="section scheme-{{ section.settings.color_scheme }} b2b-cta{% if has_image %} b2b-cta--has-image{% endif %}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="container">
+    <div class="b2b-cta__grid">
+      <div class="b2b-cta__content">
+        {%- if section.settings.eyebrow != blank -%}
+          <span class="eyebrow">{{ section.settings.eyebrow }}</span>
+        {%- endif -%}
+        {%- if section.settings.heading != blank -%}
+          <h2 class="h2">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.text != blank -%}
+          <div class="rte b2b-cta__text">{{ section.settings.text }}</div>
+        {%- endif -%}
+
+        {%- if section.settings.button_label != blank and button_url != blank -%}
+          <div class="b2b-cta__actions">
+            <a
+              class="button button--large b2b-cta__button"
+              href="{{ button_url }}"
+              {% if is_whatsapp %}
+                target="_blank" rel="noopener"
+              {% endif %}
+            >
+              {%- if is_whatsapp -%}
+                {% render 'icon', icon: 'whatsapp', size: 20 %}
+              {%- endif -%}
+              {{- section.settings.button_label -}}
+            </a>
+            {%- if section.settings.note != blank -%}
+              <p class="b2b-cta__note text-small">{{ section.settings.note }}</p>
+            {%- endif -%}
+          </div>
+        {%- elsif request.design_mode and section.settings.button_label != blank -%}
+          <p class="b2b-cta__note text-small">{{ 'sections.b2b_cta.button_hint' | t }}</p>
+        {%- endif -%}
+      </div>
+
+      {%- if section.blocks.size > 0 or has_image or section.settings.showcase_products.size > 0 -%}
+        <div class="b2b-cta__aside">
+          {%- if has_image -%}
+            <div class="media b2b-cta__media">
+              {{
+                section.settings.image
+                | image_url: width: 1400
+                | image_tag:
+                  widths: '400, 600, 800, 1000, 1400',
+                  sizes: '(min-width: 1200px) 560px, (min-width: 1000px) 45vw, 100vw',
+                  loading: 'lazy',
+                  alt: section.settings.image.alt
+              }}
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.showcase_products.size > 0 -%}
+            <ul class="b2b-cta__products" role="list" aria-label="{{ section.settings.showcase_label | escape }}">
+              {%- for product in section.settings.showcase_products limit: 3 -%}
+                {%- if product.featured_media == blank -%}
+                  {%- continue -%}
+                {%- endif -%}
+                <li>
+                  <a class="b2b-cta__product" href="{{ product.url }}">
+                    <span class="b2b-cta__product-media">
+                      {{
+                        product.featured_media.preview_image
+                        | image_url: width: 480
+                        | image_tag: widths: '160, 240, 360, 480', sizes: '(min-width: 1000px) 170px, 30vw', loading: 'lazy', alt: product.featured_media.alt | default: product.title
+                      }}
+                    </span>
+                    <span class="b2b-cta__product-title">{% render 'product-title', title: product.title %}</span>
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+
+          {%- if section.blocks.size > 0 -%}
+            <ul class="b2b-cta__benefits" role="list">
+              {%- for block in section.blocks -%}
+                {%- if block.settings.text == blank -%}
+                  {%- continue -%}
+                {%- endif -%}
+                <li class="b2b-cta__benefit" {{ block.shopify_attributes }}>
+                  <span class="b2b-cta__benefit-icon">
+                    {%- if category_icons contains block.settings.icon -%}
+                      {% render 'icon-category', icon: block.settings.icon, size: 22 %}
+                    {%- else -%}
+                      {% render 'icon', icon: block.settings.icon, size: 22 %}
+                    {%- endif -%}
+                  </span>
+                  <span class="b2b-cta__benefit-text">{{ block.settings.text }}</span>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Compra para empresa",
+  "tag": "section",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto de apoio",
+      "default": "Para empresas"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Compra para empresa?"
+    },
+    {
+      "type": "richtext",
+      "id": "text",
+      "label": "Texto",
+      "default": "<p>Condomínios, restaurantes, clínicas, escritórios e escolas: fale com a nossa equipe e monte o pedido de materiais de limpeza do seu negócio.</p>"
+    },
+    {
+      "type": "header",
+      "content": "Botão"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto do botão",
+      "default": "Falar com um vendedor"
+    },
+    {
+      "type": "textarea",
+      "id": "whatsapp_message",
+      "label": "Mensagem inicial do WhatsApp",
+      "info": "O botão abre o WhatsApp informado em Configurações do tema > Redes sociais. Quando vazio, usa a mensagem padrão do tema.",
+      "default": "Olá! Quero comprar materiais de limpeza para a minha empresa."
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link alternativo",
+      "info": "Usado somente quando o WhatsApp não está configurado. Sem WhatsApp e sem link, o botão não é exibido."
+    },
+    {
+      "type": "text",
+      "id": "note",
+      "label": "Observação abaixo do botão",
+      "info": "Opcional. Ex.: horário de atendimento."
+    },
+    {
+      "type": "header",
+      "content": "Imagem"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Imagem",
+      "info": "Opcional."
+    },
+    {
+      "type": "product_list",
+      "id": "showcase_products",
+      "label": "Produtos em destaque para empresas",
+      "limit": 3,
+      "info": "Até 3 produtos com foto, exibidos acima dos benefícios (ex.: galão de desinfetante, papel toalha interfolha, saco de lixo 100 L)."
+    },
+    {
+      "type": "text",
+      "id": "showcase_label",
+      "label": "Descrição da lista (leitores de tela)",
+      "default": "Produtos para empresas"
+    },
+    {
+      "type": "header",
+      "content": "Aparência"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        {
+          "value": "default",
+          "label": "Padrão"
+        },
+        {
+          "value": "alt",
+          "label": "Fundo alternativo"
+        },
+        {
+          "value": "inverse",
+          "label": "Invertido"
+        },
+        {
+          "value": "accent",
+          "label": "Destaque"
+        }
+      ],
+      "default": "inverse"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Espaçamento superior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "benefit",
+      "name": "Benefício",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Ícone",
+          "options": [
+            {
+              "value": "check",
+              "label": "Check"
+            },
+            {
+              "value": "chat",
+              "label": "Balão de conversa"
+            },
+            {
+              "value": "whatsapp",
+              "label": "WhatsApp"
+            },
+            {
+              "value": "refresh",
+              "label": "Setas (recorrência)"
+            },
+            {
+              "value": "truck",
+              "label": "Caminhão (entrega)"
+            },
+            {
+              "value": "box",
+              "label": "Caixa"
+            },
+            {
+              "value": "credit-card",
+              "label": "Cartão de crédito"
+            },
+            {
+              "value": "pix",
+              "label": "Pix"
+            },
+            {
+              "value": "shield",
+              "label": "Escudo (segurança)"
+            },
+            {
+              "value": "clock",
+              "label": "Relógio"
+            },
+            {
+              "value": "mail",
+              "label": "E-mail"
+            },
+            {
+              "value": "award",
+              "label": "Medalha"
+            },
+            {
+              "value": "building",
+              "label": "Prédio"
+            },
+            {
+              "value": "briefcase",
+              "label": "Maleta"
+            }
+          ],
+          "default": "check"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto",
+          "default": "Atendimento dedicado para empresas"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Compra para empresa",
+      "blocks": [
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "chat",
+            "text": "Atendimento dedicado para empresas"
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "refresh",
+            "text": "Pedidos recorrentes sem complicação"
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "mail",
+            "text": "Nota fiscal em todos os pedidos"
+          }
+        },
+        {
+          "type": "benefit",
+          "settings": {
+            "icon": "truck",
+            "text": "Entrega na Grande Vitória"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

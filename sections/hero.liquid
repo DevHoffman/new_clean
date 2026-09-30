@@ -1,0 +1,414 @@
+{{ 'section-hero.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'section-hero.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign slide_count = section.blocks.size
+  assign autoplay = false
+  if section.settings.autoplay and slide_count > 1
+    assign autoplay = true
+  endif
+-%}
+
+<hero-banner
+  class="hero hero--{{ section.settings.height }}"
+  role="region"
+  aria-roledescription="carousel"
+  aria-label="{{ 'sections.hero.label' | t }}"
+>
+  <slider-component{% if autoplay %} data-autoplay="{{ section.settings.autoplay_speed }}"{% endif %}>
+    <ul
+      class="slider hero__slider"
+      role="list"
+      style="--slider-peek: 0px; --slider-gap: 0px; --slides-mobile: 1; --slides-tablet: 1; --slides-desktop: 1;"
+    >
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign slide = block.settings
+          assign is_lcp = false
+          if forloop.first and section.index == 1
+            assign is_lcp = true
+          endif
+
+          assign loading = 'lazy'
+          assign fetchpriority = 'auto'
+          if is_lcp
+            assign loading = 'eager'
+            assign fetchpriority = 'high'
+          endif
+
+          assign heading_tag = 'h2'
+          if is_lcp
+            assign heading_tag = 'h1'
+          endif
+
+          assign overlay = slide.overlay_opacity | divided_by: 100.0
+
+          comment
+            Without an image the slide gets the brand gradient, which always needs light text
+          endcomment
+          assign text_color = slide.text_color
+          assign has_video = false
+          if slide.video != blank
+            assign has_video = true
+          endif
+          assign has_image = true
+          if slide.image == blank and has_video == false
+            assign has_image = false
+            assign text_color = 'light'
+          endif
+
+          comment
+            Secondary button: explicit link, otherwise WhatsApp (when configured), otherwise hidden
+          endcomment
+          assign secondary_link = slide.button_secondary_link
+          assign secondary_external = false
+          if secondary_link == blank and settings.social_whatsapp != blank
+            assign whatsapp_number = settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')'
+            assign whatsapp_text = settings.whatsapp_message | url_encode
+            assign secondary_link = 'https://wa.me/' | append: whatsapp_number | append: '?text=' | append: whatsapp_text
+            assign secondary_external = true
+          endif
+          assign show_secondary = false
+          if slide.button_secondary_label != blank and secondary_link != blank
+            assign show_secondary = true
+          endif
+        -%}
+        <li
+          class="slider__slide hero__slide hero__slide--{{ slide.text_position }} hero__slide--{{ text_color }}{% unless has_image %} hero__slide--no-image{% endunless %}"
+          role="listitem"
+          aria-roledescription="slide"
+          aria-label="{{ forloop.index }} / {{ slide_count }}"
+          style="--hero-overlay: {{ overlay }};"
+          {{ block.shopify_attributes }}
+        >
+          <div class="hero__media">
+            {%- if has_video -%}
+              {{
+                slide.video
+                | video_tag:
+                  autoplay: true,
+                  loop: true,
+                  muted: true,
+                  controls: false,
+                  playsinline: true,
+                  preload: 'metadata',
+                  image_size: '1400x',
+                  class: 'hero__video',
+                  poster: slide.image | image_url: width: 1400
+              }}
+            {%- elsif has_image -%}
+              <picture>
+                {%- if slide.image_mobile != blank -%}
+                  <source
+                    media="(max-width: 749px)"
+                    srcset="
+                      {{ slide.image_mobile | image_url: width: 400 }} 400w,
+                      {{ slide.image_mobile | image_url: width: 600 }} 600w,
+                      {{ slide.image_mobile | image_url: width: 800 }} 800w,
+                      {{ slide.image_mobile | image_url: width: 1100 }} 1100w
+                    "
+                    sizes="100vw"
+                    width="{{ slide.image_mobile.width }}"
+                    height="{{ slide.image_mobile.height }}"
+                  >
+                {%- endif -%}
+                {{
+                  slide.image
+                  | image_url: width: 2400
+                  | image_tag:
+                    widths: '400, 600, 800, 1100, 1400, 1800, 2400',
+                    sizes: '100vw',
+                    loading: loading,
+                    fetchpriority: fetchpriority,
+                    alt: slide.image.alt,
+                    class: 'hero__image'
+                }}
+              </picture>
+            {%- endif -%}
+          </div>
+
+          <div class="container hero__container">
+            <div class="hero__content">
+              {%- if slide.eyebrow != blank -%}
+                <p class="eyebrow hero__eyebrow">{{ slide.eyebrow }}</p>
+              {%- endif -%}
+              {%- if slide.heading != blank -%}
+                <{{ heading_tag }} class="h1 hero__heading">{{ slide.heading }}</{{ heading_tag }}>
+              {%- endif -%}
+              {%- if slide.text != blank -%}
+                <p class="hero__text">{{ slide.text }}</p>
+              {%- endif -%}
+              {%- if slide.button_label != blank or show_secondary -%}
+                <div class="hero__buttons">
+                  {%- if slide.button_label != blank -%}
+                    <a class="button button--large" href="{{ slide.button_link | default: routes.all_products_collection_url }}">
+                      {{- slide.button_label -}}
+                    </a>
+                  {%- endif -%}
+                  {%- if show_secondary -%}
+                    <a
+                      class="button button--large button--secondary"
+                      href="{{ secondary_link }}"
+                      {% if secondary_external %}
+                        target="_blank" rel="noopener"
+                      {% endif %}
+                    >
+                      {%- if secondary_external -%}
+                        {% render 'icon', icon: 'whatsapp', size: 18 %}
+                      {%- endif -%}
+                      {{- slide.button_secondary_label -}}
+                    </a>
+                  {%- endif -%}
+                </div>
+              {%- endif -%}
+              {%- capture hero_trust -%}{% render 'claims', text: slide.trust_line %}{%- endcapture -%}
+              {%- if hero_trust != blank -%}
+                <p class="hero__trust">
+                  {% render 'icon', icon: 'check', size: 16 %}
+                  {{ hero_trust }}
+                </p>
+              {%- endif -%}
+            </div>
+
+            {%- comment -%} Real products from the catalogue: gives the banner product imagery without a photo shoot {%- endcomment -%}
+            {%- if slide.showcase_collection != blank and has_image == false -%}
+              {%- liquid
+                assign showcase_count = 0
+                assign showcase_limit = 3
+              -%}
+              <div class="hero__showcase" aria-label="{{ 'sections.hero.showcase_label' | t }}">
+                {%- for product in slide.showcase_collection.products -%}
+                  {%- if product.featured_media == blank or product.available == false -%}
+                    {%- continue -%}
+                  {%- endif -%}
+                  {%- assign showcase_count = showcase_count | plus: 1 -%}
+                  <a href="{{ product.url }}" class="hero-product hero-product--{{ showcase_count }}">
+                    <span class="hero-product__media">
+                      {{
+                        product.featured_media.preview_image
+                        | image_url: width: 480
+                        | image_tag: widths: '240, 360, 480', sizes: '(min-width: 1000px) 220px, 140px', loading: loading, alt: product.featured_media.alt | default: product.title
+                      }}
+                    </span>
+                    <span class="hero-product__info">
+                      <span class="hero-product__title">{% render 'product-title', title: product.title %}</span>
+                      <span class="hero-product__price">{{ product.price | money }}</span>
+                    </span>
+                  </a>
+                  {%- if showcase_count >= showcase_limit -%}
+                    {%- break -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- capture hero_badge -%}{% render 'claims', text: slide.showcase_badge %}{%- endcapture -%}
+                {%- if hero_badge != blank -%}
+                  <span class="hero__badge">{{ hero_badge }}</span>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          </div>
+        </li>
+      {%- endfor -%}
+    </ul>
+    {%- if slide_count > 1 -%}
+      <div class="slider__dots hero__dots" data-slider-dots></div>
+    {%- endif -%}
+  </slider-component>
+</hero-banner>
+
+{% schema %}
+{
+  "name": "Banner principal",
+  "tag": "section",
+  "class": "section-hero",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Altura",
+      "options": [
+        {
+          "value": "small",
+          "label": "Pequena"
+        },
+        {
+          "value": "medium",
+          "label": "Média"
+        },
+        {
+          "value": "large",
+          "label": "Grande"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Trocar slides automaticamente",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Trocar slide a cada",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 6
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "video",
+          "id": "video",
+          "label": "Vídeo de fundo",
+          "info": "Vídeo curto (10–15 s, até 8 MB) enviado à Shopify. Toca sem som e em repetição. A imagem abaixo vira a capa enquanto o vídeo carrega e é usada por quem ativa \"reduzir movimento\" ou economia de dados."
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Imagem (ou capa do vídeo)",
+          "info": "Recomendado: 2400 x 1000 px. Sem imagem, o slide usa um fundo em degradê com as cores da marca e texto claro."
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Imagem (celular)",
+          "info": "Opcional. Recomendado: 1000 x 1250 px."
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Texto de apoio",
+          "default": "Entrega rápida para sua empresa ou lar"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "default": "Limpeza de verdade começa com o produto certo"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Texto",
+          "default": "Materiais de limpeza profissionais e domésticos com preço de distribuidora."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Texto do botão principal",
+          "default": "Ver a loja"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Link do botão principal"
+        },
+        {
+          "type": "text",
+          "id": "button_secondary_label",
+          "label": "Texto do botão secundário"
+        },
+        {
+          "type": "url",
+          "id": "button_secondary_link",
+          "label": "Link do botão secundário",
+          "info": "Sem link, o botão abre o WhatsApp informado em Configurações do tema > Redes sociais. Sem link e sem WhatsApp, o botão não é exibido."
+        },
+        {
+          "type": "text",
+          "id": "trust_line",
+          "label": "Linha de confiança abaixo dos botões",
+          "info": "Aceita [frete], [pix] e [parcelas]. Ex.: Nota fiscal em todos os pedidos · Pix com [pix] off"
+        },
+        {
+          "type": "header",
+          "content": "Vitrine de produtos"
+        },
+        {
+          "type": "collection",
+          "id": "showcase_collection",
+          "label": "Coleção exibida no banner",
+          "info": "Sem imagem de fundo, o banner mostra até 3 produtos desta coleção (com foto e em estoque) ao lado do texto."
+        },
+        {
+          "type": "text",
+          "id": "showcase_badge",
+          "label": "Selo da vitrine",
+          "info": "Aceita [frete], [pix] e [parcelas]. Ex.: Frete grátis acima de [frete]"
+        },
+        {
+          "type": "select",
+          "id": "text_position",
+          "label": "Posição do texto",
+          "options": [
+            {
+              "value": "left",
+              "label": "Esquerda"
+            },
+            {
+              "value": "center",
+              "label": "Centro"
+            },
+            {
+              "value": "right",
+              "label": "Direita"
+            }
+          ],
+          "default": "left"
+        },
+        {
+          "type": "select",
+          "id": "text_color",
+          "label": "Cor do texto",
+          "options": [
+            {
+              "value": "light",
+              "label": "Claro"
+            },
+            {
+              "value": "dark",
+              "label": "Escuro"
+            }
+          ],
+          "default": "light"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "label": "Opacidade da sobreposição",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "unit": "%",
+          "default": 25
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Banner principal",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "eyebrow": "Entrega rápida para sua empresa ou lar",
+            "heading": "Limpeza de verdade começa com o produto certo",
+            "text": "Materiais de limpeza profissionais e domésticos com preço de distribuidora.",
+            "button_label": "Ver a loja",
+            "button_secondary_label": "Falar com um vendedor"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

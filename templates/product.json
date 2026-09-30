@@ -1,0 +1,120 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "sku": {
+          "type": "sku",
+          "settings": {}
+        },
+        "rating": {
+          "type": "rating",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {}
+        },
+        "inventory": {
+          "type": "inventory",
+          "settings": {}
+        },
+        "quantity": {
+          "type": "quantity",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {}
+        },
+        "whatsapp": {
+          "type": "whatsapp",
+          "settings": {}
+        },
+        "complementary": {
+          "type": "complementary",
+          "settings": {}
+        },
+        "trust_badges": {
+          "type": "trust_badges",
+          "settings": {}
+        },
+        "description": {
+          "type": "description",
+          "settings": {}
+        },
+        "shipping": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Entrega",
+            "icon": "truck",
+            "content": "<p>O prazo e o valor do frete são calculados no checkout, de acordo com o seu CEP.</p>"
+          }
+        },
+        "payment": {
+          "type": "accordion",
+          "settings": {
+            "heading": "Formas de pagamento",
+            "icon": "credit-card",
+            "content": "<p>Aceitamos Pix, cartão de crédito e boleto bancário. As condições de parcelamento aparecem no checkout.</p>"
+          }
+        },
+        "volume_pricing": {
+          "type": "volume_pricing",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "title",
+        "sku",
+        "rating",
+        "price",
+        "variant_picker",
+        "inventory",
+        "volume_pricing",
+        "quantity",
+        "buy_buttons",
+        "whatsapp",
+        "complementary",
+        "trust_badges",
+        "description",
+        "shipping",
+        "payment"
+      ],
+      "settings": {}
+    },
+    "reviews": {
+      "type": "apps",
+      "settings": {
+        "anchor": "avaliacoes",
+        "padding_top": 0,
+        "padding_bottom": 0
+      }
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "Quem comprou, levou também",
+        "color_scheme": "alt"
+      }
+    },
+    "recently-viewed": {
+      "type": "recently-viewed",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "reviews",
+    "recommendations",
+    "recently-viewed"
+  ]
+}

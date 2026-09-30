@@ -1,0 +1,167 @@
+{
+  "_comment": "Dados usados apenas pela pré-visualização local. Na loja real, menus, páginas e políticas vêm do admin da Shopify.",
+  "theme_settings": {
+    "social_whatsapp": "5527992918283",
+    "social_instagram": "https://instagram.com/",
+    "help_phone": "(27) 99291-8283",
+    "help_email": "contato@example.com",
+    "help_hours": "Seg a sex, 8h às 18h",
+    "help_option_1_link": "/search",
+    "help_option_2_link": "/pages/pedido-rapido",
+    "help_option_3_link": "/account/login",
+    "help_option_4_link": "/pages/faq",
+    "pix_confirmed": true,
+    "company_legal_name": "Razão Social de Exemplo Ltda",
+    "company_cnpj": "00.000.000/0001-00",
+    "company_address": "Endereço de exemplo, 123",
+    "company_city": "Vila Velha/ES"
+  },
+  "linklists": {
+    "main-menu": {
+      "title": "Menu principal",
+      "links": [
+        {
+          "title": "Início",
+          "url": "/"
+        },
+        {
+          "title": "Loja",
+          "url": "/collections/all"
+        },
+        {
+          "title": "Categorias",
+          "url": "/collections/all",
+          "links": [
+            {
+              "title": "Limpeza geral",
+              "url": "/search?q=limpador&type=product",
+              "links": [
+                {
+                  "title": "Desinfetantes",
+                  "url": "/search?q=desinfetante&type=product"
+                },
+                {
+                  "title": "Limpadores e multiuso",
+                  "url": "/search?q=limpador&type=product"
+                },
+                {
+                  "title": "Detergentes",
+                  "url": "/search?q=detergente&type=product"
+                },
+                {
+                  "title": "Álcool",
+                  "url": "/search?q=alcool&type=product"
+                }
+              ]
+            },
+            {
+              "title": "Papéis e descartáveis",
+              "url": "/search?q=papel&type=product",
+              "links": [
+                {
+                  "title": "Papel higiênico e toalha",
+                  "url": "/search?q=papel&type=product"
+                },
+                {
+                  "title": "Sacos de lixo",
+                  "url": "/search?q=saco&type=product"
+                },
+                {
+                  "title": "Copos descartáveis",
+                  "url": "/search?q=copo&type=product"
+                }
+              ]
+            },
+            {
+              "title": "Utensílios",
+              "url": "/search?q=vassoura&type=product",
+              "links": [
+                {
+                  "title": "Vassouras",
+                  "url": "/search?q=vassoura&type=product"
+                },
+                {
+                  "title": "Rodos",
+                  "url": "/search?q=rodo&type=product"
+                },
+                {
+                  "title": "Panos e flanelas",
+                  "url": "/search?q=pano&type=product"
+                },
+                {
+                  "title": "Luvas",
+                  "url": "/search?q=luva&type=product"
+                }
+              ]
+            },
+            {
+              "title": "Higiene pessoal",
+              "url": "/search?q=sabonete&type=product",
+              "links": [
+                {
+                  "title": "Sabonetes",
+                  "url": "/search?q=sabonete&type=product"
+                },
+                {
+                  "title": "Saboneteiras e dispensers",
+                  "url": "/search?q=saboneteira&type=product"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Novidades",
+          "url": "/collections/novidades"
+        },
+        {
+          "title": "Contato",
+          "url": "/pages/contact"
+        }
+      ]
+    },
+    "footer": {
+      "title": "Institucional",
+      "links": [
+        {
+          "title": "Loja",
+          "url": "/collections/all"
+        },
+        {
+          "title": "Buscar",
+          "url": "/search"
+        },
+        {
+          "title": "Dúvidas frequentes",
+          "url": "/pages/faq"
+        },
+        {
+          "title": "Contato",
+          "url": "/pages/contact"
+        }
+      ]
+    }
+  },
+  "pages": {
+    "contact": {
+      "title": "Contato",
+      "template_suffix": "contact",
+      "content": "<p>Fale com a nossa equipe. Respondemos o mais rápido possível.</p>"
+    },
+    "faq": {
+      "title": "Dúvidas frequentes",
+      "template_suffix": "faq",
+      "content": ""
+    },
+    "sobre": {
+      "title": "Sobre a New Clean",
+      "template_suffix": "",
+      "content": "<p>Texto de exemplo da pré-visualização local. O conteúdo real desta página vem do admin da Shopify.</p>"
+    },
+    "pedido-rapido": {
+      "title": "Pedido rápido",
+      "template_suffix": "pedido-rapido",
+      "content": ""
+    }
+  }
+}

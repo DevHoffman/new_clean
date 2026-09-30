@@ -1,0 +1,53 @@
+{%- comment -%}
+  Shipping estimate by postcode (CEP), using Shopify's cart shipping rates.
+  Rates are real: they come from the store's shipping settings for the items
+  currently in the cart.
+
+  Accepts:
+  - id: {String} unique id suffix (required)
+  - open: {Boolean} start expanded (optional)
+  - save_attribute: {Boolean} store the postcode as the cart attribute "CEP" (optional)
+
+  Usage:
+  {% render 'shipping-estimator', id: 'drawer' %}
+{%- endcomment -%}
+
+{%- if cart.requires_shipping -%}
+  <shipping-estimator class="shipping-estimator{% if open %} shipping-estimator--open{% endif %}" data-country="{{ localization.country.iso_code | default: 'BR' }}"{% if save_attribute %} data-save-attribute{% endif %}>
+    <details class="accordion shipping-estimator__details" {% if open %}open{% endif %}>
+      <summary class="accordion__summary">
+        <span class="accordion__title">
+          {% render 'icon', icon: 'truck', size: 18 %}
+          {{ 'cart.shipping_estimator.title' | t }}
+        </span>
+        {% render 'icon', icon: 'chevron-down', size: 16 %}
+      </summary>
+      <div class="accordion__content">
+        <form class="shipping-estimator__form" novalidate>
+          <div class="field shipping-estimator__field">
+            <label class="visually-hidden" for="ShippingZip-{{ id }}">{{ 'cart.shipping_estimator.zip' | t }}</label>
+            <input
+              type="text"
+              id="ShippingZip-{{ id }}"
+              name="zip"
+              class="field__input"
+              inputmode="numeric"
+              autocomplete="postal-code"
+              maxlength="9"
+              placeholder="{{ 'cart.shipping_estimator.placeholder' | t }}"
+              data-shipping-zip
+            >
+          </div>
+          <button type="submit" class="button button--secondary button--small">
+            <span class="button__label">{{ 'cart.shipping_estimator.submit' | t }}</span>
+            <span class="button__spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+        <div class="shipping-estimator__results" data-shipping-results aria-live="polite"></div>
+        <a href="https://buscacepinter.correios.com.br/app/endereco/index.php" class="text-xs link shipping-estimator__find" target="_blank" rel="noopener">
+          {{ 'cart.shipping_estimator.find_zip' | t }}
+        </a>
+      </div>
+    </details>
+  </shipping-estimator>
+{%- endif -%}

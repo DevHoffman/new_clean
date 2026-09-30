@@ -1,0 +1,248 @@
+{{ 'section-video-hero.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign video = section.settings.video
+  assign video_url = section.settings.video_url
+  assign poster = section.settings.poster
+  if poster == blank and video != blank
+    assign poster = video.preview_image
+  endif
+
+  assign mode = 'image'
+  if video != blank
+    assign mode = 'hosted'
+  elsif video_url != blank
+    assign mode = 'external'
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'auto'
+  assign heading_tag = 'h2'
+  if section.index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+    assign heading_tag = 'h1'
+  endif
+
+  assign overlay = section.settings.overlay_opacity | divided_by: 100.0
+-%}
+
+{%- capture poster_markup -%}
+  {%- if poster != blank -%}
+    {{
+      poster
+      | image_url: width: 2400
+      | image_tag:
+        widths: '400, 600, 800, 1100, 1400, 1800, 2400',
+        sizes: '100vw',
+        loading: loading,
+        fetchpriority: fetchpriority,
+        alt: poster.alt,
+        class: 'video-hero__poster'
+    }}
+  {%- elsif mode != 'hosted' -%}
+    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg video-hero__poster' }}
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- capture content_markup -%}
+  <div class="container video-hero__container">
+    <div class="video-hero__content">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="eyebrow video-hero__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      {%- if section.settings.heading != blank -%}
+        <{{ heading_tag }} class="h1 video-hero__heading">{{ section.settings.heading }}</{{ heading_tag }}>
+      {%- endif -%}
+      {%- if section.settings.text != blank -%}
+        <p class="video-hero__text">{{ section.settings.text }}</p>
+      {%- endif -%}
+      {%- if section.settings.button_label != blank or mode == 'external' -%}
+        <div class="video-hero__buttons">
+          {%- if section.settings.button_label != blank -%}
+            <a class="button button--large" href="{{ section.settings.button_link | default: routes.all_products_collection_url }}">
+              {{- section.settings.button_label -}}
+            </a>
+          {%- endif -%}
+          {%- if mode == 'external' -%}
+            <button type="button" class="button button--large button--secondary js-only" data-deferred-trigger>
+              {% render 'icon', icon: 'play', size: 16 %}
+              <span>
+                {%- if section.settings.play_label != blank -%}
+                  {{ section.settings.play_label }}
+                {%- else -%}
+                  {{ 'accessibility.play_video' | t }}
+                {%- endif -%}
+              </span>
+            </button>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+{%- endcapture -%}
+
+<div
+  class="video-hero video-hero--{{ section.settings.height }} video-hero--{{ section.settings.text_position }} video-hero--{{ section.settings.text_color }}"
+  style="--video-hero-overlay: {{ overlay }};"
+>
+  {%- if mode == 'external' -%}
+    <deferred-media class="video-hero__media">
+      {{ poster_markup }}
+      <span class="video-hero__overlay"></span>
+      {{ content_markup }}
+      <template>
+        {%- if video_url.type == 'youtube' -%}
+          <iframe
+            class="video-hero__iframe"
+            src="https://www.youtube-nocookie.com/embed/{{ video_url.id }}?autoplay=1&playsinline=1&rel=0"
+            title="{{ section.settings.heading | default: shop.name | escape }}"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        {%- else -%}
+          <iframe
+            class="video-hero__iframe"
+            src="https://player.vimeo.com/video/{{ video_url.id }}?autoplay=1&playsinline=1"
+            title="{{ section.settings.heading | default: shop.name | escape }}"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen
+            loading="lazy"
+          ></iframe>
+        {%- endif -%}
+      </template>
+    </deferred-media>
+  {%- else -%}
+    <div class="video-hero__media">
+      {{ poster_markup }}
+      {%- if mode == 'hosted' -%}
+        {{
+          video
+          | video_tag:
+            image_size: '1600x',
+            autoplay: true,
+            loop: true,
+            muted: true,
+            playsinline: true,
+            controls: false,
+            preload: 'metadata',
+            class: 'video-hero__video'
+        }}
+      {%- endif -%}
+      <span class="video-hero__overlay"></span>
+      {{ content_markup }}
+    </div>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "Vídeo em destaque",
+  "tag": "section",
+  "class": "section-video-hero",
+  "settings": [
+    {
+      "type": "video",
+      "id": "video",
+      "label": "Vídeo hospedado na Shopify",
+      "info": "Reproduzido automaticamente, sem som e em loop. Prefira vídeos curtos e leves."
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "label": "Vídeo do YouTube ou Vimeo",
+      "accept": ["youtube", "vimeo"],
+      "info": "Usado quando não há vídeo hospedado. Só é carregado quando a cliente clica para assistir."
+    },
+    {
+      "type": "image_picker",
+      "id": "poster",
+      "label": "Imagem de capa",
+      "info": "Exibida antes do vídeo carregar. Recomendado: 2400 x 1200 px."
+    },
+    {
+      "type": "select",
+      "id": "height",
+      "label": "Altura",
+      "options": [
+        { "value": "small", "label": "Pequena" },
+        { "value": "medium", "label": "Média" },
+        { "value": "large", "label": "Grande" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Texto de apoio"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Título",
+      "default": "Veja nossos produtos em ação"
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": "Texto",
+      "default": "Mostre em vídeo como usar os produtos e o resultado na limpeza."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Texto do botão",
+      "default": "Ver a loja"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Link do botão"
+    },
+    {
+      "type": "text",
+      "id": "play_label",
+      "label": "Texto do botão de reprodução",
+      "info": "Exibido apenas com vídeo do YouTube ou Vimeo.",
+      "default": "Assistir ao vídeo"
+    },
+    {
+      "type": "select",
+      "id": "text_position",
+      "label": "Posição do texto",
+      "options": [
+        { "value": "left", "label": "Esquerda" },
+        { "value": "center", "label": "Centro" },
+        { "value": "right", "label": "Direita" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "text_color",
+      "label": "Cor do texto",
+      "options": [
+        { "value": "light", "label": "Claro" },
+        { "value": "dark", "label": "Escuro" }
+      ],
+      "default": "light"
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Opacidade da sobreposição",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    }
+  ],
+  "presets": [
+    {
+      "name": "Vídeo em destaque"
+    }
+  ]
+}
+{% endschema %}

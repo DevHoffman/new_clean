@@ -1,0 +1,23 @@
+{
+  "name": "new-clean-theme",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Tema Shopify da Distribuidora New Clean",
+  "scripts": {
+    "preview": "node dev/server.js",
+    "catalog": "node dev/fetch-catalog.js",
+    "dev": "shopify theme dev --store dfd10g-i2.myshopify.com",
+    "check": "shopify theme check",
+    "push": "npm run build && shopify theme push --path dist --unpublished --store dfd10g-i2.myshopify.com",
+    "preview:demo": "PREVIEW_DEMO_SECOND_IMAGE=1 PREVIEW_DEMO_B2B=1 node dev/server.js",
+    "build": "node dev/build.js",
+    "push:update": "npm run build && shopify theme push --path dist --ignore config/settings_data.json --store dfd10g-i2.myshopify.com",
+    "preview:dist": "npm run build && THEME_DIR=dist node dev/server.js",
+    "setup:store": "node dev/admin/setup-store.js"
+  },
+  "devDependencies": {
+    "@shopify/cli": "^4.8.3",
+    "liquidjs": "^10.29.0",
+    "esbuild": "^0.28.1"
+  }
+}

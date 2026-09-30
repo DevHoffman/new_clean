@@ -1,0 +1,96 @@
+{%- comment -%}
+  Renders a blog article card.
+
+  Accepts:
+  - article: {Object} article (optional; renders a placeholder when blank)
+  - show_image: {Boolean} show the featured image (optional, default true)
+  - show_date: {Boolean} show the publication date (optional, default true)
+  - show_author: {Boolean} show the author (optional, default false)
+  - show_excerpt: {Boolean} show the excerpt (optional, default true)
+  - show_tag: {Boolean} show the first tag as eyebrow (optional, default false)
+  - lazy: {Boolean} lazy-load the image (optional, default true)
+  - sizes: {String} sizes attribute for the image (optional)
+  - heading_tag: {String} tag used for the title (optional, default 'h3')
+
+  Usage:
+  {% render 'article-card', article: article %}
+{%- endcomment -%}
+
+{%- liquid
+  assign show_image = show_image | default: true, allow_false: true
+  assign show_date = show_date | default: true, allow_false: true
+  assign show_author = show_author | default: false, allow_false: true
+  assign show_excerpt = show_excerpt | default: true, allow_false: true
+  assign show_tag = show_tag | default: false, allow_false: true
+  assign lazy = lazy | default: true, allow_false: true
+  assign sizes = sizes | default: '(min-width: 1000px) 33vw, (min-width: 750px) 50vw, 100vw'
+  assign heading_tag = heading_tag | default: 'h3'
+  assign loading = 'lazy'
+  unless lazy
+    assign loading = 'eager'
+  endunless
+-%}
+
+{%- if article == blank -%}
+  <article class="article-card article-card--placeholder">
+    {%- if show_image -%}
+      <div class="article-card__media media">
+        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+      </div>
+    {%- endif -%}
+    <div class="article-card__info">
+      <{{ heading_tag }} class="article-card__title h4">{{ 'blogs.article.placeholder_title' | t }}</{{ heading_tag }}>
+      {%- if show_excerpt -%}
+        <p class="article-card__excerpt">{{ 'blogs.article.placeholder_excerpt' | t }}</p>
+      {%- endif -%}
+    </div>
+  </article>
+{%- else -%}
+  <article class="article-card">
+    {%- if show_image and article.image -%}
+      <a href="{{ article.url }}" class="article-card__media media" tabindex="-1" aria-hidden="true">
+        {{
+          article.image
+          | image_url: width: 1200
+          | image_tag: widths: '300, 450, 600, 800, 1000, 1200', sizes: sizes, loading: loading, alt: ''
+        }}
+      </a>
+    {%- endif -%}
+
+    <div class="article-card__info">
+      {%- if show_tag and article.tags.size > 0 -%}
+        <span class="eyebrow">{{ article.tags.first }}</span>
+      {%- endif -%}
+
+      <{{ heading_tag }} class="article-card__title h4">
+        <a href="{{ article.url }}">{{ article.title }}</a>
+      </{{ heading_tag }}>
+
+      {%- if show_date or show_author -%}
+        <p class="article-card__meta">
+          {%- if show_date -%}
+            {{ article.published_at | time_tag: format: 'abbreviated_date' }}
+          {%- endif -%}
+          {%- if show_author -%}
+            <span>{{ 'blogs.article.by_author' | t: author: article.author }}</span>
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+
+      {%- if show_excerpt -%}
+        <p class="article-card__excerpt">
+          {%- if article.excerpt != blank -%}
+            {{ article.excerpt | strip_html | truncatewords: 28 }}
+          {%- else -%}
+            {{ article.content | strip_html | truncatewords: 28 }}
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+
+      <span class="link-arrow article-card__more" aria-hidden="true">
+        {{ 'general.read_more' | t }}
+        {% render 'icon', icon: 'arrow-right', size: 16 %}
+      </span>
+    </div>
+  </article>
+{%- endif -%}

@@ -1,0 +1,368 @@
+{{ 'section-main-cart.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign attrs = cart.attributes
+  assign pix_total = cart.total_price
+  assign pix_has_discount = false
+  if settings.pix_enabled and settings.pix_confirmed and settings.pix_discount > 0
+    assign pix_has_discount = true
+    assign pix_factor = 100 | minus: settings.pix_discount
+    assign pix_total = cart.total_price | times: pix_factor | divided_by: 100.0 | round
+  endif
+  assign min_installment = settings.installments_min_value | default: 1 | times: 100
+  if min_installment < 100
+    assign min_installment = 100
+  endif
+  assign installments = cart.total_price | divided_by: min_installment | floor
+  if installments > settings.installments_max
+    assign installments = settings.installments_max
+  endif
+  if installments < 1
+    assign installments = 1
+  endif
+  assign installment_value = cart.total_price | divided_by: installments
+  assign installment_money = installment_value | money
+  assign payment_choice = attrs['Forma de pagamento'] | default: 'pix'
+-%}
+
+<div class="section checkout-page" style="--pt: 24px; --pb: 72px;">
+  <div class="container">
+    {%- if cart.item_count == 0 -%}
+      <div class="empty-state">
+        {% render 'icon', icon: 'cart', size: 48 %}
+        <h1 class="h2">{{ 'cart.empty' | t }}</h1>
+        <p class="text-muted">{{ 'cart.empty_text' | t }}</p>
+        <a href="{{ routes.all_products_collection_url }}" class="button">{{ 'general.continue_shopping' | t }}</a>
+      </div>
+    {%- else -%}
+      <div class="checkout-page__header">
+        <div>
+          <h1 class="h2">{{ 'cart.checkout_page.title' | t }}</h1>
+          <p class="text-small text-muted">{{ 'cart.checkout_page.subtitle' | t: shop: shop.name }}</p>
+        </div>
+        <ol class="checkout-steps" aria-label="{{ 'cart.checkout_page.steps_label' | t }}">
+          <li class="checkout-steps__item is-current"><span>1</span>{{ 'cart.checkout_page.step_cart' | t }}</li>
+          <li class="checkout-steps__item"><span>2</span>{{ 'cart.checkout_page.step_payment' | t }}</li>
+          <li class="checkout-steps__item"><span>3</span>{{ 'cart.checkout_page.step_done' | t }}</li>
+        </ol>
+      </div>
+
+      <form action="{{ routes.cart_url }}" method="post" id="CartPageForm" novalidate>
+        {%- comment -%} Prefill for the Shopify checkout {%- endcomment -%}
+        <input type="hidden" name="checkout[email]" value="{{ attrs['E-mail'] | escape }}" data-prefill="email">
+        <input type="hidden" name="checkout[shipping_address][first_name]" value="{{ attrs['Nome'] | split: ' ' | first | escape }}" data-prefill="first_name">
+        <input type="hidden" name="checkout[shipping_address][last_name]" value="{{ attrs['Nome'] | split: ' ' | slice: 1, 10 | join: ' ' | escape }}" data-prefill="last_name">
+        <input type="hidden" name="checkout[shipping_address][phone]" value="{{ attrs['WhatsApp'] | escape }}" data-prefill="phone">
+        <input type="hidden" name="checkout[shipping_address][zip]" value="{{ attrs['CEP'] | escape }}" data-prefill="zip">
+      </form>
+
+      <div class="checkout-page__layout">
+        <div class="checkout-page__main">
+          {%- comment -%} 1. Items {%- endcomment -%}
+          <section class="checkout-card" aria-labelledby="CheckoutItems">
+            <div class="checkout-card__header">
+              <span class="checkout-card__step">1</span>
+              <h2 class="h4" id="CheckoutItems" data-cart-section="{{ section.id }}" data-cart-region="count" data-item-count="{{ cart.item_count }}">{{ 'cart.checkout_page.items' | t: count: cart.item_count }}</h2>
+              <a href="{{ routes.all_products_collection_url }}" class="link text-small">{{ 'cart.checkout_page.add_more' | t }}</a>
+            </div>
+            <div data-cart-section="{{ section.id }}" data-cart-region="items">
+              {% render 'free-shipping-bar' %}
+              {% render 'cart-items', image_sizes: '(min-width: 750px) 120px, 84px' %}
+            </div>
+          </section>
+
+          {%- comment -%} 2. Customer data {%- endcomment -%}
+          {%- if section.settings.show_customer_fields -%}
+            <section class="checkout-card" aria-labelledby="CheckoutCustomer">
+              <div class="checkout-card__header">
+                <span class="checkout-card__step">2</span>
+                <h2 class="h4" id="CheckoutCustomer">{{ 'cart.checkout_page.customer' | t }}</h2>
+              </div>
+              <p class="text-small text-muted checkout-card__hint">{{ 'cart.checkout_page.customer_hint' | t }}</p>
+              <cart-attributes class="checkout-fields">
+                <div class="field">
+                  <label class="field__label" for="CheckoutName">{{ 'cart.checkout_page.name' | t }}</label>
+                  <input type="text" id="CheckoutName" class="field__input" autocomplete="name" value="{{ attrs['Nome'] | escape }}" data-cart-attribute="Nome" data-prefill-source="name">
+                </div>
+                <div class="checkout-fields__row">
+                  <div class="field">
+                    <label class="field__label" for="CheckoutEmail">{{ 'cart.checkout_page.email' | t }}</label>
+                    <input type="email" id="CheckoutEmail" class="field__input" autocomplete="email" inputmode="email" value="{{ attrs['E-mail'] | escape }}" data-cart-attribute="E-mail" data-prefill-source="email">
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="CheckoutPhone">{{ 'cart.checkout_page.phone' | t }}</label>
+                    <input type="tel" id="CheckoutPhone" class="field__input" autocomplete="tel" inputmode="tel" placeholder="(27) 99999-9999" value="{{ attrs['WhatsApp'] | escape }}" data-cart-attribute="WhatsApp" data-prefill-source="phone">
+                  </div>
+                </div>
+                <div class="checkout-fields__row">
+                  <div class="field">
+                    <label class="field__label" for="CheckoutDocument">{{ 'cart.checkout_page.document' | t }}</label>
+                    <input type="text" id="CheckoutDocument" class="field__input" inputmode="numeric" placeholder="000.000.000-00" value="{{ attrs['CPF/CNPJ'] | escape }}" data-cart-attribute="CPF/CNPJ">
+                  </div>
+                  <div class="field">
+                    <label class="field__label" for="CheckoutCompany">{{ 'cart.checkout_page.company' | t }}</label>
+                    <input type="text" id="CheckoutCompany" class="field__input" autocomplete="organization" value="{{ attrs['Empresa'] | escape }}" data-cart-attribute="Empresa">
+                  </div>
+                </div>
+                {%- if settings.cart_note -%}
+                  <div class="field">
+                    <label class="field__label" for="CartNote-page">{{ 'cart.note' | t }}</label>
+                    <cart-note>
+                      <textarea id="CartNote-page" name="note" form="CartPageForm" class="field__input" rows="2" placeholder="{{ 'cart.note_placeholder' | t }}">{{- cart.note | escape -}}</textarea>
+                    </cart-note>
+                  </div>
+                {%- endif -%}
+                <p class="checkout-fields__status text-xs text-muted" data-attributes-status aria-live="polite"></p>
+              </cart-attributes>
+            </section>
+          {%- endif -%}
+
+          {%- comment -%} 3. Shipping {%- endcomment -%}
+          {%- if settings.cart_shipping_estimator and cart.requires_shipping -%}
+            <section class="checkout-card" aria-labelledby="CheckoutShipping">
+              <div class="checkout-card__header">
+                <span class="checkout-card__step">{% if section.settings.show_customer_fields %}3{% else %}2{% endif %}</span>
+                <h2 class="h4" id="CheckoutShipping">{{ 'cart.checkout_page.shipping' | t }}</h2>
+              </div>
+              <p class="text-small text-muted checkout-card__hint">{{ 'cart.checkout_page.shipping_hint' | t }}</p>
+              {% render 'shipping-estimator', id: 'page', open: true, save_attribute: true %}
+            </section>
+          {%- endif -%}
+
+          {%- comment -%} 4. Payment preference {%- endcomment -%}
+          {%- if section.settings.show_payment_choice -%}
+            <section class="checkout-card" aria-labelledby="CheckoutPayment">
+              <div class="checkout-card__header">
+                <span class="checkout-card__step">{% if section.settings.show_customer_fields %}4{% else %}3{% endif %}</span>
+                <h2 class="h4" id="CheckoutPayment">{{ 'cart.checkout_page.payment' | t }}</h2>
+              </div>
+              <p class="text-small text-muted checkout-card__hint">{{ 'cart.checkout_page.payment_hint' | t }}</p>
+              <cart-attributes class="payment-options" role="radiogroup" aria-label="{{ 'cart.checkout_page.payment' | t }}" data-cart-section="{{ section.id }}" data-cart-region="payment">
+                {%- if settings.pix_enabled -%}
+                  <label class="payment-option{% if payment_choice == 'pix' %} is-selected{% endif %}">
+                    <input type="radio" name="payment_preference" value="pix" data-cart-attribute="Forma de pagamento" {% if payment_choice == 'pix' %}checked{% endif %}>
+                    <span class="payment-option__icon payment-option__icon--pix">{% render 'icon', icon: 'pix', size: 22 %}</span>
+                    <span class="payment-option__text">
+                      <strong>Pix</strong>
+                      <span>
+                        {%- if pix_has_discount -%}
+                          {{ 'cart.checkout_page.pix_text' | t: percent: settings.pix_discount }}
+                        {%- else -%}
+                          {{ 'cart.checkout_page.pix_text_plain' | t }}
+                        {%- endif -%}
+                      </span>
+                    </span>
+                    <span class="payment-option__price">
+                      <strong>{{ pix_total | money }}</strong>
+                      {%- if pix_has_discount -%}
+                        <span class="badge badge--success">-{{ settings.pix_discount }}%</span>
+                      {%- endif -%}
+                    </span>
+                  </label>
+                {%- endif -%}
+                <label class="payment-option{% if payment_choice == 'cartao' %} is-selected{% endif %}">
+                  <input type="radio" name="payment_preference" value="cartao" data-cart-attribute="Forma de pagamento" {% if payment_choice == 'cartao' %}checked{% endif %}>
+                  <span class="payment-option__icon">{% render 'icon', icon: 'credit-card', size: 22 %}</span>
+                  <span class="payment-option__text">
+                    <strong>{{ 'cart.checkout_page.card' | t }}</strong>
+                    <span>
+                      {%- if settings.installments_enabled and installments > 1 -%}
+                        {{ 'cart.checkout_page.card_text' | t: installments: installments, value: installment_money }}
+                      {%- else -%}
+                        {{ 'cart.checkout_page.card_text_single' | t }}
+                      {%- endif -%}
+                    </span>
+                  </span>
+                  <span class="payment-option__price"><strong>{{ cart.total_price | money }}</strong></span>
+                </label>
+                {%- if section.settings.show_boleto -%}
+                  <label class="payment-option{% if payment_choice == 'boleto' %} is-selected{% endif %}">
+                    <input type="radio" name="payment_preference" value="boleto" data-cart-attribute="Forma de pagamento" {% if payment_choice == 'boleto' %}checked{% endif %}>
+                    <span class="payment-option__icon">{% render 'icon', icon: 'box', size: 22 %}</span>
+                    <span class="payment-option__text">
+                      <strong>{{ 'cart.checkout_page.boleto' | t }}</strong>
+                      <span>{{ 'cart.checkout_page.boleto_text' | t }}</span>
+                    </span>
+                    <span class="payment-option__price"><strong>{{ cart.total_price | money }}</strong></span>
+                  </label>
+                {%- endif -%}
+              </cart-attributes>
+              <p class="checkout-card__secure text-xs text-muted">
+                {% render 'icon', icon: 'lock', size: 14 %}
+                {{ 'cart.checkout_page.secure_note' | t }}
+              </p>
+            </section>
+          {%- endif -%}
+        </div>
+
+        {%- comment -%} Summary {%- endcomment -%}
+        <aside class="checkout-page__summary" aria-label="{{ 'cart.summary' | t }}">
+          <details class="checkout-summary" open>
+            <summary class="checkout-summary__toggle">
+              <span class="h4">{{ 'cart.summary' | t }}</span>
+              <span class="checkout-summary__toggle-total"><span data-cart-section="{{ section.id }}" data-cart-region="total">{{ cart.total_price | money }}</span> {% render 'icon', icon: 'chevron-down', size: 16 %}</span>
+            </summary>
+            <div class="checkout-summary__body" data-cart-section="{{ section.id }}" data-cart-region="summary">
+              {%- liquid
+                assign permalink_ok = true
+                for item in cart.items
+                  if item.properties.size > 0 or item.selling_plan_allocation
+                    assign permalink_ok = false
+                  endif
+                endfor
+              -%}
+              <script type="application/json" data-checkout-lines data-permalink="{% if permalink_ok and section.settings.checkout_mode == 'permalink' %}true{% else %}false{% endif %}">
+                [
+                  {%- for item in cart.items -%}
+                    { "id": {{ item.variant_id }}, "quantity": {{ item.quantity }} }{% unless forloop.last %},{% endunless %}
+                  {%- endfor -%}
+                ]
+              </script>
+              <ul class="checkout-summary__items" role="list">
+                {%- for item in cart.items -%}
+                  <li>
+                    <span class="checkout-summary__qty">{{ item.quantity }}×</span>
+                    <span class="checkout-summary__name">{% render 'product-title', title: item.product.title %}</span>
+                    <span>{{ item.final_line_price | money }}</span>
+                  </li>
+                {%- endfor -%}
+              </ul>
+
+              {%- if section.settings.show_coupon -%}
+                <coupon-form class="coupon" data-redirect="{{ routes.cart_url }}">
+                  <form class="coupon__form" novalidate>
+                    <label class="visually-hidden" for="CouponCode">{{ 'cart.checkout_page.coupon' | t }}</label>
+                    <input type="text" id="CouponCode" class="field__input" placeholder="{{ 'cart.checkout_page.coupon' | t }}" autocomplete="off" autocapitalize="characters" data-coupon-input>
+                    <button type="submit" class="button button--secondary button--small">{{ 'cart.checkout_page.apply' | t }}</button>
+                  </form>
+                  <p class="coupon__status text-xs" data-coupon-status hidden></p>
+                </coupon-form>
+              {%- endif -%}
+
+              <div class="checkout-summary__totals">
+                {%- for discount in cart.cart_level_discount_applications -%}
+                  <div class="cart-summary__row cart-summary__row--discount">
+                    <span>{{ discount.title }}</span>
+                    <span>-{{ discount.total_allocated_amount | money }}</span>
+                  </div>
+                {%- endfor -%}
+                <div class="cart-summary__row">
+                  <span>{{ 'cart.subtotal' | t }}</span>
+                  <span>{{ cart.items_subtotal_price | money }}</span>
+                </div>
+                <div class="cart-summary__row">
+                  <span>{{ 'cart.checkout_page.shipping_row' | t }}</span>
+                  <span class="text-muted text-small" data-summary-shipping>{{ 'cart.checkout_page.shipping_pending' | t }}</span>
+                </div>
+                <div class="cart-summary__row cart-summary__row--total">
+                  <span>{{ 'cart.checkout_page.total' | t }}</span>
+                  <span>{{ cart.total_price | money }}</span>
+                </div>
+                {%- if pix_has_discount -%}
+                  <div class="cart-summary__row checkout-summary__pix">
+                    <span>{% render 'icon', icon: 'pix', size: 14 %} {{ 'cart.checkout_page.pix_total' | t }}</span>
+                    <span>{{ pix_total | money }}</span>
+                  </div>
+                {%- endif -%}
+                {%- if settings.installments_enabled and installments > 1 -%}
+                  <p class="text-xs text-muted">{{ 'products.product.price.installments_html' | t: installments: installments, price: installment_money }}</p>
+                {%- endif -%}
+              </div>
+
+              <button type="submit" name="checkout" form="CartPageForm" class="button button--large button--full checkout-summary__submit">
+                {% render 'icon', icon: 'lock', size: 16 %}
+                <span class="button__label">{{ 'cart.checkout_page.submit' | t }}</span>
+              </button>
+              <p class="text-xs text-muted text-center checkout-summary__note">{{ 'cart.checkout_page.submit_note' | t }}</p>
+
+              <div class="trust-row">
+                <span class="trust-row__item">{% render 'icon', icon: 'shield', size: 14 %} {{ 'cart.trust.secure' | t }}</span>
+                <span class="trust-row__item">{% render 'icon', icon: 'lock', size: 14 %} {{ 'cart.checkout_page.ssl' | t }}</span>
+              </div>
+              {%- if section.settings.show_payment_icons -%}
+                {% render 'payment-icons', class: 'checkout-summary__payments' %}
+              {%- endif -%}
+            </div>
+          </details>
+        </aside>
+      </div>
+
+      {%- if settings.cart_upsell -%}
+        {%- liquid
+          assign has_fallback = false
+          if settings.cart_upsell_collection != blank and settings.cart_upsell_collection.products_count > 0
+            assign has_fallback = true
+          endif
+        -%}
+        <product-recommendations
+          class="cart-upsell cart-page__upsell"
+          data-url="{{ routes.product_recommendations_url }}?product_id={{ cart.items.first.product_id }}&section_id=cart-upsell&limit=8&intent=related"
+          {% if has_fallback %}data-keep{% else %}hidden{% endif %}
+        >
+          {%- if has_fallback -%}
+            {% render 'cart-upsell-list', products: settings.cart_upsell_collection.products %}
+          {%- endif -%}
+        </product-recommendations>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Finalizar pedido",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Página de pré-checkout em uma etapa: itens, dados do cliente, frete por CEP e preferência de pagamento. O pagamento é concluído no checkout da Shopify; os dados informados aqui ficam salvos no pedido (atributos) e preenchem o checkout."
+    },
+    {
+      "type": "select",
+      "id": "checkout_mode",
+      "label": "Envio para o checkout",
+      "options": [
+        {
+          "value": "permalink",
+          "label": "Link de carrinho com dados preenchidos (recomendado)"
+        },
+        {
+          "value": "form",
+          "label": "Formulário padrão do carrinho"
+        }
+      ],
+      "info": "O link de carrinho é o método documentado pela Shopify para levar e-mail, nome, CEP, observação e cupom já preenchidos ao checkout. Pedidos com personalizações usam o formulário padrão automaticamente.",
+      "default": "permalink"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_customer_fields",
+      "label": "Pedir dados do cliente (nome, e-mail, WhatsApp, CPF/CNPJ)",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_choice",
+      "label": "Mostrar escolha de forma de pagamento",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_boleto",
+      "label": "Incluir boleto nas opções",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_coupon",
+      "label": "Campo de cupom",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "Mostrar bandeiras de pagamento",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

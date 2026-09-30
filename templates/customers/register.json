@@ -1,0 +1,49 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-register",
+      "blocks": {
+        "benefit_1": {
+          "type": "benefit",
+          "settings": {
+            "icon": "truck",
+            "text": "Acompanhe seus pedidos e entregas em um só lugar"
+          }
+        },
+        "benefit_2": {
+          "type": "benefit",
+          "settings": {
+            "icon": "clock",
+            "text": "Finalize a compra mais rápido com endereços salvos"
+          }
+        },
+        "benefit_3": {
+          "type": "benefit",
+          "settings": {
+            "icon": "refresh",
+            "text": "Recompre seus favoritos em poucos cliques"
+          }
+        },
+        "benefit_4": {
+          "type": "benefit",
+          "settings": {
+            "icon": "gift",
+            "text": "Receba ofertas e novidades em primeira mão"
+          }
+        }
+      },
+      "block_order": [
+        "benefit_1",
+        "benefit_2",
+        "benefit_3",
+        "benefit_4"
+      ],
+      "settings": {
+        "benefits_heading": "Vantagens de ter uma conta"
+      }
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

@@ -1,0 +1,32 @@
+{%- comment -%}
+  "Buy again" button: adds every purchasable line of a past order to the cart.
+
+  Accepts:
+  - order: {Object} order (required)
+  - class: {String} extra button classes (optional)
+
+  Usage:
+  {% render 'reorder-button', order: order %}
+{%- endcomment -%}
+
+{%- liquid
+  assign reorder_items = ''
+  for line_item in order.line_items
+    if line_item.variant and line_item.variant.available and line_item.gift_card == false
+      assign reorder_items = reorder_items | append: line_item.variant.id | append: ':' | append: line_item.quantity | append: ','
+    endif
+  endfor
+-%}
+
+{%- if reorder_items != blank -%}
+  <button
+    type="button"
+    class="button{% if class %} {{ class }}{% else %} button--small{% endif %}"
+    data-reorder="{{ reorder_items | escape }}"
+    aria-label="{{ 'customer.orders.reorder_label' | t: name: order.name }}"
+  >
+    {% render 'icon', icon: 'refresh', size: 16 %}
+    <span class="button__label">{{ 'customer.orders.reorder' | t }}</span>
+    <span class="button__spinner" aria-hidden="true"></span>
+  </button>
+{%- endif -%}

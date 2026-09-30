@@ -1,0 +1,12 @@
+{%- comment -%}
+  Page title for <title> and social tags. Same as page_title, except that the
+  "all products" collection is shown as "Loja".
+
+  Usage:
+  {%- capture doc_title -%}{% render 'page-title' %}{%- endcapture -%}
+{%- endcomment -%}
+{%- if request.page_type == 'collection' and collection.handle == 'all' -%}
+  {{- 'collections.all_title' | t -}}
+{%- else -%}
+  {{- page_title -}}
+{%- endif -%}

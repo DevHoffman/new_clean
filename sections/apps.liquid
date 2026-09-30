@@ -1,0 +1,77 @@
+<div
+  class="section scheme-{{ section.settings.color_scheme }}"
+  style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;"
+  {% if section.settings.anchor != blank %}
+    id="{{ section.settings.anchor | handleize }}"
+  {% endif %}
+>
+  <div class="{% if section.settings.include_margins %}container{% endif %}">
+    {%- for block in section.blocks -%}
+      {% render block %}
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Apps",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "anchor",
+      "label": "Âncora",
+      "info": "Identificador usado em links internos. Use \"avaliacoes\" para que as estrelas do produto rolem até o app de avaliações."
+    },
+    {
+      "type": "checkbox",
+      "id": "include_margins",
+      "label": "Alinhar à largura da página",
+      "default": true
+    },
+    { "type": "header", "content": "Aparência" },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        { "value": "default", "label": "Padrão" },
+        { "value": "alt", "label": "Fundo alternativo" },
+        { "value": "inverse", "label": "Invertido" },
+        { "value": "accent", "label": "Destaque" }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Espaçamento superior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Apps"
+    }
+  ]
+}
+{% endschema %}

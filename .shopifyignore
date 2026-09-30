@@ -1,0 +1,10 @@
+README.md
+.theme-check.yml
+.git
+.gitignore
+package.json
+package-lock.json
+node_modules/
+dev/
+docs/
+dist/

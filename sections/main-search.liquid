@@ -1,0 +1,329 @@
+{{ 'component-article-card.css' | asset_url | stylesheet_tag }}
+{{ 'section-main-search.css' | asset_url | stylesheet_tag }}
+{{ 'component-facets.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign popular_terms = settings.search_popular_terms | newline_to_br | split: '<br />'
+  assign fallback_collection = section.settings.collection
+
+  assign show_filters = false
+  if section.settings.enable_filters and search.performed and search.filters.size > 0
+    assign show_filters = true
+  endif
+
+  assign encoded_terms = search.terms | url_encode
+  assign clear_url = routes.search_url | append: '?options%5Bprefix%5D=last&q=' | append: encoded_terms
+  if search.sort_by != blank and search.sort_by != search.default_sort_by
+    assign clear_url = clear_url | append: '&sort_by=' | append: search.sort_by
+  endif
+
+  assign active_count = 0
+  for filter in search.filters
+    if filter.type == 'price_range'
+      if filter.min_value.value != null or filter.max_value.value != null
+        assign active_count = active_count | plus: 1
+      endif
+    else
+      assign active_count = active_count | plus: filter.active_values.size
+    endif
+  endfor
+-%}
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;" data-results-count="{{ search.results_count }}">
+  <facet-filters class="container" data-section-id="{{ section.id }}">
+    <div class="main-search__header">
+      <h1 class="h2">
+        {%- if search.performed -%}
+          {{ 'templates.search.results_title' | t }}
+        {%- else -%}
+          {{ 'templates.search.title' | t }}
+        {%- endif -%}
+      </h1>
+
+      <form action="{{ routes.search_url }}" method="get" role="search" class="search-form main-search__form">
+        <div class="search-form__field">
+          {% render 'icon', icon: 'search', size: 18 %}
+          <label class="visually-hidden" for="Search-Page">{{ 'templates.search.label' | t }}</label>
+          <input
+            class="field__input search-form__input"
+            type="search"
+            name="q"
+            id="Search-Page"
+            value="{{ search.terms | escape }}"
+            placeholder="{{ 'templates.search.placeholder' | t }}"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+          >
+          <input type="hidden" name="options[prefix]" value="last">
+        </div>
+        <button type="submit" class="button">{{ 'templates.search.submit' | t }}</button>
+      </form>
+
+      {%- if search.performed -%}
+        <p class="main-search__count text-muted" role="status" data-region="count">
+          {%- if search.results_count > 0 -%}
+            {{ 'templates.search.results_count' | t: count: search.results_count, terms: search.terms }}
+          {%- elsif active_count > 0 -%}
+            {{ 'templates.search.no_results_filtered' | t: terms: search.terms }}
+          {%- else -%}
+            {{ 'templates.search.no_results' | t: terms: search.terms }}
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+    </div>
+
+    {%- if search.performed and search.results_count > 0 or search.performed and active_count > 0 -%}
+      {%- paginate search.results by 24 -%}
+        {%- comment -%}
+          Same pattern as the collection: an empty form holds the state, and the
+          fields point to it with the `form` attribute, so product cards (which
+          contain their own forms) are never nested inside it.
+        {%- endcomment -%}
+        <form class="facets-form" id="FacetsForm" data-facets-form hidden>
+          <input type="hidden" name="q" value="{{ search.terms | escape }}">
+          <input type="hidden" name="options[prefix]" value="last">
+          {%- if search.types.size > 0 -%}
+            <input type="hidden" name="type" value="{{ search.types | join: ',' }}">
+          {%- endif -%}
+        </form>
+
+        <div class="collection__inner">
+          <div class="collection__toolbar">
+            {%- if show_filters -%}
+              <button type="button" class="button button--secondary button--small collection__filter-toggle" data-modal-open="#FacetsDrawer" aria-haspopup="dialog">
+                {% render 'icon', icon: 'filter', size: 16 %}
+                <span class="button__label">
+                  {{ 'collections.facets.filter' | t }}
+                  <span data-region="active-count">{% if active_count > 0 %}({{ active_count }}){% endif %}</span>
+                </span>
+              </button>
+            {%- endif -%}
+
+            <p class="collection__count text-small text-muted" data-region="toolbar-count" aria-live="polite">
+              {{ 'collections.products_count' | t: count: search.results_count }}
+            </p>
+
+            {%- if section.settings.enable_sorting and search.sort_options.size > 0 -%}
+              <div class="collection__sort">
+                <label for="SortBy" class="visually-hidden">{{ 'collections.facets.sort_by' | t }}</label>
+                <select name="sort_by" id="SortBy" class="select" form="FacetsForm">
+                  {%- assign sort_by = search.sort_by | default: search.default_sort_by -%}
+                  {%- for option in search.sort_options -%}
+                    <option value="{{ option.value | escape }}" {% if option.value == sort_by %}selected{% endif %}>
+                      {{ option.name | escape }}
+                    </option>
+                  {%- endfor -%}
+                </select>
+              </div>
+            {%- endif -%}
+          </div>
+
+          <div class="collection__layout{% if show_filters %} collection__layout--filters{% endif %}">
+            {%- if show_filters -%}
+              {% render 'facets-drawer', filters: search.filters, clear_url: clear_url, results_count: search.results_count %}
+            {%- endif -%}
+
+            <div class="collection__results" id="SearchResults" data-region="results">
+              {% render 'facets-active', filters: search.filters, clear_url: clear_url, active_count: active_count %}
+
+              {%- if search.results_count == 0 -%}
+                <div class="empty-state">
+                  <h2 class="h3">{{ 'collections.empty' | t }}</h2>
+                  <p class="text-muted">{{ 'collections.empty_filtered' | t }}</p>
+                  <a href="{{ clear_url }}" class="button" data-facet-link>{{ 'collections.facets.clear_all' | t }}</a>
+                </div>
+              {%- else -%}
+                <ul class="grid main-search__grid" role="list" style="--cols-mobile: 2; --cols-tablet: 3; --cols-desktop: {% if show_filters %}3{% else %}4{% endif %};">
+                  {%- for item in search.results -%}
+                    {%- liquid
+                      assign lazy = true
+                      if forloop.index <= 4
+                        assign lazy = false
+                      endif
+                    -%}
+                    <li class="main-search__item main-search__item--{{ item.object_type }}">
+                      {%- case item.object_type -%}
+                        {%- when 'product' -%}
+                          {% render 'product-card', product: item, lazy: lazy %}
+                        {%- when 'article' -%}
+                          <span class="badge badge--muted main-search__type">{{ 'templates.search.types.article' | t }}</span>
+                          {% render 'article-card',
+                            article: item,
+                            lazy: lazy,
+                            heading_tag: 'h2',
+                            show_excerpt: false,
+                            sizes: '(min-width: 1000px) 25vw, (min-width: 750px) 33vw, 50vw'
+                          %}
+                        {%- when 'page' -%}
+                          <article class="article-card article-card--page">
+                            <div class="article-card__info">
+                              <span class="badge badge--muted">{{ 'templates.search.types.page' | t }}</span>
+                              <h2 class="article-card__title h4">
+                                <a href="{{ item.url }}">{{ item.title }}</a>
+                              </h2>
+                              {%- if item.content != blank -%}
+                                <p class="article-card__excerpt">{{ item.content | strip_html | truncatewords: 20 }}</p>
+                              {%- endif -%}
+                              <span class="link-arrow article-card__more" aria-hidden="true">
+                                {{ 'general.read_more' | t }}
+                                {% render 'icon', icon: 'arrow-right', size: 16 %}
+                              </span>
+                            </div>
+                          </article>
+                      {%- endcase -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+
+                {% render 'pagination', paginate: paginate, anchor: '#SearchResults' %}
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      {%- endpaginate -%}
+    {%- else -%}
+      <div class="main-search__empty">
+        {%- if search.performed -%}
+          <p class="main-search__tips text-muted">{{ 'templates.search.no_results_tips' | t }}</p>
+        {%- endif -%}
+
+        {%- if popular_terms.size > 0 and settings.search_popular_terms != blank -%}
+          <div class="search-popular main-search__popular">
+            <span class="search-popular__label">{{ 'templates.search.popular' | t }}</span>
+            {%- for term in popular_terms -%}
+              {%- assign popular_term = term | strip -%}
+              {%- if popular_term != blank -%}
+                <a class="chip" href="{{ routes.search_url }}?q={{ popular_term | url_encode }}&options%5Bprefix%5D=last">
+                  {{- popular_term | escape -}}
+                </a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+
+        {%- if fallback_collection.products_count > 0 or request.design_mode -%}
+          <div class="main-search__fallback">
+            <div class="section-header">
+              <div class="section-header__text">
+                <h2 class="h3">{{ section.settings.collection_heading }}</h2>
+              </div>
+              {%- if fallback_collection != blank -%}
+                <a class="link-arrow" href="{{ fallback_collection.url }}">
+                  {{ 'general.view_all' | t }}
+                  {% render 'icon', icon: 'arrow-right', size: 16 %}
+                </a>
+              {%- endif -%}
+            </div>
+            <ul class="grid" role="list" style="--cols-mobile: 2; --cols-tablet: 4; --cols-desktop: 4;">
+              {%- if fallback_collection.products_count > 0 -%}
+                {%- for product in fallback_collection.products limit: 4 -%}
+                  <li>{% render 'product-card', product: product %}</li>
+                {%- endfor -%}
+              {%- else -%}
+                {%- for i in (1..4) -%}
+                  <li>{% render 'product-card', product: blank %}</li>
+                {%- endfor -%}
+              {%- endif -%}
+            </ul>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </facet-filters>
+</div>
+
+{% schema %}
+{
+  "name": "Resultados da busca",
+  "class": "section-main-search",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Filtros e ordenação"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filters",
+      "label": "Ativar filtros nos resultados",
+      "info": "Usa os filtros configurados no app Shopify Search & Discovery (disponibilidade, preço, marca…).",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "label": "Ativar ordenação",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Sem resultados"
+    },
+    {
+      "type": "paragraph",
+      "content": "As buscas populares vêm de Configurações do tema > Busca."
+    },
+    {
+      "type": "text",
+      "id": "collection_heading",
+      "label": "Título da coleção sugerida",
+      "default": "Talvez você goste"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Coleção sugerida",
+      "info": "Exibida quando a busca não encontra resultados, para não perder a visita."
+    },
+    {
+      "type": "header",
+      "content": "Aparência"
+    },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        {
+          "value": "default",
+          "label": "Padrão"
+        },
+        {
+          "value": "alt",
+          "label": "Fundo alternativo"
+        },
+        {
+          "value": "inverse",
+          "label": "Invertido"
+        },
+        {
+          "value": "accent",
+          "label": "Destaque"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Espaçamento superior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Espaçamento inferior",
+      "min": 0,
+      "max": 120,
+      "step": 8,
+      "unit": "px",
+      "default": 56
+    }
+  ]
+}
+{% endschema %}

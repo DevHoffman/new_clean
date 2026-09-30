@@ -1,0 +1,338 @@
+<footer class="footer scheme-{{ section.settings.color_scheme }}">
+  <div class="container">
+    {%- if section.blocks.size > 0 -%}
+      <div class="footer__top" style="--footer-columns: {{ section.blocks.size | at_most: 5 }};">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+            {%- when 'brand' -%}
+              <div class="footer__column" {{ block.shopify_attributes }}>
+                {%- if block.settings.logo != blank -%}
+                  {{
+                    block.settings.logo
+                    | image_url: width: 320
+                    | image_tag: widths: '160, 320', sizes: '160px', loading: 'lazy', style: 'width: 160px; margin-bottom: 16px;'
+                  }}
+                {%- else -%}
+                  <p class="h3" style="margin-bottom: 12px;">{{ shop.name }}</p>
+                {%- endif -%}
+                {%- if block.settings.text != blank -%}
+                  <div class="footer__text rte">{{ block.settings.text }}</div>
+                {%- endif -%}
+                <div class="footer__legal-info">
+                  {%- if settings.company_legal_name != blank or settings.company_cnpj != blank -%}
+                    <p class="footer__company footer__company--brand">
+                      {%- if settings.company_legal_name != blank -%}{{ settings.company_legal_name }}{%- endif -%}
+                      {%- if settings.company_cnpj != blank %} · CNPJ {{ settings.company_cnpj }}{% endif -%}
+                    </p>
+                  {%- elsif section.settings.company_info != blank -%}
+                    <p class="footer__company footer__company--brand">{{ section.settings.company_info | newline_to_br }}</p>
+                  {%- endif -%}
+                </div>
+                {%- if block.settings.show_social -%}
+                  <div style="margin-top: 16px;">{% render 'social-icons' %}</div>
+                {%- endif -%}
+              </div>
+
+            {%- when 'menu' -%}
+              <details class="footer__column footer__column--collapsible" open {{ block.shopify_attributes }}>
+                <summary>
+                  <h2 class="footer__heading">{{ block.settings.heading | default: block.settings.menu.title }}</h2>
+                  {% render 'icon', icon: 'chevron-down', size: 14 %}
+                </summary>
+                <ul class="footer__links" role="list">
+                  {%- for link in block.settings.menu.links -%}
+                    <li>
+                      <a href="{{ link.url }}">{{ link.title }}</a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </details>
+
+            {%- when 'policies' -%}
+              <details class="footer__column footer__column--collapsible" open {{ block.shopify_attributes }}>
+                <summary>
+                  <h2 class="footer__heading">{{ block.settings.heading }}</h2>
+                  {% render 'icon', icon: 'chevron-down', size: 14 %}
+                </summary>
+                <ul class="footer__links" role="list">
+                  {%- for policy in shop.policies -%}
+                    <li>
+                      <a href="{{ policy.url }}">{{ policy.title }}</a>
+                    </li>
+                  {%- endfor -%}
+                  {%- for link in block.settings.menu.links -%}
+                    <li>
+                      <a href="{{ link.url }}">{{ link.title }}</a>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </details>
+
+            {%- when 'contact' -%}
+              <div class="footer__column" {{ block.shopify_attributes }}>
+                <h2 class="footer__heading">{{ block.settings.heading }}</h2>
+                <ul class="footer__links" role="list">
+                  {%- if settings.social_whatsapp != blank -%}
+                    <li>
+                      <a href="https://wa.me/{{ settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' }}" target="_blank" rel="noopener">
+                        {{ 'general.whatsapp' | t }}
+                      </a>
+                    </li>
+                  {%- endif -%}
+                  {%- if settings.help_phone != blank -%}
+                    <li>
+                      <a href="tel:{{ settings.help_phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' }}">{{ settings.help_phone }}</a>
+                    </li>
+                  {%- endif -%}
+                  {%- liquid
+                    assign footer_email = block.settings.email | default: settings.help_email
+                    assign footer_hours = block.settings.hours | default: settings.help_hours
+                  -%}
+                  {%- if footer_email != blank -%}
+                    <li>
+                      <a href="mailto:{{ footer_email }}">{{ footer_email }}</a>
+                    </li>
+                  {%- endif -%}
+                  {%- if settings.company_address != blank or settings.company_city != blank -%}
+                    <li class="footer__text footer__address">
+                      {%- if settings.company_address != blank -%}{{ settings.company_address }}{%- endif -%}
+                      {%- if settings.company_address != blank and settings.company_city != blank -%}<br>{%- endif -%}
+                      {%- if settings.company_city != blank -%}{{ settings.company_city }}{%- endif -%}
+                    </li>
+                  {%- endif -%}
+                  {%- if footer_hours != blank -%}
+                    <li class="footer__text">{{ footer_hours }}</li>
+                  {%- endif -%}
+                </ul>
+              </div>
+
+            {%- when 'newsletter' -%}
+              <div class="footer__column" {{ block.shopify_attributes }}>
+                <h2 class="footer__heading">{{ block.settings.heading }}</h2>
+                {%- if block.settings.text != blank -%}
+                  <p class="footer__text">{{ block.settings.text }}</p>
+                {%- endif -%}
+                {%- form 'customer', id: 'FooterNewsletter' -%}
+                  <input type="hidden" name="contact[tags]" value="newsletter">
+                  {%- if form.posted_successfully? -%}
+                    <p class="form-message form-message--success" style="margin-top: 14px;" tabindex="-1" autofocus>
+                      {% render 'icon', icon: 'check', size: 16 %}
+                      {{ 'newsletter.success' | t }}
+                    </p>
+                  {%- else -%}
+                    {%- if form.errors -%}
+                      <div class="form-message form-message--error" style="margin-top: 14px;">
+                        {{ form.errors | default_errors }}
+                      </div>
+                    {%- endif -%}
+                    <div class="footer__newsletter-form">
+                      <label for="FooterNewsletterEmail" class="visually-hidden">{{ 'newsletter.label' | t }}</label>
+                      <input
+                        type="email"
+                        id="FooterNewsletterEmail"
+                        name="contact[email]"
+                        class="field__input"
+                        placeholder="{{ 'newsletter.placeholder' | t }}"
+                        autocomplete="email"
+                        autocapitalize="off"
+                        required
+                      >
+                      <button type="submit" class="button" aria-label="{{ 'newsletter.button' | t }}">
+                        {% render 'icon', icon: 'arrow-right', size: 18 %}
+                      </button>
+                    </div>
+                    <p class="text-xs text-muted" style="margin-top: 8px;">{{ 'newsletter.consent' | t }}</p>
+                  {%- endif -%}
+                {%- endform -%}
+              </div>
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <div class="footer__bottom">
+      <div>
+        <p>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ 'sections.footer.rights' | t }}</p>
+      </div>
+
+      <div>
+        {%- if section.settings.show_localization and localization.available_countries.size > 1 -%}
+          <localization-form>
+            {%- form 'localization', id: 'FooterLocalization', class: 'localization-form' -%}
+              <label for="FooterCountry" class="visually-hidden">{{ 'sections.footer.country' | t }}</label>
+              <select id="FooterCountry" name="country_code" class="select">
+                {%- for country in localization.available_countries -%}
+                  <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+                    {{ country.name }} ({{ country.currency.iso_code }} {{ country.currency.symbol }})
+                  </option>
+                {%- endfor -%}
+              </select>
+            {%- endform -%}
+          </localization-form>
+        {%- endif -%}
+
+        {%- if section.settings.show_payment_icons -%}
+          <div style="margin-top: 8px;">{% render 'payment-icons' %}</div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Rodapé",
+  "max_blocks": 6,
+  "settings": [
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Esquema de cores",
+      "options": [
+        {
+          "value": "default",
+          "label": "Padrão"
+        },
+        {
+          "value": "alt",
+          "label": "Fundo alternativo"
+        },
+        {
+          "value": "inverse",
+          "label": "Invertido"
+        }
+      ],
+      "default": "alt"
+    },
+    {
+      "type": "textarea",
+      "id": "company_info",
+      "label": "Dados da empresa",
+      "info": "Prefira preencher em Configurações do tema > Dados da empresa. Este campo só é usado se aqueles estiverem vazios.",
+      "placeholder": "Razão Social Ltda · CNPJ 00.000.000/0001-00\nRua Exemplo, 123 · São Paulo/SP"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "Mostrar bandeiras de pagamento",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_localization",
+      "label": "Mostrar seletor de país/moeda",
+      "default": false
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Marca",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Logo"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Texto",
+          "default": "<p>Materiais de limpeza para empresas e residências, com preço de distribuidora e entrega rápida.</p>"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social",
+          "label": "Mostrar redes sociais",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "menu",
+      "name": "Menu",
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "default": "footer"
+        }
+      ]
+    },
+    {
+      "type": "policies",
+      "name": "Links úteis",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "default": "Links úteis"
+        },
+        {
+          "type": "paragraph",
+          "content": "Lista automaticamente as políticas cadastradas em Configurações > Políticas (privacidade, trocas, frete, termos e contato)."
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Links extras (opcional)",
+          "info": "Ex.: Dúvidas frequentes, Pedido rápido."
+        }
+      ]
+    },
+    {
+      "type": "contact",
+      "name": "Atendimento",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "default": "Atendimento"
+        },
+        {
+          "type": "text",
+          "id": "email",
+          "label": "E-mail",
+          "info": "Em branco, usa o e-mail da Central de ajuda."
+        },
+        {
+          "type": "text",
+          "id": "hours",
+          "label": "Horário de atendimento",
+          "info": "Em branco, usa o horário da Central de ajuda. Telefone e e-mail também vêm de lá."
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "default": "Receba ofertas em primeira mão"
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto",
+          "default": "Cadastre-se e receba novidades e ofertas exclusivas."
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

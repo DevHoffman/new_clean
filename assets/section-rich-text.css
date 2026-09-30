@@ -1,0 +1,33 @@
+/* Rich text */
+.rich-text__content > * + * {
+  margin-top: 14px;
+}
+
+.rich-text--center .rich-text__content {
+  text-align: center;
+}
+
+.rich-text__text {
+  font-size: 1.0625rem;
+  color: var(--color-text-muted);
+}
+
+.rich-text__content > .rich-text__buttons {
+  margin-top: 28px;
+}
+
+.rich-text__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rich-text--center .rich-text__buttons {
+  justify-content: center;
+}
+
+@media (max-width: 749px) {
+  .rich-text__buttons .button {
+    flex: 1 1 auto;
+  }
+}

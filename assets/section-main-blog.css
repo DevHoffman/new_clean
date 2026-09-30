@@ -1,0 +1,44 @@
+/* Blog listing
+   ========================================================================== */
+.main-blog__tags {
+  margin-bottom: 32px;
+}
+
+.main-blog__tags .chip-list {
+  justify-content: center;
+}
+
+.main-blog__grid {
+  --grid-gap-y: 40px;
+}
+
+@media (max-width: 749px) {
+  /* Horizontal scroll keeps a long tag list from pushing articles below the fold */
+  .main-blog__tags .chip-list {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    margin-inline: -16px;
+    padding-inline: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .main-blog__tags .chip-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .main-blog__tags .chip {
+    flex: none;
+  }
+}
+
+@media (min-width: 750px) {
+  .main-blog__tags {
+    margin-bottom: 48px;
+  }
+
+  .main-blog__grid {
+    --grid-gap-y: 56px;
+    --grid-gap-x: 32px;
+  }
+}

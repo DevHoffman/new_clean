@@ -1,0 +1,111 @@
+{%- comment -%}
+  Renders a price block with compare-at price, Pix price and installments.
+
+  Accepts:
+  - product: {Object} product (required unless variant is passed)
+  - variant: {Object} selected variant (optional, takes priority over product)
+  - show_payment_info: {Boolean} show Pix + installments lines (optional, default false)
+  - show_pix: {Boolean} show only the Pix line, used on product cards (optional, default false)
+  - show_badge: {Boolean} show the discount badge next to the price (optional, default false)
+  - class: {String} extra classes (optional)
+
+  Usage:
+  {% render 'price', product: product, show_payment_info: true %}
+{%- endcomment -%}
+
+{%- liquid
+  assign target = variant | default: product
+  assign price = target.price | default: 0
+  assign compare_at_price = target.compare_at_price
+  assign price_varies = false
+  if variant == blank and product.price_varies
+    assign price_varies = true
+    assign price = product.price_min
+  endif
+
+  if settings.currency_code_enabled
+    assign money_price = price | money_with_currency
+    assign money_compare = compare_at_price | money_with_currency
+  else
+    assign money_price = price | money
+    assign money_compare = compare_at_price | money
+  endif
+
+  assign on_sale = false
+  if compare_at_price > price
+    assign on_sale = true
+    assign discount = compare_at_price | minus: price | times: 100.0 | divided_by: compare_at_price | round
+  endif
+-%}
+
+<div class="price{% if on_sale %} price--on-sale{% endif %}{% if class %} {{ class }}{% endif %}">
+  <div class="price__main">
+    {%- if on_sale -%}
+      <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+      <s class="price__compare">{{ money_compare }}</s>
+      <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+    {%- endif -%}
+    <span class="price__current">
+      {%- if price_varies -%}
+        {{ 'products.product.price.from_price_html' | t: price: money_price }}
+      {%- else -%}
+        {{ money_price }}
+      {%- endif -%}
+    </span>
+    {%- if show_badge and on_sale -%}
+      <span class="badge badge--sale">{{ 'products.product.discount_off' | t: percent: discount }}</span>
+    {%- endif -%}
+  </div>
+
+  {%- if target.unit_price_measurement -%}
+    <div class="price__unit">
+      <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>
+      {{ target.unit_price | money }}/
+      {%- if target.unit_price_measurement.reference_value != 1 -%}
+        {{ target.unit_price_measurement.reference_value }}
+      {%- endif -%}
+      {{ target.unit_price_measurement.reference_unit }}
+    </div>
+  {%- endif -%}
+
+  {%- liquid
+    assign show_pix_line = false
+    if show_payment_info or show_pix
+      assign show_pix_line = true
+    endif
+  -%}
+
+  {%- if show_pix_line and price > 0 -%}
+    {%- if settings.pix_enabled and settings.pix_confirmed and settings.pix_discount > 0 -%}
+      {%- liquid
+        assign pix_factor = 100 | minus: settings.pix_discount
+        assign pix_money = price | times: pix_factor | divided_by: 100.0 | round | money
+      -%}
+      <div class="price__pix">
+        {% render 'icon', icon: 'pix', size: 16 %}
+        <span>
+          {{ 'products.product.price.pix_html' | t: price: pix_money, percent: settings.pix_discount }}
+        </span>
+      </div>
+    {%- endif -%}
+
+    {%- if settings.installments_enabled and show_payment_info -%}
+      {%- liquid
+        assign min_installment = settings.installments_min_value | default: 1 | times: 100
+        if min_installment < 100
+          assign min_installment = 100
+        endif
+        assign installments = price | divided_by: min_installment | floor
+        if installments > settings.installments_max
+          assign installments = settings.installments_max
+        endif
+      -%}
+      {%- if installments >= 2 -%}
+        {%- assign installment_money = price | divided_by: installments | money -%}
+        <div class="price__installments">
+          {{ 'products.product.price.installments_html' | t: installments: installments, price: installment_money }}
+        </div>
+      {%- endif -%}
+    {%- endif -%}
+  {%- endif -%}
+</div>

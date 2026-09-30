@@ -1,0 +1,130 @@
+{{ 'customer.css' | asset_url | stylesheet_tag }}
+
+<div class="section scheme-{{ section.settings.color_scheme }}" style="--pt: {{ section.settings.padding_top }}px; --pb: {{ section.settings.padding_bottom }}px;">
+  <div class="container container--medium">
+    <div class="customer-header">
+      <div>
+        <h1 class="h2">
+          {%- if customer.first_name != blank -%}
+            {{ 'customer.account.greeting' | t: name: customer.first_name }}
+          {%- else -%}
+            {{ 'customer.account.title' | t }}
+          {%- endif -%}
+        </h1>
+        <p class="text-muted">{{ 'customer.account.subtext' | t }}</p>
+      </div>
+      <a href="{{ routes.account_logout_url }}" class="link customer-header__link">
+        {{ 'customer.account.logout' | t }}
+      </a>
+    </div>
+
+    <div class="customer-layout">
+      <div class="customer-layout__main">
+        <h2 class="h3 customer-layout__title" id="OrderHistory-{{ section.id }}">{{ 'customer.orders.title' | t }}</h2>
+
+        {%- paginate customer.orders by 20 -%}
+          {%- if customer.orders.size > 0 -%}
+            <table class="customer-table" aria-labelledby="OrderHistory-{{ section.id }}">
+              <thead>
+                <tr>
+                  <th scope="col">{{ 'customer.orders.order_number' | t }}</th>
+                  <th scope="col">{{ 'customer.orders.date' | t }}</th>
+                  <th scope="col">{{ 'customer.orders.payment_status' | t }}</th>
+                  <th scope="col">{{ 'customer.orders.fulfillment_status' | t }}</th>
+                  <th scope="col">{{ 'customer.orders.total' | t }}</th>
+                  <th scope="col"><span class="visually-hidden">{{ 'customer.orders.actions' | t }}</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                {%- for order in customer.orders -%}
+                  <tr>
+                    <th scope="row" data-label="{{ 'customer.orders.order_number' | t }}">
+                      <a
+                        href="{{ order.customer_url }}"
+                        class="link"
+                        aria-label="{{ 'customer.orders.view_order' | t: name: order.name }}"
+                      >
+                        {{- order.name -}}
+                      </a>
+                    </th>
+                    <td data-label="{{ 'customer.orders.date' | t }}">
+                      {{ order.created_at | time_tag: format: 'abbreviated_date' }}
+                    </td>
+                    <td data-label="{{ 'customer.orders.payment_status' | t }}">
+                      {{ order.financial_status_label }}
+                    </td>
+                    <td data-label="{{ 'customer.orders.fulfillment_status' | t }}">
+                      {%- if order.cancelled -%}
+                        <span class="badge badge--muted">{{ 'customer.order.cancelled' | t }}</span>
+                      {%- else -%}
+                        {{ order.fulfillment_status_label }}
+                      {%- endif -%}
+                    </td>
+                    <td data-label="{{ 'customer.orders.total' | t }}">
+                      {{ order.total_net_amount | money }}
+                    </td>
+                    <td class="customer-table__actions">
+                      {% render 'reorder-button', order: order %}
+                    </td>
+                  </tr>
+                {%- endfor -%}
+              </tbody>
+            </table>
+
+            {% render 'pagination', paginate: paginate %}
+          {%- else -%}
+            <div class="customer-empty">
+              <p>{{ 'customer.orders.none' | t }}</p>
+              <a href="{{ routes.all_products_collection_url }}" class="button">{{ 'customer.orders.start_shopping' | t }}</a>
+            </div>
+          {%- endif -%}
+        {%- endpaginate -%}
+      </div>
+
+      <aside class="customer-layout__aside" aria-labelledby="AccountDetails-{{ section.id }}">
+        <h2 class="h3 customer-layout__title" id="AccountDetails-{{ section.id }}">{{ 'customer.account.details' | t }}</h2>
+
+        <div class="customer-card">
+          <h3 class="customer-card__title">{{ 'customer.account.contact' | t }}</h3>
+          <p>{{ customer.name | escape }}</p>
+          <p>{{ customer.email | escape }}</p>
+          {%- if customer.phone != blank -%}
+            <p>{{ customer.phone }}</p>
+          {%- endif -%}
+        </div>
+
+        <div class="customer-card">
+          <h3 class="customer-card__title">{{ 'customer.account.default_address' | t }}</h3>
+          {%- if customer.default_address -%}
+            <address>{{ customer.default_address | format_address }}</address>
+          {%- else -%}
+            <p>{{ 'customer.account.no_address' | t }}</p>
+          {%- endif -%}
+          <div class="customer-card__actions">
+            <a href="{{ routes.account_addresses_url }}" class="button button--secondary button--small">
+              {{ 'customer.account.view_addresses' | t: count: customer.addresses_count }}
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Minha conta",
+  "class": "section-main-account",
+  "settings": [
+    { "type": "header", "content": "Aparência" },
+    { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
+      { "value": "default", "label": "Padrão" },
+      { "value": "alt", "label": "Fundo alternativo" },
+      { "value": "inverse", "label": "Invertido" },
+      { "value": "accent", "label": "Destaque" }
+    ], "default": "default" },
+    { "type": "range", "id": "padding_top", "label": "Espaçamento superior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 },
+    { "type": "range", "id": "padding_bottom", "label": "Espaçamento inferior", "min": 0, "max": 120, "step": 8, "unit": "px", "default": 56 }
+  ]
+}
+{% endschema %}

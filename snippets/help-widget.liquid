@@ -1,0 +1,147 @@
+{%- comment -%}
+  Floating "Posso ajudar?" centre: opening hours status, self-service
+  shortcuts and human channels (WhatsApp, phone, e-mail). A pending-message
+  badge and teaser bubble invite the visitor until the panel is opened once.
+
+  Usage:
+  {% render 'help-widget' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign whatsapp_number = settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')'
+  assign phone_digits = settings.help_phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | remove: '.'
+
+  assign option_count = 0
+  for i in (1..4)
+    assign link_key = 'help_option_' | append: i | append: '_link'
+    assign title_key = 'help_option_' | append: i | append: '_title'
+    if settings[link_key] != blank and settings[title_key] != blank
+      assign option_count = option_count | plus: 1
+    endif
+  endfor
+
+  assign has_people = false
+  if whatsapp_number != blank or settings.help_phone != blank or settings.help_email != blank
+    assign has_people = true
+  endif
+-%}
+
+{%- if settings.help_enabled -%}
+  {%- if option_count > 0 or has_people -%}
+    <help-widget
+      class="help"
+      data-days="{{ settings.help_days }}"
+      data-open="{{ settings.help_open | default: '08:00' }}"
+      data-close="{{ settings.help_close | default: '18:00' }}"
+      {% if settings.help_teaser_enabled and settings.help_teaser_text != blank %}
+        data-teaser-delay="{{ settings.help_teaser_delay }}"
+      {% endif %}
+    >
+      <div class="help__panel" id="HelpPanel" role="dialog" aria-label="{{ 'help.label' | t }}" hidden>
+        <div class="help__header">
+          <div>
+            <p class="help__title">{{ settings.help_label }}</p>
+            <p class="help__status">
+              <span class="help__status-dot" data-help-status-dot></span>
+              <span data-help-status>{{ 'help.offline' | t }}</span>
+              {%- if settings.help_hours != blank %} · {{ settings.help_hours }}{% endif -%}
+            </p>
+          </div>
+          <button type="button" class="icon-button help__close" data-help-close aria-label="{{ 'help.close' | t }}">
+            {% render 'icon', icon: 'close', size: 18 %}
+          </button>
+        </div>
+
+        {%- if option_count > 0 -%}
+          <div class="help__section">
+            {%- if settings.help_options_heading != blank -%}
+              <p class="help__eyebrow">{{ settings.help_options_heading }}</p>
+            {%- endif -%}
+            <ul class="help__list" role="list">
+              {%- for i in (1..4) -%}
+                {%- liquid
+                  assign icon_key = 'help_option_' | append: i | append: '_icon'
+                  assign title_key = 'help_option_' | append: i | append: '_title'
+                  assign text_key = 'help_option_' | append: i | append: '_text'
+                  assign link_key = 'help_option_' | append: i | append: '_link'
+                -%}
+                {%- if settings[link_key] != blank and settings[title_key] != blank -%}
+                  <li>
+                    <a class="help__option" href="{{ settings[link_key] }}">
+                      <span class="help__icon">{% render 'icon', icon: settings[icon_key], size: 20 %}</span>
+                      <span class="help__option-text">
+                        <strong>{{ settings[title_key] }}</strong>
+                        {%- if settings[text_key] != blank -%}
+                          <span>{{ settings[text_key] }}</span>
+                        {%- endif -%}
+                      </span>
+                    </a>
+                  </li>
+                {%- endif -%}
+              {%- endfor -%}
+            </ul>
+          </div>
+        {%- endif -%}
+
+        {%- if has_people -%}
+          <div class="help__section help__people">
+            {%- if settings.help_people_text != blank -%}
+              <p class="help__people-text">{{ settings.help_people_text }}</p>
+            {%- endif -%}
+            {%- if whatsapp_number != blank -%}
+              <a
+                class="button button--full help__whatsapp"
+                href="https://wa.me/{{ whatsapp_number }}?text={{ settings.whatsapp_message | url_encode }}"
+                target="_blank"
+                rel="noopener"
+              >
+                {% render 'icon', icon: 'whatsapp', size: 20 %}
+                <span class="button__label">{{ 'help.whatsapp' | t }}</span>
+              </a>
+            {%- endif -%}
+            {%- if settings.help_phone != blank -%}
+              <a class="button button--secondary button--full" href="tel:{{ phone_digits }}">
+                {% render 'icon', icon: 'phone', size: 18 %}
+                <span class="button__label">{{ 'help.call' | t: phone: settings.help_phone }}</span>
+              </a>
+            {%- endif -%}
+            {%- if settings.help_email != blank -%}
+              <a class="link text-small help__email" href="mailto:{{ settings.help_email }}">
+                {% render 'icon', icon: 'mail', size: 14 %}
+                {{ 'help.email' | t }} · {{ settings.help_email }}
+              </a>
+            {%- endif -%}
+          </div>
+        {%- endif -%}
+
+        {%- if settings.help_hours != blank -%}
+          <p class="help__hours">
+            {% render 'icon', icon: 'clock', size: 14 %}
+            {{ settings.help_hours }}
+          </p>
+        {%- endif -%}
+      </div>
+
+      {%- if settings.help_teaser_enabled and settings.help_teaser_text != blank -%}
+        <div class="help__teaser" data-help-teaser hidden>
+          <button type="button" class="help__teaser-close" data-help-dismiss aria-label="{{ 'help.dismiss' | t }}">
+            {% render 'icon', icon: 'close', size: 12 %}
+          </button>
+          <button type="button" class="help__teaser-body" data-help-toggle>
+            <strong>{{ settings.help_label }}</strong>
+            <span>{{ settings.help_teaser_text }}</span>
+          </button>
+        </div>
+      {%- endif -%}
+
+      <button type="button" class="help__toggle" data-help-toggle aria-expanded="false" aria-controls="HelpPanel" title="{{ settings.help_label | escape }}">
+        <span class="help__toggle-icon help__toggle-icon--open">{% render 'icon', icon: 'chat', size: 22 %}</span>
+        <span class="help__toggle-icon help__toggle-icon--close">{% render 'icon', icon: 'close', size: 20 %}</span>
+        <span class="visually-hidden">{{ settings.help_label }}</span>
+        <span class="help__badge" data-help-badge hidden>
+          1<span class="visually-hidden"> — {{ 'help.pending' | t }}</span>
+        </span>
+      </button>
+    </help-widget>
+  {%- endif -%}
+{%- endif -%}

@@ -1,0 +1,45 @@
+{%- comment -%}
+  Google Tag Manager, loaded only after the visitor allows analytics
+  (Shopify Customer Privacy API, the same consent used by Shopify's banner).
+  Nothing loads without consent, and nothing loads in the theme editor.
+
+  Set the container in Configurações do tema > Análise e rastreamento.
+  Do not install GA4 through GTM AND the Google & YouTube app at the same
+  time: purchases would be counted twice.
+
+  Usage:
+  {% render 'gtm' %}
+{%- endcomment -%}
+
+{%- if settings.gtm_id != blank and request.design_mode == false -%}
+  <script>
+    (function () {
+      var id = {{ settings.gtm_id | strip | json }};
+      if (!/^GTM-[A-Z0-9]+$/.test(id)) return;
+      var loaded = false;
+
+      function load() {
+        if (loaded) return;
+        loaded = true;
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://www.googletagmanager.com/gtm.js?id=' + id;
+        document.head.appendChild(script);
+      }
+
+      function check() {
+        var privacy = window.Shopify && window.Shopify.customerPrivacy;
+        if (privacy && typeof privacy.analyticsProcessingAllowed === 'function' && privacy.analyticsProcessingAllowed()) load();
+      }
+
+      if (window.Shopify && typeof window.Shopify.loadFeatures === 'function') {
+        window.Shopify.loadFeatures([{ name: 'consent-tracking-api', version: '0.1' }], function (error) {
+          if (!error) check();
+        });
+      }
+      document.addEventListener('visitorConsentCollected', check);
+    })();
+  </script>
+{%- endif -%}

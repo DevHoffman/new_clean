@@ -1,0 +1,12 @@
+node_modules/
+.shopify/
+dist/
+
+# Segredos e arquivos locais
+.env
+.env.*
+*.log
+.DS_Store
+
+# Capturas de tela geradas nos testes (12 MB)
+dev/screenshots/
