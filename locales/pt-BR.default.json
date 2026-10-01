@@ -512,7 +512,7 @@
         "name": "Nome",
         "email": "E-mail",
         "phone": "Telefone",
-        "phone_placeholder": "(27) 99999-9999",
+        "phone_placeholder": "DDD + número",
         "order_number": "Número do pedido",
         "order_number_placeholder": "Ex.: #1001",
         "optional": "opcional",
