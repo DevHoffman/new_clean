@@ -42,13 +42,25 @@
       {%- endfor -%}
     </div>
 
+    {%- liquid
+      assign faq_link = section.settings.contact_link
+      assign faq_external = false
+      if faq_link == blank
+        assign faq_whatsapp = settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | strip
+        if faq_whatsapp != blank
+          assign faq_message = settings.whatsapp_message | url_encode
+          assign faq_link = 'https://wa.me/' | append: faq_whatsapp | append: '?text=' | append: faq_message
+          assign faq_external = true
+        endif
+      endif
+    -%}
     {%- if section.settings.contact_text != blank or section.settings.contact_label != blank -%}
       <div class="faq__contact">
         {%- if section.settings.contact_text != blank -%}
           <p class="text-muted">{{ section.settings.contact_text }}</p>
         {%- endif -%}
-        {%- if section.settings.contact_label != blank and section.settings.contact_link != blank -%}
-          <a class="link-arrow" href="{{ section.settings.contact_link }}">
+        {%- if section.settings.contact_label != blank and faq_link != blank -%}
+          <a class="link-arrow" href="{{ faq_link }}"{% if faq_external %} target="_blank" rel="noopener"{% endif %}>
             {{- section.settings.contact_label -}}
             {% render 'icon', icon: 'arrow-right', size: 16 %}
           </a>
@@ -153,7 +165,8 @@
     {
       "type": "url",
       "id": "contact_link",
-      "label": "Link"
+      "label": "Link",
+      "info": "Vazio = abre o WhatsApp da loja com uma mensagem pronta."
     },
     { "type": "header", "content": "Aparência" },
     { "type": "select", "id": "color_scheme", "label": "Esquema de cores", "options": [
