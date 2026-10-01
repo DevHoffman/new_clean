@@ -55,7 +55,7 @@ Não são de front-end (dependem de acesso à loja, do admin ou de conteúdo): R
 | R13 | P0 | Dono | Confirmar que a **nota fiscal é emitida em todos os pedidos** | Se sim, mantém o item "Nota fiscal" da faixa de benefícios; se não, remover o bloco |
 | R14 | P0 | Jurídico | Revisar e publicar as **políticas** (`docs/politicas/`) em Configurações > Políticas | 5 páginas publicadas; links em "Links úteis" abrem sem erro |
 | R15 | P0 | Dono | Ativar o **banner de cookies/consentimento** (Configurações > Privacidade do cliente), exigência da LGPD; o tema não tem banner próprio | Banner aparece na primeira visita e respeita a escolha |
-| R16 | P1 | Dono | Dados reais de contato: e-mail, horário, redes sociais (o telefone 27 99291-8283 já está configurado) | Central de ajuda, rodapé e contato mostram dados reais, sem "example.com" |
+| R16 | P1 | Dono | Dados reais de contato: e-mail, horário, redes sociais (o telefone e o WhatsApp são (27) 99248-7715 e já estão configurados) | Central de ajuda, rodapé e contato mostram dados reais, sem "example.com" |
 | R17 | P1 | Time | Instalar app de **avaliações** e ativar pedido automático 7 dias após a entrega | Estrelas aparecem no cartão, produto e busca (metacampos `reviews.rating`) |
 | R18 | P1 | Dono/Time | Coletar 3+ **depoimentos reais** de clientes empresariais, com autorização | Seção de depoimentos publicada na home com nome/empresa reais |
 

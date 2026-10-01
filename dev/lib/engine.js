@@ -144,7 +144,7 @@ function loadTranslations() {
   const file = path.join(THEME, 'locales', `${LOCALE}.default.json`);
   const stamp = fs.statSync(file).mtimeMs;
   if (!translations || stamp !== translationsStamp) {
-    translations = JSON.parse(fs.readFileSync(file, 'utf8'));
+    translations = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\s*\/\*[\s\S]*?\*\//, ''));
     translationsStamp = stamp;
     missingTranslations.clear();
   }

@@ -3,3 +3,4 @@ ignore:
   - node_modules/**
   - dev/**
   - dist/**
+  - snippets/pagefly-main-js.liquid # arquivo do app PageFly (gerado pela Shopify)
