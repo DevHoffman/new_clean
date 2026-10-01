@@ -31,10 +31,10 @@
           assign has_digit = true
         endif
       endfor
-      if has_digit or clean.size <= 2
-        assign piece = clean
-      elsif connectors contains lower and forloop.first == false
+      if connectors contains lower and forloop.first == false
         assign piece = lower
+      elsif has_digit or clean.size <= 2
+        assign piece = clean
       else
         assign piece = lower | capitalize
       endif

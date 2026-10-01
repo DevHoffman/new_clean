@@ -328,7 +328,8 @@
                     </summary>
                     <div class="accordion__content rte">{{ product.description }}</div>
                   </details>
-                {%- elsif settings.social_whatsapp != blank -%}
+                {%- endif -%}
+                {%- if settings.social_whatsapp != blank -%}
                   {%- liquid
                     assign ask_url = request.origin | append: product.url
                     assign ask_text = 'products.product.ask.message' | t: title: product.title, url: ask_url
