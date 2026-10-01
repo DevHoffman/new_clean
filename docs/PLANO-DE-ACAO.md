@@ -58,9 +58,44 @@ Cada passo é simulado antes de gravar e verificado em produção depois.
 | 2.6 | **Frete grátis acima de R$ 150** e tarifas por região | Configurações > Frete e entrega | Carrinho de R$ 149 cobra; de R$ 150 não cobra (R08) |
 | 2.7 | **Regras de devolução e cancelamento** (hoje: 7 dias, sem cancelamento) | Configurações > Políticas | Iguais ao que a empresa pratica |
 | 2.8 | **Marca do checkout** (logo e cores) e e-mails de pedido | Configurações > Checkout | Checkout e e-mails com a identidade da loja (R10) |
-| 2.9 | **Nota fiscal em todos os pedidos?** confirmar (o tema promete isso) | Operação | Se não for verdade, remover o item da faixa de benefícios (R13) |
+| 2.9 | ~~Nota fiscal em todos os pedidos?~~ **Resolvido:** a equipe emite a nota em segundo plano depois da compra | Operação | Nada a fazer (R13) |
 
 ## Fase 3 — Integração com o Tiny (depende do Tiny)
+
+> **Descoberta (01/10/2026):** o app **Sistema ERP da Olist (Tiny)** já está **instalado e ativo** na loja desde 02/12/2025, com acesso a Produtos, Encomendas e Outros dados e atividade recente (Produtos há 1 hora, Encomendas há 5 horas). Ou seja, o Tiny **já alimenta a Shopify**: os 1.133 produtos com SKU numérico, título em caixa alta e "Comparar a" igual ao preço vêm dele. **Não rodar `tiny:sync --apply`** enquanto o app estiver ativo (dois escritores sobre os mesmos produtos). O trabalho passa a ser **conferir e ajustar a configuração do app no Tiny** (Configurações > E-commerce > Integrações > Shopify): quais campos ele envia (título, descrição, marca, categoria, fotos), qual preço usa e se o preço promocional vira "Comparar a", qual depósito alimenta o estoque e o que fazer com estoque zero. **Descrição, foto e marca devem ser corrigidas no Tiny**, não na Shopify, senão a próxima sincronização sobrescreve.
+
+> **Evidência medida na Shopify (01/10/2026, somente leitura):** o app atualiza o **estoque a cada poucos minutos** (16 produtos alterados no dia, 54 em 7 dias, 208 em 30), com quantidades reais (450, 32, 27, 0) e controle de estoque ligado; o preço é sincronizado, mas **"Comparar a" é sempre igual ao preço**, então nenhuma promoção do Tiny chega à loja hoje. Há 3 produtos "Example product" (de março) que parecem sobras da Shopify.
+
+> **Bloqueio:** quem configura o app é quem tem **acesso ao Tiny**. Ação **3.0 (você):** descobrir quem instalou o app em 02/12/2025 (Definições > Utilizadores e o e-mail financeiro) e pedir que essa pessoa mande os prints das abas Produtos, Preços, Estoque e Pedidos da integração, ou que adicione você como usuário no Tiny. O script próprio também precisaria de acesso ao Tiny, então não contorna isso.
+
+> **Diagnóstico do app no Tiny (01/10/2026, relatório da sessão com o navegador):**
+> - **Preço:** regra "Preço fixo"; o anúncio tem campo de preço promocional com datas, mas **todos os 5 produtos amostrados têm promocional 0**. Não existe regra "de-por"; só um teste mostra se o promocional vira "Comparar a".
+> - **Preço possivelmente desatualizado:** o Desinfetante Wave 5L (SKU 57282) está a **R$ 22,44 no Tiny** e a **R$ 18,58 na Shopify** (alterado pela última vez em 20/07). Os outros 4 produtos conferem. É preciso medir o tamanho do problema (`integracoes/tiny/compare-export.js`).
+> - **Produtos:** descrição complementar **não é enviada**; fotos só para **produtos novos**; marca e categoria **não são enviadas**; o SKU é atualizado na importação. Consequência boa: **descrição e fotos extras podem ser feitas direto na Shopify sem serem sobrescritas.**
+> - **Estoque:** envia o saldo disponível do depósito "Todos próprios", sem estoque de segurança, lançamento da saída ao salvar o pedido.
+> - **Pedidos:** sincronização automática ligada, rastreio enviado ao marcar "enviado", mas o **mapeamento de situações está vazio**, as formas de recebimento estão "Não definida" e não foi achada emissão automática de nota fiscal.
+> - **Catálogo:** 1.543 produtos ativos no Tiny, **416 fora da Shopify**.
+> - **Atenção:** a sessão com o navegador inativou a integração por engano e ela foi reativada; confirmar que está **Ativa** e que o estoque voltou a atualizar.
+
+> **Comparação com a exportação do Tiny (01/10/2026, 1.543 produtos ativos × 1.133 na Shopify, somente leitura):**
+> - **Preço:** 1.035 produtos casaram por SKU; **122 têm preço diferente** (102 mais baratos na Shopify, 20 mais caros). 59 deles foram atualizados em setembro (o estoque sincroniza, o preço não). A integração parece **não propagar mudanças de preço**.
+> - **Estoque:** 71 diferenças, 70 com a Shopify abaixo do Tiny por poucas unidades, o que é esperado (o app envia o saldo disponível, sem as reservas). Estoque está saudável.
+> - **Fora da loja:** 395 ativos com SKU não estão na Shopify (83 vendáveis: preço, estoque e foto; muitos são itens de outros ramos, como agendas e água mineral). Mais 104 ativos no Tiny **sem SKU**, 10 SKUs repetidos no Tiny e 95 variantes sem SKU na Shopify.
+> - **Cadastro do Tiny:** 0 produtos com preço promocional, 0 com marca, 0 com descrição complementar, 531 com categoria, 1.102 com 1 foto e nenhum com 2 ou mais.
+
+> **Decisão do dono (01/10/2026): o preço da loja é o da Shopify.** O Tiny **não envia preço sozinho** (só estoque é automático; preço e produtos novos são enviados manualmente por "enviar preços" e "enviar para o e-commerce"), então as 118 diferenças de preço permanecem como estão: a Shopify foi alterada por último e continua assim. **Nada de preço será alterado nem automatizado.** Consequências:
+> - **Promoções podem ser feitas direto na Shopify** (campo "Comparar a" maior que o preço), sem concorrer com o Tiny, enquanto ninguém usar o envio manual de preços. É assim que a coleção Ofertas e o bloco "Em promoção agora" passam a ter produtos.
+> - **Atenção da equipe:** se alguém clicar em **"enviar preços para o e-commerce"** (ou no envio em lote) no Tiny, os preços da Shopify daquele produto voltam ao valor do Tiny e **apagam promoções**. **"Enviar para o e-commerce"** (produto completo) também pode sobrescrever descrição, tags e SEO. Evitar esses dois botões.
+> - As ferramentas `compare-export.js` e `apply-prices-from-export.js` ficam disponíveis, mas **não serão usadas** sem nova decisão.
+
+**Ações restantes:** (3.8) confirmar o status "Ativa" de vez em quando; (3.11) preencher no Tiny o mapeamento de situações e as formas de recebimento; avisar a equipe sobre os dois botões do Tiny acima. Os 417 produtos fora da loja ficam como estão. Ofertas passa a ser alimentada pela Shopify.
+
+> **Atualização:** existe uma integração **nativa e homologada pela Shopify**, o app *Tiny ERP* (Olist), que se ativa de dentro do Tiny e não precisa de credenciais de API nem de servidor. Ela envia **preço e estoque do Tiny para a Shopify**, traz **pedidos da Shopify para o Tiny** (base para a nota fiscal), sincroniza o status dos pedidos nos dois sentidos e envia os códigos de rastreio. Produtos casam pelo **SKU**. O script próprio (`integracoes/tiny/`) passa a ser **plano B**, para o que o app não cobrir (por exemplo, transformar preço promocional em "Comparar a", se o app não fizer isso). Fonte: [ajuda da Olist](https://ajuda.olist.com/plataformas-de-e-commerce/integracao-erp-com-o-shopify).
+
+**Caminho recomendado (nativo):** Tiny > Configurações > E-commerce > Integrações > *Incluir integração* > Shopify > URL `https://dfd10g-i2.myshopify.com` > *Logar no Shopify* > *Install Tiny ERP* > configurar as abas (produtos, estoque com o depósito, preços, situações, formas de pagamento e frete). **Antes de ligar:** definir o depósito de estoque, mapear as situações dos pedidos e testar com poucos produtos. Apagar o mapeamento de produtos **não pode ser desfeito**.
+
+**Caminho alternativo (script próprio):** os passos 3.1 a 3.7 abaixo.
+
 
 | # | Ação | Dono | Pronto quando |
 | --- | --- | --- | --- |

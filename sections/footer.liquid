@@ -72,6 +72,10 @@
                 </summary>
                 <ul class="footer__links" role="list">
                   {%- for policy in shop.policies -%}
+                    {%- comment -%} Shopify's default subscription/pre-order text does not apply to a store that sells no subscriptions {%- endcomment -%}
+                    {%- if policy.url contains 'subscription-policy' and block.settings.show_subscription_policy != true -%}
+                      {%- continue -%}
+                    {%- endif -%}
                     <li>
                       <a href="{{ policy.url }}">{{ policy.title }}</a>
                     </li>
@@ -302,6 +306,13 @@
         {
           "type": "paragraph",
           "content": "Lista automaticamente as políticas cadastradas em Configurações > Políticas (privacidade, trocas, frete, termos e contato)."
+        },
+        {
+          "type": "checkbox",
+          "id": "show_subscription_policy",
+          "label": "Mostrar a política de assinatura (cancelamento de opções de compra)",
+          "info": "Desmarcado, a política padrão da Shopify sobre assinaturas e pré-venda não aparece. Marque só se a loja vender assinaturas.",
+          "default": false
         },
         {
           "type": "link_list",
