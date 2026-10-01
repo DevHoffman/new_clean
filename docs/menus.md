@@ -11,10 +11,11 @@ Quando as 16 coleções existirem (docs/colecoes.md), troque os links de busca (
 Endereço (handle) do menu: `main-menu`, aplicado na loja real com `npm run setup:store -- --via-cli --only=menus --replace-menus --apply`. O cabeçalho e o rodapé usam este menu.
 
 1. **Todas as categorias** (mega menu com 3 níveis)
-2. **Ofertas** (destacado em vermelho pela configuração "Item de menu em destaque")
-3. **Mais vendidos**
-4. **Novidades**
-5. **Contato**
+2. **Mais vendidos**
+3. **Novidades**
+4. **Contato**
+
+**Ofertas** (destacado em vermelho pela configuração "Item de menu em destaque") entra entre Categorias e Mais vendidos assim que houver produtos em promoção; o script o inclui por padrão e `--skip-menu=ofertas` o deixa de fora.
 
 Não colocar "Início" (o logo já leva à Home) nem "Loja" (o botão de categorias e o link "Ver todas as categorias" cobrem). O mesmo menu aparece na coluna Institucional do rodapé.
 
@@ -36,7 +37,6 @@ Não colocar "Início" (o logo já leva à Home) nem "Loja" (o botão de categor
   - **Higiene pessoal** → `/search?q=sabonete&type=product`
     - **Sabonetes** → `/search?q=sabonete&type=product`
     - **Saboneteiras e dispensers** → `/search?q=saboneteira&type=product`
-- **Ofertas** → `/collections/ofertas`
 - **Mais vendidos** → `/collections/mais-vendidos`
 - **Novidades** → `/collections/novidades`
 - **Contato** → `/pages/contact`

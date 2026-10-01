@@ -4,7 +4,7 @@
     "social_whatsapp": "5527992487715",
     "social_instagram": "https://instagram.com/",
     "help_phone": "(27) 99248-7715",
-    "help_email": "contato@example.com",
+    "help_email": "financeiro@distribuidoranewclean.com.br",
     "help_hours": "Seg a sex, 8h às 18h",
     "help_option_1_link": "/search",
     "help_option_3_link": "/account/login",
@@ -101,10 +101,6 @@
               ]
             }
           ]
-        },
-        {
-          "title": "Ofertas",
-          "url": "/collections/ofertas"
         },
         {
           "title": "Mais vendidos",

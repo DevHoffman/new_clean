@@ -16,6 +16,7 @@
  *          --handles=mais-vendidos,ofertas   only create these collections (skips the rest)
  *          --menu-handle=menu-new-clean --menu-title="Menu New Clean"   create the main menu under another
  *                     handle instead of touching `main-menu` (the live theme keeps its menu untouched)
+ *          --skip-menu=ofertas   leave these items out of the main menu (e.g. a collection with no products yet)
  *          --replace-menus  also rewrite menus that were already customized (default: only menus that still
  *                     have Shopify's default title are replaced)
  *          --publish  also publish the collections to the Online Store (needs read_publications,
@@ -44,6 +45,7 @@ const VIA_CLI = process.argv.includes('--via-cli');
 const PUBLISH_EXISTING = process.argv.includes('--publish');
 const REPLACE_MENUS = process.argv.includes('--replace-menus');
 const argValue = (name) => (process.argv.find((arg) => arg.startsWith(`--${name}=`)) || '').slice(name.length + 3) || null;
+const SKIP_MENU = new Set((argValue('skip-menu') || '').split(',').filter(Boolean));
 const MENU_HANDLE = argValue('menu-handle') || 'main-menu';
 const MENU_TITLE = argValue('menu-title') || 'Menu principal';
 const handlesArg = process.argv.find((arg) => arg.startsWith('--handles='));
@@ -241,7 +243,7 @@ async function setupMenus(collectionIds, pageIds) {
       handle: MENU_HANDLE,
       items: [
         { title: 'Categorias', type: 'CATALOG', items: categories },
-        collectionItem('Ofertas', 'ofertas'),
+        ...(SKIP_MENU.has('ofertas') ? [] : [collectionItem('Ofertas', 'ofertas')]),
         collectionItem('Mais vendidos', 'mais-vendidos'),
         collectionItem('Novidades', 'novidades'),
         pageItem('Contato', 'contact'),
