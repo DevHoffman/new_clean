@@ -13,6 +13,8 @@ const problems = [];
 const report = (where, message) => problems.push(`${where}: ${message}`);
 
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+// Shopify prepends a /* ... */ notice to JSON files it rewrites
+const parseJson = (text) => JSON.parse(text.replace(/^\s*\/\*[\s\S]*?\*\//, ''));
 const list = (dir, extension) => (fs.existsSync(path.join(root, dir)) ? fs.readdirSync(path.join(root, dir)).filter((f) => f.endsWith(extension)).map((f) => `${dir}/${f}`) : []);
 
 function checkSettings(settings, where) {
@@ -58,11 +60,11 @@ list('sections', '.liquid').forEach((file) => {
   });
 });
 
-JSON.parse(read('config/settings_schema.json')).forEach((group) => checkSettings(group.settings, `config/settings_schema.json [${group.name}]`));
+parseJson(read('config/settings_schema.json')).forEach((group) => checkSettings(group.settings, `config/settings_schema.json [${group.name}]`));
 
 // Templates and section groups must point to existing sections, settings and blocks
 [...list('templates', '.json'), ...list('sections', '.json')].forEach((file) => {
-  const data = JSON.parse(read(file));
+  const data = parseJson(read(file));
   Object.entries(data.sections || {}).forEach(([key, section]) => {
     const schema = schemas[section.type];
     if (!schema) {
