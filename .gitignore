@@ -10,3 +10,8 @@ dist/
 
 # Capturas de tela geradas nos testes (12 MB)
 dev/screenshots/
+
+# Integração Tiny: tokens e relatórios
+integracoes/tiny/.tokens.json*
+integracoes/tiny/.state.json
+integracoes/tiny/out/

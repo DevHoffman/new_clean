@@ -5,19 +5,35 @@
         {%- for block in section.blocks -%}
           {%- case block.type -%}
             {%- when 'brand' -%}
-              <div class="footer__column" {{ block.shopify_attributes }}>
-                {%- if block.settings.logo != blank -%}
-                  {{
-                    block.settings.logo
-                    | image_url: width: 320
-                    | image_tag: widths: '160, 320', sizes: '160px', loading: 'lazy', style: 'width: 160px; margin-bottom: 16px;'
-                  }}
-                {%- else -%}
-                  <p class="h3" style="margin-bottom: 12px;">{{ shop.name }}</p>
-                {%- endif -%}
+              <div class="footer__column footer__brand" {{ block.shopify_attributes }}>
+                <a class="footer__logo-link" href="{{ routes.root_url }}" aria-label="{{ shop.name | escape }}">
+                  {%- if block.settings.logo != blank -%}
+                    {{ block.settings.logo | image_url: width: 400 | image_tag: widths: '200, 400', sizes: '200px', loading: 'lazy', alt: shop.name, class: 'footer__logo' }}
+                  {%- elsif settings.logo != blank -%}
+                    {{ settings.logo | image_url: width: 400 | image_tag: widths: '200, 400', sizes: '200px', loading: 'lazy', alt: shop.name, class: 'footer__logo' }}
+                  {%- else -%}
+                    <img class="footer__logo" src="{{ 'logo-new-clean.png' | asset_img_url: '400x' }}" alt="{{ shop.name | escape }}" width="500" height="350" loading="lazy">
+                  {%- endif -%}
+                </a>
                 {%- if block.settings.text != blank -%}
                   <div class="footer__text rte">{{ block.settings.text }}</div>
                 {%- endif -%}
+
+                {%- assign highlight_lines = block.settings.highlights | newline_to_br | split: '<br />' -%}
+                {%- capture highlight_items -%}
+                  {%- for line in highlight_lines -%}
+                    {%- capture highlight -%}{% render 'claims', text: line %}{%- endcapture -%}
+                    {%- assign highlight = highlight | strip -%}
+                    {%- if highlight != blank -%}
+                      <li>{% render 'icon', icon: 'check', size: 14 %}<span>{{ highlight }}</span></li>
+                    {%- endif -%}
+                  {%- endfor -%}
+                {%- endcapture -%}
+                {%- assign highlight_items = highlight_items | strip -%}
+                {%- if highlight_items != blank -%}
+                  <ul class="footer__highlights" role="list">{{ highlight_items }}</ul>
+                {%- endif -%}
+
                 <div class="footer__legal-info">
                   {%- if settings.company_legal_name != blank or settings.company_cnpj != blank -%}
                     <p class="footer__company footer__company--brand">
@@ -240,6 +256,13 @@
           "id": "text",
           "label": "Texto",
           "default": "<p>Materiais de limpeza para empresas e residências, com preço de distribuidora e entrega rápida.</p>"
+        },
+        {
+          "type": "textarea",
+          "id": "highlights",
+          "label": "Destaques (um por linha)",
+          "info": "Opcional. Uma lista curta de ✓ abaixo do texto. Aceita [frete], [pix] e [parcelas]; linhas com token que a loja não cumpre somem sozinhas.",
+          "default": ""
         },
         {
           "type": "checkbox",

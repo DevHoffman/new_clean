@@ -14,7 +14,10 @@
     "push:update": "npm run build && shopify theme push --path dist --ignore config/settings_data.json --store dfd10g-i2.myshopify.com",
     "preview:dist": "npm run build && THEME_DIR=dist node dev/server.js",
     "setup:store": "node dev/admin/setup-store.js",
-    "check:home": "node dev/check-home.js"
+    "check:home": "node dev/check-home.js",
+    "tiny:auth": "node integracoes/tiny/auth.js",
+    "tiny:sync": "node integracoes/tiny/sync.js",
+    "tiny:test": "node integracoes/tiny/test/run-test.js"
   },
   "devDependencies": {
     "@shopify/cli": "^4.8.3",

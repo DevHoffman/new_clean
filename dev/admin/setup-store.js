@@ -13,6 +13,13 @@
  * write_online_store_navigation, read_online_store_navigation.
  *
  * Options: --only=collections,pages,menus   (default: all three)
+ *          --handles=mais-vendidos,ofertas   only create these collections (skips the rest)
+ *          --publish  also publish the collections to the Online Store (needs read_publications,
+ *                     write_publications). New collections are NOT visible on the storefront until
+ *                     published, so this runs automatically for the ones it creates.
+ *          --via-cli  no token needed: uses `shopify store execute` after ONE authorization:
+ *                     npx shopify store auth --store <loja>.myshopify.com \
+ *                       --scopes read_products,write_products,read_content,write_content,read_online_store_navigation,write_online_store_navigation
  *          --by-tag   for the TEST store filled with docs/catalogo/produtos-importacao.csv:
  *                     Mais vendidos and Novidades are built from the tags of that sample
  *                     (mais-vendidos, novidades) instead of taking every product.
@@ -23,11 +30,16 @@ const slug = require('../lib/slug');
 const SITE = 'https://www.distribuidoranewclean.com.br';
 const STORE = process.env.SHOPIFY_STORE || 'dfd10g-i2.myshopify.com';
 const TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
+const CLI = (process.env.SHOPIFY_CLI || 'npx --no-install shopify').split(' ');
 const ENDPOINT = process.env.SHOPIFY_ADMIN_ENDPOINT || `https://${STORE}/admin/api/2025-07/graphql.json`;
 const APPLY = process.argv.includes('--apply');
 const onlyArg = process.argv.find((arg) => arg.startsWith('--only='));
 const ONLY = onlyArg ? onlyArg.slice(7).split(',') : ['collections', 'pages', 'menus'];
 const BY_TAG = process.argv.includes('--by-tag');
+const VIA_CLI = process.argv.includes('--via-cli');
+const PUBLISH_EXISTING = process.argv.includes('--publish');
+const handlesArg = process.argv.find((arg) => arg.startsWith('--handles='));
+const HANDLES = handlesArg ? new Set(handlesArg.slice(10).split(',')) : null;
 
 /* Collections that are not category rules */
 const SPECIAL = [
@@ -68,6 +80,17 @@ const PAGES = [
 ];
 
 async function api(query, variables) {
+  if (VIA_CLI) {
+    // `shopify store execute` runs the query as the account that authorized it
+    const { spawnSync } = require('child_process');
+    const args = [...CLI.slice(1), 'store', 'execute', '--store', STORE, '--query', query, '--variables', JSON.stringify(variables || {}), '--json'];
+    if (/^\s*mutation/.test(query)) args.push('--allow-mutations');
+    const result = spawnSync(CLI[0], args, { encoding: 'utf8', maxBuffer: 50 * 1024 * 1024 });
+    if (result.status !== 0) throw new Error(`shopify store execute falhou: ${(result.stderr || result.stdout).slice(0, 400)}`);
+    const json = JSON.parse(result.stdout.slice(result.stdout.indexOf('{')));
+    if (json.errors) throw new Error(JSON.stringify(json.errors));
+    return json.data || json;
+  }
   const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'X-Shopify-Access-Token': TOKEN },
@@ -96,14 +119,37 @@ async function existingByHandle(field) {
   }
 }
 
+let onlineStoreId = null;
+async function publishCollection(id, title) {
+  try {
+    if (!onlineStoreId) {
+      const data = await api('query Publications { publications(first: 20) { nodes { id name } } }');
+      const online = data.publications.nodes.find((node) => /online store|loja online/i.test(node.name));
+      if (!online) throw new Error('canal Loja online não encontrado');
+      onlineStoreId = online.id;
+    }
+    const result = await api(
+      `mutation PublishCollection($id: ID!, $publicationId: ID!) { publishablePublish(id: $id, input: [{ publicationId: $publicationId }]) { userErrors { field message } } }`,
+      { id, publicationId: onlineStoreId }
+    );
+    const problem = userErrors(result.publishablePublish);
+    if (problem) throw new Error(problem);
+    say('+', `${title} publicada na Loja online`);
+  } catch (error) {
+    say('!', `${title} criada mas NÃO publicada na Loja online (${error.message.slice(0, 160)}). Autorize também read_publications,write_publications ou publique no admin (Coleções > ${title} > Disponibilidade).`);
+  }
+}
+
 async function setupCollections() {
   console.log('\nColeções');
   const existing = await existingByHandle('collections');
   const ids = {};
   for (const item of [...SPECIAL, ...CATEGORY_COLLECTIONS]) {
+    if (HANDLES && !HANDLES.has(item.handle)) continue;
     if (existing[item.handle]) {
       ids[item.handle] = existing[item.handle].id;
       say('=', `${item.title} (${item.handle}) já existe — mantida como está`);
+      if (PUBLISH_EXISTING && APPLY) await publishCollection(existing[item.handle].id, item.title);
       continue;
     }
     if (!APPLY) {
@@ -126,6 +172,7 @@ async function setupCollections() {
     else {
       ids[item.handle] = data.collectionCreate.collection.id;
       say('+', `${item.title} criada`);
+      await publishCollection(ids[item.handle], item.title);
     }
   }
   return ids;
@@ -212,7 +259,7 @@ async function setupMenus(collectionIds, pageIds) {
 }
 
 (async () => {
-  if (!TOKEN) {
+  if (!TOKEN && !VIA_CLI) {
     console.error('\n  Defina SHOPIFY_ADMIN_TOKEN (veja o cabeçalho deste arquivo para criar o token).\n');
     process.exit(1);
   }
@@ -220,9 +267,9 @@ async function setupMenus(collectionIds, pageIds) {
   let collectionIds = {};
   let pageIds = {};
   if (ONLY.includes('collections')) collectionIds = await setupCollections();
-  else collectionIds = Object.fromEntries(Object.entries(await existingByHandle('collections')).map(([h, n]) => [h, n.id]));
+  else if (ONLY.includes('menus')) collectionIds = Object.fromEntries(Object.entries(await existingByHandle('collections')).map(([h, n]) => [h, n.id]));
   if (ONLY.includes('pages')) pageIds = await setupPages();
-  else pageIds = await existingByHandle('pages');
+  else pageIds = ONLY.includes('menus') ? await existingByHandle('pages') : {};
   if (ONLY.includes('menus')) await setupMenus(collectionIds, pageIds);
   console.log('\n  Pronto. Pendências manuais: docs/LANCAMENTO.md\n');
 })().catch((error) => {

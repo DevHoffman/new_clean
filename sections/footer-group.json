@@ -13,7 +13,7 @@
           "type": "menu",
           "settings": {
             "heading": "Institucional",
-            "menu": "footer"
+            "menu": "main-menu"
           }
         },
         "contact": {

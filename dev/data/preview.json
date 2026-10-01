@@ -1,7 +1,7 @@
 {
   "_comment": "Dados usados apenas pela pré-visualização local. Na loja real, menus, páginas e políticas vêm do admin da Shopify.",
   "theme_settings": {
-    "social_whatsapp": "5527992918283",
+    "social_whatsapp": "5527992487715",
     "social_instagram": "https://instagram.com/",
     "help_phone": "(27) 99291-8283",
     "help_email": "contato@example.com",
@@ -14,7 +14,8 @@
     "company_legal_name": "Razão Social de Exemplo Ltda",
     "company_cnpj": "00.000.000/0001-00",
     "company_address": "Endereço de exemplo, 123",
-    "company_city": "Vila Velha/ES"
+    "company_city": "Vila Velha/ES",
+    "installments_max": 6
   },
   "linklists": {
     "main-menu": {

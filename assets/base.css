@@ -2585,6 +2585,38 @@ body.is-locked {
 }
 
 .footer__links a,
+.footer__logo-link {
+  display: inline-block;
+  margin: -10px 0 4px -8px;
+}
+
+.footer__logo {
+  width: 156px;
+  height: auto;
+}
+
+.footer__highlights {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.875rem;
+  font-weight: var(--font-body-weight-bold);
+}
+
+.footer__highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.footer__highlights .icon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--color-success);
+}
+
 .footer__text {
   color: var(--color-text-muted);
 }

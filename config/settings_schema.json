@@ -453,10 +453,10 @@
         "type": "range",
         "id": "installments_max",
         "min": 2,
-        "max": 12,
+        "max": 6,
         "step": 1,
         "label": "Número máximo de parcelas sem juros",
-        "default": 12
+        "default": 6
       },
       {
         "type": "number",

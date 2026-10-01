@@ -96,7 +96,7 @@ O passo a passo completo para publicar está em [`docs/LANCAMENTO.md`](docs/LANC
 Em **Configurações do tema**:
 
 1. **Logo** — envie o logo. Sem ele, o tema usa `assets/logo-new-clean.png`.
-2. **Preço e pagamento** — parcelas (padrão 12x), valor mínimo da parcela e desconto no Pix (padrão 5%).
+2. **Preço e pagamento** — parcelas (máximo 6x, padrão 6x), valor mínimo da parcela e desconto no Pix (padrão 5%).
    O tema apenas *exibe* esses valores; a regra precisa existir no meio de pagamento/checkout.
 3. **Carrinho** — valor do frete grátis (padrão R$ 150), igual à regra de frete da loja.
 4. **Redes sociais** — número do WhatsApp. Ele ativa o botão flutuante, o botão "Falar com um vendedor" da home,
