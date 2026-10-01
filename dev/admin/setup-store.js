@@ -14,6 +14,10 @@
  *
  * Options: --only=collections,pages,menus   (default: all three)
  *          --handles=mais-vendidos,ofertas   only create these collections (skips the rest)
+ *          --menu-handle=menu-new-clean --menu-title="Menu New Clean"   create the main menu under another
+ *                     handle instead of touching `main-menu` (the live theme keeps its menu untouched)
+ *          --replace-menus  also rewrite menus that were already customized (default: only menus that still
+ *                     have Shopify's default title are replaced)
  *          --publish  also publish the collections to the Online Store (needs read_publications,
  *                     write_publications). New collections are NOT visible on the storefront until
  *                     published, so this runs automatically for the ones it creates.
@@ -38,6 +42,10 @@ const ONLY = onlyArg ? onlyArg.slice(7).split(',') : ['collections', 'pages', 'm
 const BY_TAG = process.argv.includes('--by-tag');
 const VIA_CLI = process.argv.includes('--via-cli');
 const PUBLISH_EXISTING = process.argv.includes('--publish');
+const REPLACE_MENUS = process.argv.includes('--replace-menus');
+const argValue = (name) => (process.argv.find((arg) => arg.startsWith(`--${name}=`)) || '').slice(name.length + 3) || null;
+const MENU_HANDLE = argValue('menu-handle') || 'main-menu';
+const MENU_TITLE = argValue('menu-title') || 'Menu principal';
 const handlesArg = process.argv.find((arg) => arg.startsWith('--handles='));
 const HANDLES = handlesArg ? new Set(handlesArg.slice(10).split(',')) : null;
 
@@ -74,7 +82,6 @@ const CATEGORY_COLLECTIONS = Object.entries(groups).map(([title, words]) => ({
 }));
 
 const PAGES = [
-  { title: 'Pedido rápido', handle: 'pedido-rapido', templateSuffix: 'pedido-rapido', body: '' },
   { title: 'Contato', handle: 'contact', templateSuffix: 'contact', body: '' },
   { title: 'Dúvidas frequentes', handle: 'faq', templateSuffix: 'faq', body: '' },
 ];
@@ -204,30 +211,39 @@ async function setupPages() {
 async function setupMenus(collectionIds, pageIds) {
   console.log('\nMenus');
   const existing = await existingByHandle('menus');
-  const collectionItem = (title, handle) =>
-    collectionIds[handle] ? { title, type: 'COLLECTION', resourceId: collectionIds[handle] } : { title, type: 'HTTP', url: `${SITE}/collections/${handle}` };
+  const relative = (title, url) => ({ title, type: 'HTTP', url });
+  // A category whose collection does not exist yet links to a search for its first word, never to a 404
+  const collectionItem = (title, handle) => {
+    if (collectionIds[handle]) return { title, type: 'COLLECTION', resourceId: collectionIds[handle] };
+    const category = CATEGORY_COLLECTIONS.find((item) => item.handle === handle);
+    if (category) return relative(title, `/search?q=${encodeURIComponent(category.rules[0].condition.toLowerCase())}&type=product`);
+    return relative(title, `/collections/${handle}`);
+  };
   const pageItem = (title, handle) =>
-    pageIds[handle] ? { title, type: 'PAGE', resourceId: pageIds[handle].id } : { title, type: 'HTTP', url: `${SITE}/pages/${handle}` };
+    pageIds[handle] ? { title, type: 'PAGE', resourceId: pageIds[handle].id } : relative(title, `/pages/${handle}`);
+  const titleOf = (handle) => (CATEGORY_COLLECTIONS.find((item) => item.handle === handle) || SPECIAL.find((item) => item.handle === handle) || { title: handle }).title;
+
+  // Three levels: the first item with submenus becomes the "Todas as categorias" mega menu
+  const MENU_GROUPS = {
+    'Limpeza geral': ['desinfetantes', 'limpadores-e-multiuso', 'detergentes-e-lava-loucas', 'saboes-e-alvejantes', 'alcool', 'ceras-e-tratamento-de-pisos', 'aromatizantes-e-odorizadores'],
+    'Papéis e descartáveis': ['papel-higienico-e-toalha', 'sacos-de-lixo', 'descartaveis', 'cafe-acucar-e-copa'],
+    'Utensílios': ['vassouras-rodos-e-cabos', 'panos-esponjas-e-fibras', 'luvas', 'dispensers-e-suportes'],
+    'Higiene pessoal': ['sabonetes-e-higiene'],
+  };
+  const categories = Object.entries(MENU_GROUPS).map(([group, handles]) => ({
+    ...collectionItem(group, handles[0]),
+    items: handles.map((handle) => collectionItem(titleOf(handle), handle)),
+  }));
 
   const menus = [
     {
-      title: 'Menu principal',
-      handle: 'main-menu',
+      title: MENU_TITLE,
+      handle: MENU_HANDLE,
       items: [
-        { title: 'Início', type: 'FRONTPAGE' },
-        { title: 'Loja', type: 'CATALOG' },
-        { title: 'Categorias', type: 'COLLECTIONS', items: CATEGORY_COLLECTIONS.map((c) => collectionItem(c.title, c.handle)) },
+        { title: 'Categorias', type: 'CATALOG', items: categories },
+        collectionItem('Ofertas', 'ofertas'),
+        collectionItem('Mais vendidos', 'mais-vendidos'),
         collectionItem('Novidades', 'novidades'),
-        pageItem('Contato', 'contact'),
-      ],
-    },
-    {
-      title: 'Institucional',
-      handle: 'footer',
-      items: [
-        { title: 'Loja', type: 'CATALOG' },
-        { title: 'Buscar', type: 'SEARCH' },
-        pageItem('Dúvidas frequentes', 'faq'),
         pageItem('Contato', 'contact'),
       ],
     },
@@ -236,12 +252,17 @@ async function setupMenus(collectionIds, pageIds) {
   for (const menu of menus) {
     const current = existing[menu.handle];
     // Replacing a menu is the only step that overwrites something: it happens only while the menu still has Shopify's default title, so re-running never undoes later edits
-    if (current && !['Main menu', 'Footer menu'].includes(current.title)) {
-      say('=', `${menu.handle} já foi personalizado ("${current.title}") — mantido`);
+    if (current && !REPLACE_MENUS && !['Main menu', 'Footer menu'].includes(current.title)) {
+      say('=', `${menu.handle} já foi personalizado ("${current.title}") — mantido (use --replace-menus para trocar)`);
       continue;
     }
     if (!APPLY) {
-      say(current ? '~' : '+', `${menu.handle} seria ${current ? 'atualizado' : 'criado'} com ${menu.items.length} itens${menu.handle === 'main-menu' ? ` (Categorias com ${CATEGORY_COLLECTIONS.length} subitens)` : ''}`);
+      const show = (items, depth = 1) => items.forEach((item) => {
+        console.log(`${'    '.repeat(depth)}${item.title}  →  ${item.url || (item.resourceId ? `(${item.type.toLowerCase()} existente)` : item.type)}`);
+        if (item.items) show(item.items, depth + 1);
+      });
+      show(menu.items);
+      say(current ? '~' : '+', `${menu.handle} seria ${current ? 'atualizado' : 'criado'} com ${menu.items.length} itens${menu.handle === MENU_HANDLE ? ` (Categorias com ${Object.keys(MENU_GROUPS).length} grupos)` : ''}`);
       continue;
     }
     const data = current

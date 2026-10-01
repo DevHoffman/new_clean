@@ -7,7 +7,6 @@
     "help_email": "contato@example.com",
     "help_hours": "Seg a sex, 8h às 18h",
     "help_option_1_link": "/search",
-    "help_option_2_link": "/pages/pedido-rapido",
     "help_option_3_link": "/account/login",
     "help_option_4_link": "/pages/faq",
     "pix_confirmed": true,
@@ -21,14 +20,6 @@
     "main-menu": {
       "title": "Menu principal",
       "links": [
-        {
-          "title": "Início",
-          "url": "/"
-        },
-        {
-          "title": "Loja",
-          "url": "/collections/all"
-        },
         {
           "title": "Categorias",
           "url": "/collections/all",
@@ -110,6 +101,14 @@
               ]
             }
           ]
+        },
+        {
+          "title": "Ofertas",
+          "url": "/collections/ofertas"
+        },
+        {
+          "title": "Mais vendidos",
+          "url": "/collections/mais-vendidos"
         },
         {
           "title": "Novidades",

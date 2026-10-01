@@ -6,12 +6,18 @@ Para cada item, escolha **Adicionar item de menu**, digite o nome e cole o link 
 
 Quando as 16 coleções existirem (docs/colecoes.md), troque os links de busca (`/search?q=…`) pelas coleções.
 
-## Menu principal
+## Menu principal (alta conversão)
 
-Endereço (handle) do menu: `main-menu`
+Endereço (handle) do menu: `main-menu`, aplicado na loja real com `npm run setup:store -- --via-cli --only=menus --replace-menus --apply`. O cabeçalho e o rodapé usam este menu.
 
-- **Início** → `/`
-- **Loja** → `/collections/all`
+1. **Todas as categorias** (mega menu com 3 níveis)
+2. **Ofertas** (destacado em vermelho pela configuração "Item de menu em destaque")
+3. **Mais vendidos**
+4. **Novidades**
+5. **Contato**
+
+Não colocar "Início" (o logo já leva à Home) nem "Loja" (o botão de categorias e o link "Ver todas as categorias" cobrem). O mesmo menu aparece na coluna Institucional do rodapé.
+
 - **Categorias** → `/collections/all`
   - **Limpeza geral** → `/search?q=limpador&type=product`
     - **Desinfetantes** → `/search?q=desinfetante&type=product`
@@ -30,6 +36,8 @@ Endereço (handle) do menu: `main-menu`
   - **Higiene pessoal** → `/search?q=sabonete&type=product`
     - **Sabonetes** → `/search?q=sabonete&type=product`
     - **Saboneteiras e dispensers** → `/search?q=saboneteira&type=product`
+- **Ofertas** → `/collections/ofertas`
+- **Mais vendidos** → `/collections/mais-vendidos`
 - **Novidades** → `/collections/novidades`
 - **Contato** → `/pages/contact`
 

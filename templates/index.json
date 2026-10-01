@@ -281,8 +281,7 @@
           "settings": {
             "title": "Condomínios",
             "text": "Áreas comuns e portaria",
-            "icon": "building",
-            "link": "/pages/pedido-rapido"
+            "icon": "building"
           }
         },
         "shop_by_concern_concern_2": {
@@ -290,8 +289,7 @@
           "settings": {
             "title": "Restaurantes e bares",
             "text": "Cozinha, salão e banheiros",
-            "icon": "utensils",
-            "link": "/pages/pedido-rapido"
+            "icon": "utensils"
           }
         },
         "shop_by_concern_concern_3": {
@@ -299,8 +297,7 @@
           "settings": {
             "title": "Clínicas e consultórios",
             "text": "Higiene e descartáveis",
-            "icon": "medical",
-            "link": "/pages/pedido-rapido"
+            "icon": "medical"
           }
         },
         "shop_by_concern_concern_4": {
@@ -308,8 +305,7 @@
           "settings": {
             "title": "Escritórios",
             "text": "Copa, banheiros e estações",
-            "icon": "briefcase",
-            "link": "/pages/pedido-rapido"
+            "icon": "briefcase"
           }
         },
         "shop_by_concern_concern_5": {
@@ -317,8 +313,7 @@
           "settings": {
             "title": "Escolas",
             "text": "Salas, pátios e refeitório",
-            "icon": "school",
-            "link": "/pages/pedido-rapido"
+            "icon": "school"
           }
         },
         "shop_by_concern_concern_6": {
@@ -345,7 +340,8 @@
         "columns_desktop": 6,
         "color_scheme": "alt",
         "padding_top": 56,
-        "padding_bottom": 56
+        "padding_bottom": 56,
+        "whatsapp_fallback": true
       }
     },
     "faq": {

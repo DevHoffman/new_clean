@@ -545,6 +545,8 @@ async function handleCartApi(req, res, url, sessionId) {
     if (route === '/cart/shipping_rates' || route === '/cart/async_shipping_rates') {
       const zip = String(url.searchParams.get('shipping_address[zip]') || '').replace(/\D/g, '');
       if (zip.length !== 8) return sendJson(res, 422, { zip: ['CEP inválido'] });
+      // Like the real Shopify: Brazilian rates need a state
+      if ((url.searchParams.get('shipping_address[country]') || 'BR') === 'BR' && !url.searchParams.get('shipping_address[province]')) return sendJson(res, 422, { province: ['Selecione um estado'] });
       const cart = store.buildCart(state);
       const free = cart.total_price >= 15000;
       const local = zip.startsWith('29');

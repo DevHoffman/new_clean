@@ -20,6 +20,7 @@ function checkSettings(settings, where) {
     (setting.options || []).forEach((option) => {
       if ((option.label || '').length > 50) report(where, `"${setting.id}" option label > 50 chars: ${option.label}`);
     });
+    if (setting.default === '') report(where, `"${setting.id}" has an empty default (Shopify refuses it: remove the "default" key)`);
     if ((setting.unit || '').length > 3) report(where, `"${setting.id}" unit > 3 chars: ${setting.unit}`);
     if (setting.type === 'range') {
       const steps = (setting.max - setting.min) / setting.step;

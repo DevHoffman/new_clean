@@ -26,10 +26,21 @@
       role="list"
       style="--cols-mobile: 2; --cols-tablet: 3; --cols-desktop: {{ section.settings.columns_desktop }};"
     >
+      {%- assign concern_wa = settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | strip -%}
       {%- for block in section.blocks -%}
+        {%- liquid
+          assign card_link = block.settings.link
+          assign card_external = false
+          if card_link == blank and section.settings.whatsapp_fallback and concern_wa != blank
+            assign concern_message = 'Olá! Quero fazer um pedido para o segmento: ' | append: block.settings.title
+            assign concern_message = concern_message | url_encode
+            assign card_link = 'https://wa.me/' | append: concern_wa | append: '?text=' | append: concern_message
+            assign card_external = true
+          endif
+        -%}
         <li {{ block.shopify_attributes }}>
-          {%- if block.settings.link != blank -%}
-            <a class="shop-by-concern__card" href="{{ block.settings.link }}">
+          {%- if card_link != blank -%}
+            <a class="shop-by-concern__card" href="{{ card_link }}"{% if card_external %} target="_blank" rel="noopener"{% endif %}>
           {%- else -%}
             <div class="shop-by-concern__card">
           {%- endif -%}
@@ -52,7 +63,7 @@
               <span class="shop-by-concern__text">{{ block.settings.text }}</span>
             {%- endif -%}
           </span>
-          {%- if block.settings.link != blank -%}
+          {%- if card_link != blank -%}
             </a>
           {%- else -%}
             </div>
@@ -69,6 +80,13 @@
   "tag": "section",
   "max_blocks": 12,
   "settings": [
+    {
+      "type": "checkbox",
+      "id": "whatsapp_fallback",
+      "label": "Abrir o WhatsApp quando o bloco não tem link",
+      "info": "Mensagem pronta com o nome do segmento, usando o número de Configurações do tema > Redes sociais.",
+      "default": true
+    },
     {
       "type": "text",
       "id": "eyebrow",

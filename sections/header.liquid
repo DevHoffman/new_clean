@@ -2,11 +2,30 @@
   assign menu = section.settings.menu
   assign highlight = section.settings.highlight_title | downcase | strip
   assign popular_terms = settings.search_popular_terms | newline_to_br | split: '<br />'
+
+  comment
+    Two-row desktop header (logo + wide search + contact/account/cart, then the
+    menu bar). The classic layout keeps everything on one row.
+  endcomment
+  assign two_rows = false
+  if section.settings.layout == 'two_rows'
+    assign two_rows = true
+  endif
+  assign header_wa = settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' | remove: '(' | remove: ')' | strip
+  assign header_wa_label = header_wa
+  if header_wa.size == 13 and header_wa contains '55'
+    assign wa_ddd = header_wa | slice: 2, 2
+    assign wa_a = header_wa | slice: 4, 5
+    assign wa_b = header_wa | slice: 9, 4
+    assign header_wa_label = '(' | append: wa_ddd | append: ') ' | append: wa_a | append: '-' | append: wa_b
+  endif
+  assign catalog_done = false
+  assign drawer_open_done = false
 -%}
 
 <sticky-header data-sticky="{{ section.settings.sticky }}">
   <header
-    class="header{% if section.settings.logo_position == 'center' %} header--logo-center{% endif %}"
+    class="header{% if section.settings.logo_position == 'center' and two_rows == false %} header--logo-center{% endif %}{% if two_rows %} header--two-rows{% endif %}"
     style="--logo-width: {{ settings.logo_width }}px; --logo-width-mobile: {{ settings.logo_width_mobile }}px;"
   >
     <div class="container header__inner">
@@ -14,9 +33,11 @@
         <button type="button" class="icon-button" data-modal-open="#MenuDrawer" aria-haspopup="dialog" aria-label="{{ 'sections.header.menu' | t }}">
           {% render 'icon', icon: 'menu', size: 22 %}
         </button>
-        <button type="button" class="icon-button" data-modal-open="#SearchModal" aria-haspopup="dialog" aria-label="{{ 'sections.header.search' | t }}">
-          {% render 'icon', icon: 'search', size: 22 %}
-        </button>
+        {%- unless two_rows -%}
+          <button type="button" class="icon-button" data-modal-open="#SearchModal" aria-haspopup="dialog" aria-label="{{ 'sections.header.search' | t }}">
+            {% render 'icon', icon: 'search', size: 22 %}
+          </button>
+        {%- endunless -%}
       </div>
 
       <div class="header__logo">
@@ -52,6 +73,16 @@
         </a>
       </div>
 
+      {%- if two_rows -%}
+        <button type="button" class="header__search" data-modal-open="#SearchModal" aria-haspopup="dialog" aria-label="{{ 'sections.header.search' | t }}">
+          <span class="header__search-text">
+            {% render 'icon', icon: 'search', size: 18 %}
+            <span>{{ 'sections.header.search_placeholder' | t }}</span>
+          </span>
+          <span class="header__search-go" aria-hidden="true">{% render 'icon', icon: 'search', size: 20 %}</span>
+        </button>
+      {%- endif -%}
+
       <nav class="header__nav" aria-label="{{ 'sections.header.main_menu' | t }}">
         <ul class="nav" role="list">
           {%- for link in menu.links -%}
@@ -64,16 +95,26 @@
                 endif
               endfor
               assign promos = section.blocks | where: 'type', 'mega_promo'
-              assign promo = blank
+              assign has_promo = false
               for candidate in promos
                 assign candidate_title = candidate.settings.menu_item | downcase | strip
                 if candidate_title == link_title
-                  assign promo = candidate
                   assign is_mega = true
+                  if candidate.settings.image != blank
+                    assign promo = candidate
+                    assign has_promo = true
+                  endif
                 endif
               endfor
             -%}
-            <li class="nav__item{% if link.links.size > 0 and is_mega == false %} nav__item--simple{% endif %}">
+            {%- liquid
+              assign is_catalog = false
+              if two_rows and is_mega and catalog_done == false
+                assign is_catalog = true
+                assign catalog_done = true
+              endif
+            -%}
+            <li class="nav__item{% if link.links.size > 0 and is_mega == false %} nav__item--simple{% endif %}{% if is_catalog %} nav__item--catalog{% endif %}">
               <a
                 href="{{ link.url }}"
                 class="nav__link{% if link_title == highlight %} nav__link--highlight{% endif %}"
@@ -84,7 +125,12 @@
                   aria-haspopup="true" aria-expanded="false"
                 {% endif %}
               >
-                {% render 'menu-title', title: link.title %}
+                {%- if is_catalog -%}
+                  {% render 'icon', icon: 'menu', size: 18 %}
+                  {{ section.settings.catalog_label | default: link.title }}
+                {%- else -%}
+                  {% render 'menu-title', title: link.title %}
+                {%- endif -%}
                 {%- if link.links.size > 0 -%}
                   {% render 'icon', icon: 'chevron-down', size: 12 %}
                 {%- endif -%}
@@ -94,7 +140,7 @@
                 <div class="nav__dropdown">
                   {%- if is_mega -%}
                     <div class="container">
-                      <div class="mega-menu{% if promo %} mega-menu--has-promo{% endif %}">
+                      <div class="mega-menu{% if has_promo %} mega-menu--has-promo{% endif %}">
                         <div class="mega-menu__columns">
                           {%- for child in link.links -%}
                             <div>
@@ -111,18 +157,14 @@
                             </div>
                           {%- endfor -%}
                         </div>
-                        {%- if promo -%}
+                        {%- if has_promo -%}
                           <a href="{{ promo.settings.link | default: link.url }}" class="mega-menu__promo" {{ promo.shopify_attributes }}>
                             <div class="media">
-                              {%- if promo.settings.image -%}
-                                {{
-                                  promo.settings.image
-                                  | image_url: width: 640
-                                  | image_tag: widths: '320, 480, 640', sizes: '320px', loading: 'lazy'
-                                }}
-                              {%- else -%}
-                                {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
-                              {%- endif -%}
+                              {{
+                                promo.settings.image
+                                | image_url: width: 640
+                                | image_tag: widths: '320, 480, 640', sizes: '320px', loading: 'lazy', alt: promo.settings.title
+                              }}
                             </div>
                             {%- if promo.settings.title != blank -%}
                               <p class="mega-menu__promo-title">{{ promo.settings.title }}</p>
@@ -133,6 +175,12 @@
                           </a>
                         {%- endif -%}
                       </div>
+                      {%- if is_catalog -%}
+                        <a class="mega-menu__all" href="{{ routes.collections_url }}">
+                          {{ section.settings.all_categories_label | default: 'Ver todas as categorias' }}
+                          {% render 'icon', icon: 'arrow-right', size: 16 %}
+                        </a>
+                      {%- endif -%}
                     </div>
                   {%- else -%}
                     <ul role="list">
@@ -151,15 +199,31 @@
       </nav>
 
       <div class="header__right">
-        <button
-          type="button"
-          class="icon-button header__account"
-          data-modal-open="#SearchModal"
-          aria-haspopup="dialog"
-          aria-label="{{ 'sections.header.search' | t }}"
-        >
-          {% render 'icon', icon: 'search', size: 22 %}
-        </button>
+        {%- if two_rows and section.settings.show_contact and header_wa != blank -%}
+          <a
+            class="header__contact"
+            href="https://wa.me/{{ header_wa }}?text={{ settings.whatsapp_message | url_encode }}"
+            target="_blank"
+            rel="noopener"
+          >
+            {% render 'icon', icon: 'whatsapp', size: 24 %}
+            <span class="header__contact-text">
+              <small>{{ section.settings.contact_label }}</small>
+              <strong>{{ header_wa_label }}</strong>
+            </span>
+          </a>
+        {%- endif -%}
+        {%- unless two_rows -%}
+          <button
+            type="button"
+            class="icon-button header__account"
+            data-modal-open="#SearchModal"
+            aria-haspopup="dialog"
+            aria-label="{{ 'sections.header.search' | t }}"
+          >
+            {% render 'icon', icon: 'search', size: 22 %}
+          </button>
+        {%- endunless -%}
         {%- if shop.customer_accounts_enabled -%}
           <a
             href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
@@ -167,6 +231,9 @@
             aria-label="{% if customer %}{{ 'sections.header.account' | t }}{% else %}{{ 'sections.header.login' | t }}{% endif %}"
           >
             {% render 'icon', icon: 'account', size: 22 %}
+            {%- if two_rows -%}
+              <span class="header__label">{% if customer %}{{ 'sections.header.account' | t }}{% else %}{{ 'sections.header.login' | t }}{% endif %}</span>
+            {%- endif -%}
           </a>
         {%- endif -%}
         <a
@@ -181,6 +248,9 @@
           <span class="cart-count" data-cart-count data-count="{{ cart.item_count }}" aria-hidden="true">
             {{- cart.item_count -}}
           </span>
+          {%- if two_rows -%}
+            <span class="header__label">{{ 'sections.header.cart' | t }}</span>
+          {%- endif -%}
         </a>
       </div>
     </div>
@@ -198,13 +268,21 @@
       </button>
     </div>
     <div class="drawer__body">
+      {%- if two_rows -%}
+      <form class="menu-drawer__search" action="{{ routes.search_url }}" method="get" role="search">
+        <label class="visually-hidden" for="DrawerSearch">{{ 'sections.header.search' | t }}</label>
+        {% render 'icon', icon: 'search', size: 18 %}
+        <input id="DrawerSearch" type="search" name="q" placeholder="{{ 'sections.header.search_placeholder' | t }}" autocomplete="off">
+        <input type="hidden" name="options[prefix]" value="last">
+      </form>
+      {%- endif -%}
       <nav aria-label="{{ 'sections.header.main_menu' | t }}">
         <ul class="menu-drawer__nav" role="list">
           {%- for link in menu.links -%}
             {%- assign link_title = link.title | downcase | strip -%}
             <li>
               {%- if link.links.size > 0 -%}
-                <details>
+                <details{% if two_rows and drawer_open_done == false %} open{% assign drawer_open_done = true %}{% endif %}>
                   <summary class="menu-drawer__link{% if link_title == highlight %} menu-drawer__link--highlight{% endif %}">
                     {% render 'menu-title', title: link.title %}
                     {% render 'icon', icon: 'chevron-down', size: 16 %}
@@ -254,6 +332,12 @@
           <a href="{{ section.settings.help_link }}">
             {% render 'icon', icon: 'chat', size: 18 %}
             {{ 'sections.header.help' | t }}
+          </a>
+        {%- endif -%}
+        {%- if two_rows and header_wa != blank -%}
+          <a class="button menu-drawer__whatsapp" href="https://wa.me/{{ header_wa }}?text={{ settings.whatsapp_message | url_encode }}" target="_blank" rel="noopener">
+            {% render 'icon', icon: 'whatsapp', size: 18 %}
+            <span class="button__label">{{ section.settings.contact_label | default: 'Atendimento' }} · {{ header_wa_label }}</span>
           </a>
         {%- endif -%}
         {% render 'social-icons' %}
@@ -332,6 +416,43 @@
       "label": "Menu",
       "default": "main-menu",
       "info": "Menus com três níveis são exibidos como mega menu no desktop."
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout do cabeçalho (desktop)",
+      "options": [
+        { "value": "classic", "label": "Clássico: uma linha, busca em ícone" },
+        { "value": "two_rows", "label": "Duas linhas: busca em destaque + barra de menu" }
+      ],
+      "info": "Duas linhas: busca sempre visível, contato e o menu numa barra própria. No celular a busca aparece numa barra sob o logo. O clássico é o padrão.",
+      "default": "classic"
+    },
+    {
+      "type": "text",
+      "id": "catalog_label",
+      "label": "Texto do botão de categorias",
+      "info": "O primeiro item do menu que tem submenus vira este botão (só no layout de duas linhas).",
+      "default": "Todas as categorias"
+    },
+    {
+      "type": "text",
+      "id": "all_categories_label",
+      "label": "Texto do link no fim do mega menu",
+      "default": "Ver todas as categorias"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_contact",
+      "label": "Mostrar o WhatsApp da loja no cabeçalho",
+      "info": "Usa o número de Configurações do tema > Redes sociais.",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "contact_label",
+      "label": "Texto acima do número",
+      "default": "Atendimento"
     },
     {
       "type": "header",
