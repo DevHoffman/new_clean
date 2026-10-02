@@ -2816,15 +2816,21 @@ body.is-locked {
   margin-top: 10px;
 }
 
-.footer__links a,
 .footer__logo-link {
   display: inline-block;
-  margin: -10px 0 4px -8px;
+  margin: 0 0 14px -8px;
 }
 
 .footer__logo {
+  display: block;
   width: 156px;
   height: auto;
+}
+
+/* The bundled logo file has generous padding; crop it to the artwork */
+.footer__logo--fallback {
+  aspect-ratio: 42 / 19;
+  object-fit: cover;
 }
 
 .footer__highlights {

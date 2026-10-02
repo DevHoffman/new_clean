@@ -12,7 +12,7 @@
                   {%- elsif settings.logo != blank -%}
                     {{ settings.logo | image_url: width: 400 | image_tag: widths: '200, 400', sizes: '200px', loading: 'lazy', alt: shop.name, class: 'footer__logo' }}
                   {%- else -%}
-                    <img class="footer__logo" src="{{ 'logo-new-clean.png' | asset_img_url: '400x' }}" alt="{{ shop.name | escape }}" width="500" height="350" loading="lazy">
+                    <img class="footer__logo footer__logo--fallback" src="{{ 'logo-new-clean.png' | asset_img_url: '400x' }}" alt="{{ shop.name | escape }}" width="500" height="350" loading="lazy">
                   {%- endif -%}
                 </a>
                 {%- if block.settings.text != blank -%}
@@ -92,27 +92,14 @@
               <div class="footer__column" {{ block.shopify_attributes }}>
                 <h2 class="footer__heading">{{ block.settings.heading }}</h2>
                 <ul class="footer__links" role="list">
-                  {%- if settings.social_whatsapp != blank -%}
-                    <li>
-                      <a href="https://wa.me/{{ settings.social_whatsapp | remove: '+' | remove: ' ' | remove: '-' }}" target="_blank" rel="noopener">
-                        {{ 'general.whatsapp' | t }}
-                      </a>
-                    </li>
-                  {%- endif -%}
                   {%- if settings.help_phone != blank -%}
                     <li>
                       <a href="tel:{{ settings.help_phone | remove: ' ' | remove: '-' | remove: '(' | remove: ')' }}">{{ settings.help_phone }}</a>
                     </li>
                   {%- endif -%}
                   {%- liquid
-                    assign footer_email = block.settings.email | default: settings.help_email
                     assign footer_hours = block.settings.hours | default: settings.help_hours
                   -%}
-                  {%- if footer_email != blank -%}
-                    <li>
-                      <a href="mailto:{{ footer_email }}">{{ footer_email }}</a>
-                    </li>
-                  {%- endif -%}
                   {%- if settings.company_address != blank or settings.company_city != blank -%}
                     <li class="footer__text footer__address">
                       {%- if settings.company_address != blank -%}{{ settings.company_address }}{%- endif -%}
@@ -332,12 +319,6 @@
           "id": "heading",
           "label": "Título",
           "default": "Atendimento"
-        },
-        {
-          "type": "text",
-          "id": "email",
-          "label": "E-mail",
-          "info": "Em branco, usa o e-mail da Central de ajuda."
         },
         {
           "type": "text",
