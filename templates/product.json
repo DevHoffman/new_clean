@@ -49,7 +49,9 @@
         },
         "description": {
           "type": "description",
-          "settings": {}
+          "settings": {
+            "open": true
+          }
         },
         "shipping": {
           "type": "accordion",
