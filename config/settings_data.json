@@ -8,6 +8,7 @@
     "company_legal_name": "New Clean Distribuidora de Materiais de Limpeza Ltda",
     "company_cnpj": "55.066.706/0001-48",
     "company_address": "Av. Santa Leopoldina, 756 – Itaparica",
-    "company_city": "Vila Velha/ES"
+    "company_city": "Vila Velha/ES",
+    "smooth_scroll": false
   }
 }

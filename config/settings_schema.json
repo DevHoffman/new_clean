@@ -261,8 +261,8 @@
         "type": "checkbox",
         "id": "smooth_scroll",
         "label": "Rolagem suave com inércia",
-        "info": "Aplica-se à roda do mouse no desktop. Touch e trackpad mantêm a rolagem nativa.",
-        "default": true
+        "info": "Aplica-se à roda do mouse no desktop. Pode causar travamentos em alguns computadores, por isso vem desligada: a rolagem nativa do navegador é mais fluida.",
+        "default": false
       },
       {
         "type": "checkbox",

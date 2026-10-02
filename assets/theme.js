@@ -617,6 +617,10 @@ class SliderComponent extends HTMLElement {
       this.autoscrollObserver.observe(this);
     }
 
+    // The page itself scrolling is the priority: stay still while it does
+    let pageScrollingUntil = 0;
+    window.addEventListener('scroll', () => { pageScrollingUntil = performance.now() + 200; }, { passive: true });
+
     let position = this.slider.scrollLeft;
     let lastSet = position;
     let last = performance.now();
@@ -627,7 +631,7 @@ class SliderComponent extends HTMLElement {
       if (document.hidden || !inView) return;
       // Somebody else moved the scroll (touch, arrows, keyboard): follow it
       if (Math.abs(this.slider.scrollLeft - lastSet) > 1.5) position = this.slider.scrollLeft;
-      if (hovering || touching || now < this.pauseUntil) return;
+      if (hovering || touching || now < this.pauseUntil || now < pageScrollingUntil) return;
       position += speed * delta;
       if (this.loopWidth && position >= this.loopWidth) position -= this.loopWidth;
       this.slider.scrollLeft = position;
@@ -1666,10 +1670,23 @@ class BackToTop extends HTMLElement {
   }
 
   update() {
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = max > 0 ? Math.min(100, (window.scrollY / max) * 100) : 0;
-    this.style.setProperty('--progress', progress.toFixed(1));
-    this.classList.toggle('is-visible', window.scrollY > 400);
+    // scrollHeight forces layout: read it at most twice a second, not on every frame
+    const now = performance.now();
+    if (this.max === undefined || now - this.maxAt > 500) {
+      this.max = document.documentElement.scrollHeight - window.innerHeight;
+      this.maxAt = now;
+    }
+    const progress = this.max > 0 ? Math.min(100, (window.scrollY / this.max) * 100) : 0;
+    const rounded = progress.toFixed(1);
+    if (rounded !== this.lastProgress) {
+      this.lastProgress = rounded;
+      this.style.setProperty('--progress', rounded);
+    }
+    const visible = window.scrollY > 400;
+    if (visible !== this.lastVisible) {
+      this.lastVisible = visible;
+      this.classList.toggle('is-visible', visible);
+    }
   }
 }
 

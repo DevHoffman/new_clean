@@ -148,13 +148,13 @@
   margin-top: 32px;
 }
 
-/* Endless marquee (same mechanism as the brand strip) */
+/* Endless marquee (same mechanism as the brand strip).
+   The soft edges are plain gradients on top, not a mask: a mask makes the
+   browser repaint the moving strip on every frame and the page scroll stutters. */
 .category-tiles__marquee {
   position: relative;
   overflow: hidden;
   padding-block: 8px 12px;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
 
 .category-tiles__track {
@@ -210,6 +210,34 @@
   }
 
   .category-tiles__track > .category-tiles__items:not(:first-child) {
+    display: none;
+  }
+}
+
+.category-tiles__marquee::before,
+.category-tiles__marquee::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: clamp(24px, 6%, 80px);
+  pointer-events: none;
+}
+
+.category-tiles__marquee::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--color-bg), transparent);
+}
+
+.category-tiles__marquee::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--color-bg), transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-tiles__marquee::before,
+  .category-tiles__marquee::after {
     display: none;
   }
 }
