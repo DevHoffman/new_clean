@@ -224,7 +224,7 @@
             {% render 'icon', icon: 'search', size: 22 %}
           </button>
         {%- endunless -%}
-        {%- if shop.customer_accounts_enabled -%}
+        {%- if shop.customer_accounts_enabled and section.settings.show_account -%}
           <a
             href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}"
             class="icon-button header__account"
@@ -318,7 +318,7 @@
       </nav>
 
       <div class="menu-drawer__utility">
-        {%- if shop.customer_accounts_enabled -%}
+        {%- if shop.customer_accounts_enabled and section.settings.show_account -%}
           <a href="{% if customer %}{{ routes.account_url }}{% else %}{{ routes.account_login_url }}{% endif %}">
             {% render 'icon', icon: 'account', size: 18 %}
             {%- if customer -%}
@@ -416,6 +416,13 @@
       "label": "Menu",
       "default": "main-menu",
       "info": "Menus com três níveis são exibidos como mega menu no desktop."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account",
+      "label": "Mostrar ícone de login / minha conta",
+      "info": "Desligado por padrão: a loja não usa login de cliente.",
+      "default": false
     },
     {
       "type": "select",

@@ -27,6 +27,16 @@ class ProductGallery extends HTMLElement {
     );
     this.track.querySelectorAll('[data-media-id]').forEach((slide) => this.observer.observe(slide));
 
+    // Zoom origin follows the cursor (the scale itself is CSS, hover devices only)
+    this.addEventListener('pointermove', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      const media = event.target.closest('.product-media[data-zoom-src]');
+      if (!media) return;
+      const rect = media.getBoundingClientRect();
+      media.style.setProperty('--zoom-x', `${((event.clientX - rect.left) / rect.width) * 100}%`);
+      media.style.setProperty('--zoom-y', `${((event.clientY - rect.top) / rect.height) * 100}%`);
+    });
+
     this.addEventListener('click', (event) => {
       const trigger = event.target.closest('[data-zoom-src]');
       if (trigger) this.zoom(trigger);
