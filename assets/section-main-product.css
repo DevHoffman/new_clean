@@ -342,6 +342,106 @@ deferred-media iframe {
   margin-top: 28px;
 }
 
+/* Programe e Poupe (selling plans)
+   ========================================================================== */
+.selling-plans {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.selling-plans__title {
+  padding: 0;
+  margin-bottom: 4px;
+  font-size: 0.875rem;
+  font-weight: var(--font-body-weight-bold);
+}
+
+.selling-plans__text {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+
+.selling-plans__options {
+  display: grid;
+  gap: 8px;
+}
+
+.selling-plans__option {
+  display: block;
+  cursor: pointer;
+}
+
+.selling-plans__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.selling-plans__card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-button);
+  font-size: 0.875rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.selling-plans__option:hover .selling-plans__card {
+  border-color: var(--color-text);
+}
+
+.selling-plans__input:checked + .selling-plans__card {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 1px var(--color-text);
+}
+
+.selling-plans__input:focus-visible + .selling-plans__card {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
+.selling-plans__radio {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--color-bg);
+}
+
+.selling-plans__input:checked + .selling-plans__card .selling-plans__radio {
+  border-color: var(--color-text);
+  background: var(--color-text);
+}
+
+.selling-plans__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-weight: var(--font-body-weight-bold);
+}
+
+.selling-plans__price {
+  text-align: right;
+  font-weight: var(--font-body-weight-bold);
+}
+
+.selling-plans__was {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: var(--font-body-weight);
+  color: var(--color-text-muted);
+}
+
 /* Variant picker
    ========================================================================== */
 .variant-picker {

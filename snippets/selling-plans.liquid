@@ -1,0 +1,100 @@
+{%- comment -%}
+  "Programe e Poupe": lets the shopper pick a subscription plan (Shopify selling plans)
+  or a one-time purchase. Renders nothing when the selected variant has no plan.
+
+  The radios use the form attribute so they post with the product form, and the
+  add-to-cart script already forwards the selling_plan field.
+
+  Accepts:
+  - product: {Object} product (required)
+  - variant: {Object} selected variant (required)
+  - form_id: {String} id of the product form (required)
+  - heading: {String} title of the box (optional)
+  - text: {String} line under the title (optional)
+
+  Usage:
+  {% render 'selling-plans', product: product, variant: variant, form_id: form_id %}
+{%- endcomment -%}
+
+{%- assign allocations = variant.selling_plan_allocations -%}
+
+{%- if allocations.size > 0 -%}
+  {%- liquid
+    assign preselected = variant.selected_selling_plan_allocation.selling_plan.id
+    if product.requires_selling_plan and preselected == blank
+      assign preselected = allocations.first.selling_plan.id
+    endif
+  -%}
+
+  <fieldset class="selling-plans" data-selling-plans>
+    <legend class="selling-plans__title">
+      {%- if heading != blank -%}
+        {{ heading }}
+      {%- else -%}
+        {{ 'products.product.selling_plans.heading' | t }}
+      {%- endif -%}
+    </legend>
+    {%- if text != blank -%}
+      <p class="selling-plans__text">{{ text }}</p>
+    {%- endif -%}
+
+    <div class="selling-plans__options">
+      {%- unless product.requires_selling_plan -%}
+        <label class="selling-plans__option">
+          <input
+            type="radio"
+            class="selling-plans__input"
+            name="selling_plan"
+            value=""
+            form="{{ form_id }}"
+            {% if preselected == blank %}
+              checked
+            {% endif %}
+          >
+          <span class="selling-plans__card">
+            <span class="selling-plans__radio" aria-hidden="true"></span>
+            <span class="selling-plans__name">{{ 'products.product.selling_plans.one_time' | t }}</span>
+            <span class="selling-plans__price">{{ variant.price | money }}</span>
+          </span>
+        </label>
+      {%- endunless -%}
+
+      {%- for allocation in allocations -%}
+        {%- liquid
+          assign plan_price = allocation.per_delivery_price
+          assign saving = 0
+          if variant.price > plan_price
+            assign saving = variant.price | minus: plan_price | times: 100.0 | divided_by: variant.price | round
+          endif
+        -%}
+        <label class="selling-plans__option">
+          <input
+            type="radio"
+            class="selling-plans__input"
+            name="selling_plan"
+            value="{{ allocation.selling_plan.id }}"
+            form="{{ form_id }}"
+            {% if allocation.selling_plan.id == preselected %}
+              checked
+            {% endif %}
+          >
+          <span class="selling-plans__card">
+            <span class="selling-plans__radio" aria-hidden="true"></span>
+            <span class="selling-plans__name">
+              {{ allocation.selling_plan.name }}
+              {%- if saving > 0 -%}
+                <span class="badge badge--success">{{ 'products.product.selling_plans.save' | t: percent: saving }}</span>
+              {%- endif -%}
+            </span>
+            <span class="selling-plans__price">
+              {{ plan_price | money }}
+              {%- if saving > 0 -%}
+                <s class="selling-plans__was">{{ variant.price | money }}</s>
+              {%- endif -%}
+            </span>
+          </span>
+        </label>
+      {%- endfor -%}
+    </div>
+  </fieldset>
+{%- endif -%}

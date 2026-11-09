@@ -78,6 +78,11 @@
           "other": "{{ count }} avaliações"
         }
       },
+      "selling_plans": {
+        "heading": "Programe e Poupe",
+        "one_time": "Compra única",
+        "save": "Economize {{ percent }}%"
+      },
       "quantity": {
         "label": "Quantidade",
         "decrease": "Diminuir quantidade",

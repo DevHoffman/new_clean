@@ -184,6 +184,33 @@ if (process.env.PREVIEW_DEMO_SECOND_IMAGE) {
 }
 
 /*
+ * Selling plans ("Programe e Poupe") need a subscription app. To preview the
+ * selector on every product:  PREVIEW_DEMO_SUBSCRIPTION=1 npm run preview
+ */
+if (process.env.PREVIEW_DEMO_SUBSCRIPTION) {
+  const plans = [
+    { id: 9001, name: 'Entrega a cada 15 dias', discount: 0.1 },
+    { id: 9002, name: 'Entrega a cada 30 dias', discount: 0.1 },
+    { id: 9003, name: 'Entrega a cada 60 dias', discount: 0.05 },
+  ];
+  products.forEach((product) => {
+    product.selling_plan_groups = [{ id: 9000, name: 'Programe e Poupe', selling_plans: plans }];
+    product.variants.forEach((variant) => {
+      variant.selling_plan_allocations = plans.map((plan) => {
+        const price = Math.round(variant.price * (1 - plan.discount));
+        return {
+          selling_plan: { id: plan.id, name: plan.name },
+          selling_plan_group_id: 9000,
+          price,
+          per_delivery_price: price,
+          compare_at_price: variant.price,
+        };
+      });
+    });
+  });
+}
+
+/*
  * Volume pricing needs Shopify B2B catalogues. To preview the block:
  *   PREVIEW_DEMO_B2B=1 npm run preview
  */

@@ -78,6 +78,11 @@
           "other": "{{ count }} reviews"
         }
       },
+      "selling_plans": {
+        "heading": "Subscribe & Save",
+        "one_time": "One-time purchase",
+        "save": "Save {{ percent }}%"
+      },
       "quantity": {
         "label": "Quantity",
         "decrease": "Decrease quantity",

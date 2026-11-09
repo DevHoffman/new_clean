@@ -233,6 +233,17 @@
                   {%- endif -%}
                 </div>
 
+              {%- when 'selling_plans' -%}
+                <div class="product__block" data-region="selling-plans" {{ block.shopify_attributes }}>
+                  {% render 'selling-plans',
+                    product: product,
+                    variant: variant,
+                    form_id: form_id,
+                    heading: block.settings.heading,
+                    text: block.settings.text
+                  %}
+                </div>
+
               {%- when 'buy_buttons' -%}
                 <div class="product__block" data-region="buy" data-buy-buttons {{ block.shopify_attributes }}>
                   {% render 'buy-buttons',
@@ -654,6 +665,25 @@
           "id": "show_in_stock",
           "label": "Mostrar \"Em estoque\"",
           "default": true
+        }
+      ]
+    },
+    {
+      "type": "selling_plans",
+      "name": "Programe e Poupe",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Título",
+          "info": "Se ficar vazio, usa \"Programe e Poupe\"."
+        },
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Texto de apoio",
+          "default": "Receba na frequência escolhida e pague menos em cada entrega."
         }
       ]
     },
